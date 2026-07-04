@@ -71,7 +71,7 @@ export default function Hero({
           <p className="hero-protein">{formatCalories(protein)} g protein</p>
         )}
         <button className="goal-pill ghost" onClick={onEditGoal}>
-          Set a daily goal
+          Set a calorie target
         </button>
       </header>
     );

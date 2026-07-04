@@ -8,13 +8,16 @@ const SETTINGS_KEY = "tally.settings";
 const SETTINGS_VERSION = 1;
 
 export interface Settings {
-  /** Daily calorie target, or null when the user hasn't set one. */
+  /**
+   * Daily calorie target. Fresh installs start at 2,000 so the ring is
+   * there from the first open; an explicit "remove" stores null.
+   */
   dailyGoal: number | null;
   /** Appearance override; "system" follows the OS. */
   theme: "system" | "light" | "dark";
 }
 
-const DEFAULTS: Settings = { dailyGoal: null, theme: "system" };
+const DEFAULTS: Settings = { dailyGoal: 2000, theme: "system" };
 
 interface SettingsShape {
   version: number;

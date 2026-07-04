@@ -59,7 +59,7 @@ jobs:
       # Rolling release: every branch build refreshes the APK at a stable URL
       # (…/releases/download/latest/app-release.apk) — no login, no zip.
       - name: Update rolling 'latest' release
-        if: github.ref_type == 'branch'
+        if: github.ref == 'refs/heads/claude/tally-delighters' || github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest

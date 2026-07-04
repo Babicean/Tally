@@ -32,10 +32,10 @@ export default function GoalSheet({ open, goal, onSave, onClose }: Props) {
   };
 
   return (
-    <Sheet open={open} title="Daily goal" onClose={onClose}>
+    <Sheet open={open} title="Calorie target" onClose={onClose}>
       <p className="sheet-sub">
-        A gentle target for the day. The ring fills as you log — nothing turns
-        red, ever.
+        A gentle daily target. The ring fills as you log — information,
+        never judgement.
       </p>
       <form onSubmit={submit} noValidate>
         <div className={`field field-cal sheet-field${error ? " invalid" : ""}`}>
@@ -46,19 +46,19 @@ export default function GoalSheet({ open, goal, onSave, onClose }: Props) {
               setError(false);
             }}
             inputMode="numeric"
-            placeholder="2,200"
+            placeholder="2,000"
             aria-label="Daily calorie goal"
           />
           <span className="unit">cal</span>
         </div>
         {error && (
           <p className="add-error" role="alert">
-            Enter a goal between 1 and 20,000 calories.
+            Enter a target between 1 and 20,000 calories.
           </p>
         )}
         <div className="sheet-actions">
           <button type="submit" className="add-submit">
-            Save goal
+            Update target
           </button>
           {goal !== null && (
             <button
@@ -69,7 +69,7 @@ export default function GoalSheet({ open, goal, onSave, onClose }: Props) {
                 onClose();
               }}
             >
-              Remove goal
+              Remove target
             </button>
           )}
         </div>
