@@ -193,7 +193,7 @@ export default function HistoryScreen({
                           {formatTime(entry.timestamp)}
                         </span>
                         <span className="day-entry-title">
-                          {entry.description || "—"}
+                          {entry.description || ""}
                         </span>
                         <span className="day-entry-cal">
                           +{formatCalories(entry.calories)}

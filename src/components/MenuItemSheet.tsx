@@ -73,7 +73,7 @@ export default function MenuItemSheet({
     >
       <p className="sheet-sub">
         {item
-          ? "Tweak the details — logged entries keep their values."
+          ? "Tweak the details. Logged entries keep their values."
           : "Save a regular so it's one tap from now on."}
       </p>
       <form onSubmit={submit} noValidate>
@@ -112,7 +112,6 @@ export default function MenuItemSheet({
                 setError(null);
               }}
               inputMode="numeric"
-              placeholder="—"
               aria-label="Protein in grams (optional)"
             />
             <span className="unit">g protein</span>

@@ -961,7 +961,13 @@ input {
 }
 
 .field:focus-within {
-  box-shadow: 0 0 0 3px var(--focus-ring);
+  box-shadow: inset 0 0 0 1.5px
+    color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* The container shows focus; the input inside must not double-ring. */
+.field input:focus-visible {
+  box-shadow: none;
 }
 
 .field input {

@@ -96,7 +96,6 @@ export default function SettingsSheet({
                 if (e.key === "Enter") (e.target as HTMLInputElement).blur();
               }}
               inputMode="numeric"
-              placeholder="—"
               aria-label="Daily protein target in grams"
             />
             <span className="unit">g</span>

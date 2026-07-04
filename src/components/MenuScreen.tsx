@@ -91,7 +91,7 @@ export default function MenuScreen({
           </svg>
           <p className="empty-title">Your regulars live here</p>
           <p className="empty-sub">
-            Save the things you eat all the time — then log them in one tap.
+            Save the things you eat all the time, then log them in one tap.
             Pin favourites to keep them on the Today screen.
           </p>
         </div>

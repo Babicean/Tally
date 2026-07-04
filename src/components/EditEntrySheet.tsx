@@ -73,7 +73,7 @@ export default function EditEntrySheet({
   return (
     <Sheet open={entry !== null} title="Edit entry" onClose={onClose}>
       <p className="sheet-sub">
-        Change what it was, how much, or when — moving the time moves it to
+        Change what it was, how much, or when. Moving the time moves it to
         the right day automatically.
       </p>
       <form onSubmit={submit} noValidate>
@@ -108,8 +108,7 @@ export default function EditEntrySheet({
                   setError(null);
                 }}
                 inputMode="numeric"
-                placeholder="—"
-                aria-label="Protein in grams (optional)"
+                  aria-label="Protein in grams (optional)"
               />
               <span className="unit">g protein</span>
             </div>

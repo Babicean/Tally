@@ -99,8 +99,7 @@ export default function BackdateSheet({
                   setError(false);
                 }}
                 inputMode="numeric"
-                placeholder="—"
-                aria-label="Protein in grams (optional)"
+                  aria-label="Protein in grams (optional)"
               />
               <span className="unit">g protein</span>
             </div>

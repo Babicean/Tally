@@ -64,7 +64,7 @@ export default function DataCard({ entries, menu, onImport }: Props) {
       <h2 className="section-label">Your data</h2>
       <div className="card data-card">
         <p className="data-sub">
-          Everything stays on this device. Export a backup now and then —
+          Everything stays on this device. Export a backup now and then,
           especially before switching phones.
         </p>
         <div className="data-actions">
