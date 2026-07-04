@@ -19,6 +19,7 @@ import {
   sortMenu,
 } from "../lib/menu";
 import { mergeBackup, type BackupPayload } from "../lib/backup";
+import { computeStreak } from "../lib/streak";
 
 /**
  * Single source of truth for entries and settings. Persists on every change
@@ -188,6 +189,7 @@ export function useEntries() {
     [menu, entries],
   );
   const sortedMenu = useMemo(() => sortMenu(menu), [menu]);
+  const streak = useMemo(() => computeStreak(entries, today), [entries, today]);
 
   return {
     today,
@@ -198,6 +200,7 @@ export function useEntries() {
     history,
     quickAdds,
     menu: sortedMenu,
+    streak,
     importBackup,
     dailyGoal,
     setDailyGoal,

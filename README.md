@@ -7,8 +7,12 @@ Beyond the basics: an optional **daily goal** wraps the total in a progress
 ring (green under target, calm amber over — never red), a **Menu** of your
 saved staples logs the things you eat every day in one tap (with optional
 protein and a small monochrome category icon per item — pinned favourites surface as chips on Today), **quick-add
-chips** also learn your habitual entries automatically, deletions get a
-5-second **undo**, entries are **tap-to-edit**, and the added amount visibly
+chips** also learn your habitual entries automatically, a **logging streak**
+(consecutive days with at least one entry — extending it earns a small
+particle celebration; it rewards showing up, never eating less) and a
+**weekly recap** row under the trend chart (days logged, vs last week,
+protein per day), deletions get a 5-second **undo**, entries are
+**tap-to-edit**, and the added amount visibly
 flies into the total with a small "Logged ✓" confirmation. Installable as a
 **PWA** with offline support.
 

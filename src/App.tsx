@@ -64,6 +64,7 @@ export default function App() {
     history,
     quickAdds,
     menu,
+    streak,
     importBackup,
     dailyGoal,
     setDailyGoal,
@@ -87,6 +88,7 @@ export default function App() {
           today={today}
           total={todayTotal}
           protein={todayProtein}
+          streak={streak}
           entries={todayEntries}
           quickAdds={quickAdds}
           dailyGoal={dailyGoal}

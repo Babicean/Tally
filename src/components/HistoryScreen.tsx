@@ -3,6 +3,7 @@ import type { DayKey, DaySummary, Entry, MenuItem } from "../types";
 import { addDays } from "../lib/day";
 import { formatCalories, formatDayLabel, formatTime } from "../lib/format";
 import type { BackupPayload, MergeResult } from "../lib/backup";
+import { weeklyStats } from "../lib/stats";
 import TrendChart, { TrendPoint } from "./TrendChart";
 import DataCard from "./DataCard";
 
@@ -25,20 +26,16 @@ export default function HistoryScreen({
 }: Props) {
   const [openDay, setOpenDay] = useState<DayKey | null>(null);
 
-  const { points, average } = useMemo(() => {
+  const { points, average, stats } = useMemo(() => {
     const totals = new Map(history.map((s) => [s.day, s.total]));
     const pts: TrendPoint[] = [];
     for (let i = 6; i >= 0; i--) {
       const day = addDays(today, -i);
       pts.push({ day, total: totals.get(day) ?? 0 });
     }
-    const logged = pts.filter((p) => p.total > 0);
-    const avg =
-      logged.length > 0
-        ? Math.round(logged.reduce((s, p) => s + p.total, 0) / logged.length)
-        : null;
-    return { points: pts, average: avg };
-  }, [history, today]);
+    const weekly = weeklyStats(entries, today);
+    return { points: pts, average: weekly.avg, stats: weekly };
+  }, [history, entries, today]);
 
   return (
     <div className="screen">
@@ -61,6 +58,36 @@ export default function HistoryScreen({
             <p className="trend-avg-caption">No entries in the last 7 days.</p>
           )}
           <TrendChart points={points} average={average} />
+          {stats.daysLogged > 0 && (
+            <div className="trend-stats">
+              <div className="tstat">
+                <span className="tstat-v">
+                  {stats.daysLogged}
+                  <span className="u">/7</span>
+                </span>
+                <span className="tstat-l">days logged</span>
+              </div>
+              {stats.deltaPct !== null && (
+                <div className="tstat">
+                  <span className="tstat-v">
+                    {stats.deltaPct > 0 ? "+" : ""}
+                    {stats.deltaPct}
+                    <span className="u">%</span>
+                  </span>
+                  <span className="tstat-l">vs last week</span>
+                </div>
+              )}
+              {stats.proteinAvg !== null && (
+                <div className="tstat">
+                  <span className="tstat-v">
+                    {stats.proteinAvg}
+                    <span className="u"> g</span>
+                  </span>
+                  <span className="tstat-l">protein / day</span>
+                </div>
+              )}
+            </div>
+          )}
         </section>
       )}
 

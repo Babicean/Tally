@@ -3,6 +3,8 @@ import type { DayKey, Entry } from "../types";
 import type { FrequentItem } from "../lib/store";
 import { formatCalories } from "../lib/format";
 import { flyCalories, haptic } from "../lib/fly";
+import { celebrate } from "../lib/burst";
+import type { Streak } from "../lib/streak";
 import { useToast } from "../hooks/useToast";
 import Hero from "./Hero";
 import AddEntryForm from "./AddEntryForm";
@@ -16,6 +18,7 @@ interface Props {
   today: DayKey;
   total: number;
   protein: number;
+  streak: Streak;
   entries: Entry[];
   quickAdds: FrequentItem[];
   dailyGoal: number | null;
@@ -39,6 +42,7 @@ export default function TodayScreen({
   today,
   total,
   protein,
+  streak,
   entries,
   quickAdds,
   dailyGoal,
@@ -59,12 +63,24 @@ export default function TodayScreen({
       sourceEl: HTMLElement,
       itemProtein: number | null = null,
     ) => {
+      const extendsStreak = !streak.loggedToday && streak.length + 1 >= 2;
       onAdd(calories, description, itemProtein);
       flyCalories(`+${formatCalories(calories)}`, sourceEl);
-      haptic(10);
-      showConfirmation();
+      if (extendsStreak) {
+        // First log of the day and the chain holds — small fireworks.
+        const day = streak.length + 1;
+        window.setTimeout(() => {
+          celebrate(document.getElementById("hero-total"));
+          haptic(24);
+          showToast({ kind: "streak", message: `${day}-day streak` }, 2600);
+        }, 350);
+        haptic(10);
+      } else {
+        haptic(10);
+        showConfirmation();
+      }
     },
-    [onAdd, showConfirmation],
+    [onAdd, streak, showToast, showConfirmation],
   );
 
   const handleDelete = useCallback(
@@ -98,6 +114,7 @@ export default function TodayScreen({
         today={today}
         total={total}
         protein={protein}
+        streak={streak}
         goal={dailyGoal}
         onEditGoal={() => setGoalOpen(true)}
       />

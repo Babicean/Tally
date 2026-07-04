@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { DayKey } from "../types";
+import type { Streak } from "../lib/streak";
 import { formatCalories, formatHeroDate } from "../lib/format";
 import AnimatedNumber from "./AnimatedNumber";
 
@@ -8,6 +9,7 @@ interface Props {
   total: number;
   /** Grams of protein logged today; hidden when zero. */
   protein: number;
+  streak: Streak;
   goal: number | null;
   onEditGoal: () => void;
 }
@@ -27,6 +29,7 @@ export default function Hero({
   today,
   total,
   protein,
+  streak,
   goal,
   onEditGoal,
 }: Props) {
@@ -52,6 +55,14 @@ export default function Hero({
     return (
       <header className="hero">
         <p className="hero-date">{formatHeroDate(today)}</p>
+        {streak.length >= 2 && (
+          <p className="streak-line">
+            <svg width="11" height="11" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true">
+              <path d="M7.5 0.8l1.7 4.9 4.9 1.8-4.9 1.8-1.7 4.9-1.7-4.9L.9 7.5l4.9-1.8L7.5.8z" />
+            </svg>
+            {streak.length}-day streak
+          </p>
+        )}
         <h1 id="hero-total" className={`hero-total${pulsing ? " pulse" : ""}`}>
           <AnimatedNumber value={total} />
         </h1>
@@ -73,6 +84,14 @@ export default function Hero({
   return (
     <header className="hero hero-ring">
       <p className="hero-date">{formatHeroDate(today)}</p>
+      {streak.length >= 2 && (
+        <p className="streak-line">
+          <svg width="11" height="11" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true">
+            <path d="M7.5 0.8l1.7 4.9 4.9 1.8-4.9 1.8-1.7 4.9-1.7-4.9L.9 7.5l4.9-1.8L7.5.8z" />
+          </svg>
+          {streak.length}-day streak
+        </p>
+      )}
       <div className="ring">
         <svg
           viewBox={`0 0 ${SIZE} ${SIZE}`}

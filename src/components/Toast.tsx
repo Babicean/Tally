@@ -6,7 +6,7 @@ export interface ToastData {
   /** Optional action button, e.g. Undo. */
   action?: { label: string; onPress: () => void };
   /** Celebration toasts get the accent check styling. */
-  kind: "confirm" | "undo";
+  kind: "confirm" | "undo" | "streak";
 }
 
 interface Props {
@@ -20,6 +20,18 @@ export default function Toast({ toast }: Props) {
   return createPortal(
     <div className="toast-wrap" aria-live="polite">
       <div key={toast.id} className={`toast toast-${toast.kind}`}>
+        {toast.kind === "streak" && (
+          <svg
+            className="toast-spark"
+            width="15"
+            height="15"
+            viewBox="0 0 15 15"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M7.5 0.8l1.7 4.9 4.9 1.8-4.9 1.8-1.7 4.9-1.7-4.9L.9 7.5l4.9-1.8L7.5.8z" />
+          </svg>
+        )}
         {toast.kind === "confirm" && (
           <svg
             className="toast-check"
