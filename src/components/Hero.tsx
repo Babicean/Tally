@@ -114,9 +114,8 @@ export default function Hero({
         className={`goal-pill${over ? " over" : ""}`}
         onClick={onEditGoal}
       >
-        {over
-          ? `${formatCalories(total - goal)} over goal`
-          : `${formatCalories(goal - total)} remaining`}
+        <AnimatedNumber value={over ? total - goal : goal - total} />
+        {over ? " over goal" : " remaining"}
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
           <path
             d="M3.5 2l3 3-3 3"

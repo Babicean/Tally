@@ -3,7 +3,7 @@
  * content-hashed filenames, so stale files are impossible), network-first
  * for navigations with an offline fallback to the cached shell.
  */
-const CACHE = "tally-v1";
+const CACHE = "tally-v2";
 
 self.addEventListener("install", () => {
   self.skipWaiting();

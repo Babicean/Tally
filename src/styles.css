@@ -3,42 +3,46 @@
    A calm, warm-neutral system. One accent, used sparingly.
 --------------------------------------------------------------------------- */
 
+/*
+ * Theme: "Slate" — cool porcelain surfaces, muted slate-blue accent,
+ * reserved amber for the over-goal state. One accent, used sparingly.
+ */
 :root {
-  --bg: #f6f5f2;
+  --bg: #f4f5f7;
   --card: #ffffff;
-  --card-press: #fafaf8;
-  --ink: #1d1d1f;
-  --ink-2: #6e6e73;
-  --ink-3: #aeaeb4;
-  --accent: #2f9968;
-  --accent-strong: #27855a;
+  --card-press: #f7f8fa;
+  --ink: #1b1d22;
+  --ink-2: #6b6e76;
+  --ink-3: #a9acb4;
+  --accent: #4a72b8;
+  --accent-strong: #3e64a6;
   --accent-ink: #ffffff;
-  --accent-soft: rgba(47, 153, 104, 0.1);
+  --accent-soft: rgba(74, 114, 184, 0.1);
   --danger: #c0453e;
   --warn: #b5822f;
-  --hairline: rgba(29, 29, 31, 0.07);
+  --hairline: rgba(27, 29, 34, 0.07);
   --shadow-card:
-    0 1px 2px rgba(29, 29, 31, 0.03),
-    0 8px 28px rgba(29, 29, 31, 0.05);
+    0 1px 2px rgba(23, 26, 33, 0.03),
+    0 8px 28px rgba(23, 26, 33, 0.05);
   --shadow-float:
-    0 2px 6px rgba(29, 29, 31, 0.06),
-    0 12px 40px rgba(29, 29, 31, 0.14);
+    0 2px 6px rgba(23, 26, 33, 0.06),
+    0 12px 40px rgba(23, 26, 33, 0.14);
   --blur-bg: rgba(255, 255, 255, 0.72);
-  --focus-ring: rgba(47, 153, 104, 0.35);
+  --focus-ring: rgba(74, 114, 184, 0.35);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #131315;
-    --card: #1c1c1f;
-    --card-press: #222226;
-    --ink: #f5f5f7;
-    --ink-2: #98989e;
-    --ink-3: #636369;
-    --accent: #33ae71;
-    --accent-strong: #33ae71;
-    --accent-ink: #06130c;
-    --accent-soft: rgba(51, 174, 113, 0.14);
+    --bg: #121316;
+    --card: #1b1d21;
+    --card-press: #212329;
+    --ink: #f4f5f7;
+    --ink-2: #9a9da6;
+    --ink-3: #62656e;
+    --accent: #5b84c9;
+    --accent-strong: #5b84c9;
+    --accent-ink: #0a0f18;
+    --accent-soft: rgba(91, 132, 201, 0.16);
     --danger: #d8655d;
     --warn: #d9a54a;
     --hairline: rgba(255, 255, 255, 0.08);
@@ -48,8 +52,8 @@
     --shadow-float:
       0 2px 6px rgba(0, 0, 0, 0.35),
       0 12px 40px rgba(0, 0, 0, 0.5);
-    --blur-bg: rgba(24, 24, 27, 0.72);
-    --focus-ring: rgba(51, 174, 113, 0.45);
+    --blur-bg: rgba(23, 24, 28, 0.72);
+    --focus-ring: rgba(91, 132, 201, 0.45);
   }
 }
 
@@ -105,7 +109,7 @@ input {
 .wordmark {
   display: block;
   text-align: center;
-  padding: 1.625rem 0 0;
+  padding: 1.125rem 0 0;
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -133,7 +137,7 @@ input {
 
 .hero {
   text-align: center;
-  padding: 2.75rem 0 2.5rem;
+  padding: 2rem 0 1.75rem;
 }
 
 .hero-date {
@@ -145,6 +149,9 @@ input {
 }
 
 .hero-total {
+  font-family:
+    ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
   margin-top: 0.375rem;
   font-size: clamp(4.25rem, 21vw, 5.75rem);
   font-weight: 700;
@@ -179,14 +186,14 @@ input {
 /* ---- Goal ring ----------------------------------------------------------- */
 
 .hero-ring {
-  padding-bottom: 2rem;
+  padding-bottom: 1.375rem;
 }
 
 .ring {
   position: relative;
-  width: 15rem;
-  max-width: 68vw;
-  margin: 1rem auto 0;
+  width: 13.5rem;
+  max-width: 64vw;
+  margin: 0.75rem auto 0;
 }
 
 .ring svg {
@@ -222,6 +229,9 @@ input {
 }
 
 .ring-total {
+  font-family:
+    ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
   font-size: clamp(2.75rem, 13vw, 3.5rem);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -252,7 +262,7 @@ input {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  margin-top: 1.125rem;
+  margin-top: 0.875rem;
   padding: 0.4375rem 0.9375rem;
   border-radius: 999px;
   background: var(--card);
@@ -290,7 +300,7 @@ input {
   gap: 0.5rem;
   overflow-x: auto;
   scrollbar-width: none;
-  margin: 0 -1.375rem 0.875rem;
+  margin: 0 -1.375rem 0.75rem;
   padding: 0.25rem 1.375rem;
 }
 
@@ -543,8 +553,12 @@ input {
 }
 
 .sheet-actions .add-submit {
-  grid-column: auto;
   width: 100%;
+  height: auto;
+  border-radius: 0.875rem;
+  padding: 0.875rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
 }
 
 .sheet-secondary {
@@ -638,8 +652,9 @@ input {
 
 .add-fields {
   display: grid;
-  grid-template-columns: 8.5rem 1fr;
+  grid-template-columns: 6.75rem 1fr auto;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .field {
@@ -713,13 +728,13 @@ input {
 }
 
 .add-submit {
-  grid-column: 1 / -1;
-  padding: 0.875rem;
-  border-radius: 0.875rem;
+  width: 2.875rem;
+  height: 2.875rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
   background: var(--accent-strong);
   color: var(--accent-ink);
-  font-size: 1.0625rem;
-  font-weight: 600;
   transition:
     transform 140ms ease,
     filter 140ms ease;
@@ -783,6 +798,12 @@ input {
   .entry-row:hover {
     background: var(--card-press);
   }
+}
+
+.entry-row:active,
+.menu-row:active,
+.day-group:active {
+  background: var(--card-press);
 }
 
 .entry-shell + .entry-shell .entry-row {
@@ -913,6 +934,9 @@ input {
 }
 
 .trend-avg {
+  font-family:
+    ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -1358,12 +1382,4 @@ input {
     padding-top: 3.5rem;
   }
 
-  .add-fields {
-    grid-template-columns: 9.5rem 1fr auto;
-  }
-
-  .add-submit {
-    grid-column: auto;
-    padding: 0.8125rem 1.5rem;
-  }
 }

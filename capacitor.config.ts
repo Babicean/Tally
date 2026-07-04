@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   android: {
     // The web app handles its own safe areas; keep the system bars styled
     // by the theme rather than overlaying the webview.
-    backgroundColor: "#f6f5f2",
+    backgroundColor: "#f4f5f7",
   },
 };
 
