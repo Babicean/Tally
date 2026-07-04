@@ -1,0 +1,54 @@
+name: Play Store bundle
+
+# Manual-only: run from the Actions tab once the three PLAY_* secrets exist.
+# Produces a signed .aab for upload to Google Play Console.
+on:
+  workflow_dispatch:
+
+jobs:
+  bundle:
+    name: Build signed release AAB
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Restore upload keystore
+        run: echo "${{ secrets.PLAY_UPLOAD_KEYSTORE_B64 }}" | base64 -d > android/upload.keystore
+
+      - name: Build AAB
+        working-directory: android
+        env:
+          TALLY_KEYSTORE_FILE: ../upload.keystore
+          TALLY_KEYSTORE_PASSWORD: ${{ secrets.PLAY_UPLOAD_KEYSTORE_PASSWORD }}
+          TALLY_KEY_ALIAS: upload
+          TALLY_KEY_PASSWORD: ${{ secrets.PLAY_UPLOAD_KEYSTORE_PASSWORD }}
+        run: ./gradlew bundleRelease --no-daemon
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tally-play-bundle
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
