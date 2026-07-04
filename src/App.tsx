@@ -86,14 +86,19 @@ export default function App() {
   } = useEntries();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [gearSpin, setGearSpin] = useState(false);
 
   return (
     <div className="app">
       <div className="top-bar">
         <span className="wordmark">Tally</span>
         <button
-          className="settings-btn"
-          onClick={() => setSettingsOpen(true)}
+          className={`settings-btn${gearSpin ? " spinning" : ""}`}
+          onClick={() => {
+            setGearSpin(true);
+            setSettingsOpen(true);
+          }}
+          onAnimationEnd={() => setGearSpin(false)}
           aria-label="Settings"
         >
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none">

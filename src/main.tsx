@@ -4,6 +4,7 @@ import App from "./App";
 import { restoreFromMirror } from "./lib/mirror";
 import { loadSettings } from "./lib/settings";
 import { applyTheme, watchSystemTheme } from "./lib/theme";
+import "@fontsource-variable/inter";
 import "./styles.css";
 
 // If WebView storage was wiped (it happens), recover from the native
