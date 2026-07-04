@@ -18,6 +18,7 @@ import {
   saveMenu,
   sortMenu,
 } from "../lib/menu";
+import { mergeBackup, type BackupPayload } from "../lib/backup";
 
 /**
  * Single source of truth for entries and settings. Persists on every change
@@ -155,6 +156,20 @@ export function useEntries() {
     );
   }, []);
 
+  /** Merge an imported backup (union by id) and report what was added. */
+  const importBackup = useCallback(
+    (backup: BackupPayload) => {
+      const result = mergeBackup(entries, menu, backup);
+      setEntries(result.entries);
+      setMenu(result.menu);
+      if (dailyGoal === null && backup.settings.dailyGoal !== null) {
+        setDailyGoal(backup.settings.dailyGoal);
+      }
+      return result;
+    },
+    [entries, menu, dailyGoal, setDailyGoal],
+  );
+
   const todayEntries = useMemo(
     () => entriesForDay(entries, today),
     [entries, today],
@@ -176,12 +191,14 @@ export function useEntries() {
 
   return {
     today,
+    entries,
     todayEntries,
     todayTotal,
     todayProtein,
     history,
     quickAdds,
     menu: sortedMenu,
+    importBackup,
     dailyGoal,
     setDailyGoal,
     addEntry,

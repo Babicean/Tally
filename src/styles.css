@@ -1235,6 +1235,43 @@ input {
   transform: scale(0.88);
 }
 
+/* ---- Data / backup card ---------------------------------------------------- */
+
+.data-card {
+  padding: 1.125rem 1.25rem 1.25rem;
+}
+
+.data-sub {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.data-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+}
+
+.data-btn {
+  padding: 0.5625rem 1.125rem;
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+  transition: transform 140ms ease;
+}
+
+.data-btn:active {
+  transform: scale(0.96);
+}
+
+.data-btn.primary {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 /* ---- Tab bar ------------------------------------------------------------ */
 
 .tabbar-wrap {

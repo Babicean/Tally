@@ -1,5 +1,6 @@
 import type { DayKey, DaySummary, Entry } from "../types";
 import { trackingDayFor } from "./day";
+import { mirrorWrite } from "./mirror";
 
 /**
  * Persistence lives behind this tiny repository so the storage engine can be
@@ -14,7 +15,7 @@ interface StoreShape {
   entries: Entry[];
 }
 
-function isEntry(value: unknown): value is Entry {
+export function isEntry(value: unknown): value is Entry {
   if (typeof value !== "object" || value === null) return false;
   const e = value as Record<string, unknown>;
   return (
@@ -43,7 +44,9 @@ export function loadEntries(): Entry[] {
 export function saveEntries(entries: Entry[]): void {
   try {
     const payload: StoreShape = { version: STORE_VERSION, entries };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    const json = JSON.stringify(payload);
+    localStorage.setItem(STORAGE_KEY, json);
+    mirrorWrite(STORAGE_KEY, json);
   } catch {
     // Storage full or unavailable — the in-memory state still works.
   }

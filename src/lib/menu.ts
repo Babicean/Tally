@@ -1,6 +1,7 @@
 import type { Entry, MenuItem } from "../types";
 import { frequentEntries, type FrequentItem } from "./store";
 import { categoryOrder, isCategoryId } from "../components/CategoryIcon";
+import { mirrorWrite } from "./mirror";
 
 /**
  * The user's saved staples ("Menu"), stored under their own versioned key so
@@ -14,7 +15,7 @@ interface MenuShape {
   items: MenuItem[];
 }
 
-function isMenuItem(value: unknown): value is MenuItem {
+export function isMenuItem(value: unknown): value is MenuItem {
   if (typeof value !== "object" || value === null) return false;
   const m = value as Record<string, unknown>;
   return (
@@ -46,7 +47,9 @@ export function loadMenu(): MenuItem[] {
 export function saveMenu(items: MenuItem[]): void {
   try {
     const payload: MenuShape = { version: MENU_VERSION, items };
-    localStorage.setItem(MENU_KEY, JSON.stringify(payload));
+    const json = JSON.stringify(payload);
+    localStorage.setItem(MENU_KEY, json);
+    mirrorWrite(MENU_KEY, json);
   } catch {
     // Storage unavailable — in-memory state still works.
   }

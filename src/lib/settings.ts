@@ -1,3 +1,5 @@
+import { mirrorWrite } from "./mirror";
+
 /**
  * User preferences, stored separately from entries so either can evolve
  * independently. Versioned like the entry store.
@@ -38,7 +40,9 @@ export function loadSettings(): Settings {
 export function saveSettings(settings: Settings): void {
   try {
     const payload: SettingsShape = { version: SETTINGS_VERSION, settings };
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(payload));
+    const json = JSON.stringify(payload);
+    localStorage.setItem(SETTINGS_KEY, json);
+    mirrorWrite(SETTINGS_KEY, json);
   } catch {
     // Storage unavailable — settings just won't persist.
   }

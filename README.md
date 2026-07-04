@@ -52,6 +52,14 @@ rolls itself over automatically if it's open when 2 AM passes.
 - **PWA**: `public/manifest.webmanifest` + a small hand-written service worker
   (`public/sw.js`) — cache-first for hashed assets, network-first navigations
   with an offline fallback.
+- **Durability** (`src/lib/mirror.ts`): localStorage stays the synchronous
+  source of truth, but every write is mirrored to Capacitor Preferences
+  (SharedPreferences on Android — included in Android auto-backup, unlike
+  WebView storage). If WebView data is ever wiped, the app restores from the
+  mirror on launch.
+- **Backup** (`src/lib/backup.ts`): the History screen can export everything
+  as one JSON file and import it back; imports merge by id, so restoring an
+  old backup never duplicates data.
 
 ```
 src/

@@ -57,12 +57,14 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("today");
   const {
     today,
+    entries,
     todayEntries,
     todayTotal,
     todayProtein,
     history,
     quickAdds,
     menu,
+    importBackup,
     dailyGoal,
     setDailyGoal,
     addEntry,
@@ -105,7 +107,16 @@ export default function App() {
           onTogglePinned={togglePinned}
         />
       )}
-      {tab === "history" && <HistoryScreen today={today} history={history} />}
+      {tab === "history" && (
+        <HistoryScreen
+          today={today}
+          history={history}
+          entries={entries}
+          menu={menu}
+          dailyGoal={dailyGoal}
+          onImport={importBackup}
+        />
+      )}
 
       <nav className="tabbar-wrap" aria-label="Screens">
         <div className="tabbar">

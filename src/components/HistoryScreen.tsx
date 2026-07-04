@@ -1,15 +1,28 @@
 import { useMemo, useState } from "react";
-import type { DayKey, DaySummary } from "../types";
+import type { DayKey, DaySummary, Entry, MenuItem } from "../types";
 import { addDays } from "../lib/day";
 import { formatCalories, formatDayLabel, formatTime } from "../lib/format";
+import type { BackupPayload, MergeResult } from "../lib/backup";
 import TrendChart, { TrendPoint } from "./TrendChart";
+import DataCard from "./DataCard";
 
 interface Props {
   today: DayKey;
   history: DaySummary[];
+  entries: Entry[];
+  menu: MenuItem[];
+  dailyGoal: number | null;
+  onImport: (backup: BackupPayload) => MergeResult;
 }
 
-export default function HistoryScreen({ today, history }: Props) {
+export default function HistoryScreen({
+  today,
+  history,
+  entries,
+  menu,
+  dailyGoal,
+  onImport,
+}: Props) {
   const [openDay, setOpenDay] = useState<DayKey | null>(null);
 
   const { points, average } = useMemo(() => {
@@ -155,6 +168,13 @@ export default function HistoryScreen({ today, history }: Props) {
           })}
         </div>
       )}
+
+      <DataCard
+        entries={entries}
+        menu={menu}
+        dailyGoal={dailyGoal}
+        onImport={onImport}
+      />
     </div>
   );
 }
