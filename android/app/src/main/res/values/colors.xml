@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Override Capacitor's indigo defaults with Tally's palette. -->
+    <color name="colorPrimary">#2F9968</color>
+    <color name="colorPrimaryDark">#27855A</color>
+    <color name="colorAccent">#2F9968</color>
+    <color name="tallyBackground">#F6F5F2</color>
+    <color name="tallyBackgroundDark">#131315</color>
+</resources>

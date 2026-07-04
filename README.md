@@ -55,6 +55,33 @@ src/
   components/ Today screen, History screen, chart, list, form
 ```
 
+## Android app (no app store needed)
+
+The same code ships as a native Android app via Capacitor (`android/`),
+alongside the PWA.
+
+**Getting the APK:** every push runs the "Android APK" GitHub Actions
+workflow, which builds a signed release APK. Open the repo's **Actions** tab →
+latest run → download the `tally-release-apk` artifact, copy it to your phone,
+and open it (allow "install unknown apps" for your browser/file manager when
+prompted). Pushing a `v*` tag also attaches the APK to a GitHub Release for a
+cleaner download link.
+
+**Signing:** the keystore in `android/keystore/` is a committed personal
+sideload key — deliberate, so every CI build has the same signature and
+updates install over the old version. Never reuse it for store distribution.
+CI or a local build can swap in a private keystore via the
+`TALLY_KEYSTORE_FILE` / `TALLY_KEYSTORE_PASSWORD` / `TALLY_KEY_ALIAS` /
+`TALLY_KEY_PASSWORD` environment variables.
+
+**Local build** (requires the Android SDK):
+
+```sh
+npm run build && npx cap sync android
+cd android && ./gradlew assembleRelease
+# → android/app/build/outputs/apk/release/app-release.apk
+```
+
 ## Validation
 
 Calorie input accepts `500`, `+500`, or `1,200`; rejects zero, negatives,

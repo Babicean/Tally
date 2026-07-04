@@ -1,0 +1,14 @@
+import type { CapacitorConfig } from "@capacitor/cli";
+
+const config: CapacitorConfig = {
+  appId: "com.babicean.tally",
+  appName: "Tally",
+  webDir: "dist",
+  android: {
+    // The web app handles its own safe areas; keep the system bars styled
+    // by the theme rather than overlaying the webview.
+    backgroundColor: "#f6f5f2",
+  },
+};
+
+export default config;
