@@ -37,7 +37,7 @@ export default function SettingsSheet({
         ))}
       </div>
       <p className="settings-foot">
-        Tally · your data never leaves this device.
+        Tally v{__APP_VERSION__} · your data never leaves this device.
         <br />
         Back up or restore from the History tab.
       </p>
