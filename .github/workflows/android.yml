@@ -59,13 +59,14 @@ jobs:
       # Rolling release: every branch build refreshes the APK at a stable URL
       # (…/releases/download/latest/app-release.apk) — no login, no zip.
       - name: Update rolling 'latest' release
-        if: github.ref == 'refs/heads/claude/tally-delighters' || github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/claude/tally-liquid-ring'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
-          name: Tally — latest build
+          tag_name: experimental
+          name: Tally — liquid ring experiment
+          prerelease: true
           body: |
-            Signed sideload APK from the most recent build. Download
-            app-release.apk below and open it on your phone to install
-            or update — data carries over.
+            Experimental build: the liquid ring fill. Installs over the
+            stable app (same signature); reinstall from the 'latest'
+            release to go back.
           files: android/app/build/outputs/apk/release/app-release.apk

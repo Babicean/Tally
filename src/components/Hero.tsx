@@ -19,6 +19,29 @@ const SIZE = 240;
 const STROKE = 8;
 const R = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * R;
+const INNER_R = R - STROKE / 2 - 1; // liquid clips just inside the track
+
+/** A periodic wave surface, twice the ring width so it can drift seamlessly. */
+function wavePath(width: number, amp: number, period: number, depth: number) {
+  let d = "M0 0";
+  for (let x = 0; x < width; x += period) {
+    d += ` q ${period / 4} ${-amp} ${period / 2} 0 t ${period / 2} 0`;
+  }
+  return `${d} V ${depth} H 0 Z`;
+}
+const WAVE = wavePath(SIZE * 2, 5, 96, SIZE + 24);
+
+/**
+ * The liquid's color: denim under target, amber once past it, red only when
+ * far over. Deliberately stepped — blue and amber are near-complementary, so
+ * continuous blends pass through grey mud; the 600ms fill transition turns
+ * each step into a smooth morph instead.
+ */
+function liquidColor(pct: number): string {
+  if (pct <= 1) return "var(--accent)";
+  if (pct <= 1.2) return "var(--warn)";
+  return "var(--danger)";
+}
 
 /**
  * The hero total. Without a goal it's the big free-standing number; with a
@@ -98,6 +121,31 @@ export default function Hero({
           role="img"
           aria-label={`${total} of ${goal} calories`}
         >
+          <defs>
+            <clipPath id="ring-clip">
+              <circle cx={SIZE / 2} cy={SIZE / 2} r={INNER_R} />
+            </clipPath>
+          </defs>
+          {/* Liquid fill: rises with progress, drifts like water. */}
+          <g
+            clipPath="url(#ring-clip)"
+            className="liquid"
+            style={{ "--liquid": liquidColor(total / goal) } as React.CSSProperties}
+          >
+            <g
+              className="liquid-level"
+              style={{
+                transform: `translateY(${SIZE * (1 - (mounted ? Math.min(total / goal, 1) : 0))}px)`,
+              }}
+            >
+              <g className="liquid-wave w1">
+                <path d={WAVE} />
+              </g>
+              <g className="liquid-wave w2">
+                <path d={WAVE} />
+              </g>
+            </g>
+          </g>
           <circle
             className="ring-track"
             cx={SIZE / 2}
@@ -106,7 +154,7 @@ export default function Hero({
             strokeWidth={STROKE}
           />
           <circle
-            className={`ring-progress${over ? " over" : ""}`}
+            className={`ring-progress${over ? " over" : ""}${total / goal > 1.2 ? " way-over" : ""}`}
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={R}
@@ -130,7 +178,7 @@ export default function Hero({
         <p className="hero-protein">{formatCalories(protein)} g protein</p>
       )}
       <button
-        className={`goal-pill${over ? " over" : ""}`}
+        className={`goal-pill${over ? " over" : ""}${total / goal > 1.2 ? " way-over" : ""}`}
         onClick={onEditGoal}
       >
         <AnimatedNumber value={over ? total - goal : goal - total} />
