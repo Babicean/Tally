@@ -30,6 +30,8 @@ export interface MenuItem {
   protein: number | null;
   /** Pinned items surface as quick-add chips on the Today screen. */
   pinned: boolean;
+  /** Optional preset category (see CategoryIcon), or null for none. */
+  category: string | null;
   createdAt: number;
 }
 

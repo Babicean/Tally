@@ -3,12 +3,18 @@ import type { MenuItem } from "../types";
 import Sheet from "./Sheet";
 import { parseCalories } from "../lib/store";
 import { parseProtein } from "../lib/menu";
+import CategoryIcon, { CATEGORIES } from "./CategoryIcon";
 
 interface Props {
   open: boolean;
   /** Item being edited, or null when adding a new one. */
   item: MenuItem | null;
-  onSave: (name: string, calories: number, protein: number | null) => void;
+  onSave: (
+    name: string,
+    calories: number,
+    protein: number | null,
+    category: string | null,
+  ) => void;
   onDelete?: () => void;
   onClose: () => void;
 }
@@ -23,6 +29,7 @@ export default function MenuItemSheet({
   const [name, setName] = useState("");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
+  const [category, setCategory] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,6 +37,7 @@ export default function MenuItemSheet({
       setName(item?.name ?? "");
       setCalories(item ? String(item.calories) : "");
       setProtein(item?.protein != null ? String(item.protein) : "");
+      setCategory(item?.category ?? null);
       setError(null);
     }
   }, [open, item]);
@@ -51,7 +59,7 @@ export default function MenuItemSheet({
       setError("Protein must be between 0 and 1,000 grams (or left blank).");
       return;
     }
-    onSave(trimmed, cal, prot);
+    onSave(trimmed, cal, prot, category);
     onClose();
   };
 
@@ -106,6 +114,27 @@ export default function MenuItemSheet({
             />
             <span className="unit">g protein</span>
           </div>
+        </div>
+        <div
+          className="cat-grid"
+          role="radiogroup"
+          aria-label="Category (optional)"
+        >
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              role="radio"
+              aria-checked={category === c.id}
+              className={`cat-option${category === c.id ? " selected" : ""}`}
+              onClick={() =>
+                setCategory((prev) => (prev === c.id ? null : c.id))
+              }
+            >
+              <CategoryIcon id={c.id} />
+              <span>{c.label}</span>
+            </button>
+          ))}
         </div>
         {error && (
           <p className="add-error" role="alert">

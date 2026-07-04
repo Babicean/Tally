@@ -5,9 +5,19 @@ import { createEntry, proteinForDay } from "./store";
 const item = (
   name: string,
   calories: number,
-  opts: { protein?: number | null; pinned?: boolean } = {},
+  opts: {
+    protein?: number | null;
+    pinned?: boolean;
+    category?: string | null;
+  } = {},
 ) => ({
-  ...createMenuItem(name, calories, opts.protein ?? null, 1000),
+  ...createMenuItem(
+    name,
+    calories,
+    opts.protein ?? null,
+    opts.category ?? null,
+    1000,
+  ),
   pinned: opts.pinned ?? false,
 });
 
@@ -41,6 +51,21 @@ describe("sortMenu", () => {
       "Energy drink",
       "Mini Cali Burrito",
       "Pepsi 300ml",
+    ]);
+  });
+
+  it("clusters by category within a pin group", () => {
+    const sorted = sortMenu([
+      item("Pepsi 300ml", 129, { category: "drink" }),
+      item("Chicken & rice", 640, { category: "meat" }),
+      item("Energy drink", 160, { category: "drink" }),
+      item("Mystery leftovers", 400), // uncategorized sorts last
+    ]);
+    expect(sorted.map((m) => m.name)).toEqual([
+      "Chicken & rice",
+      "Energy drink",
+      "Pepsi 300ml",
+      "Mystery leftovers",
     ]);
   });
 });

@@ -4,17 +4,24 @@ import { formatCalories } from "../lib/format";
 import { flyCalories, haptic } from "../lib/fly";
 import { useToast } from "../hooks/useToast";
 import MenuItemSheet from "./MenuItemSheet";
+import CategoryIcon, { CategoryId } from "./CategoryIcon";
 import Toast from "./Toast";
 
 interface Props {
   menu: MenuItem[];
   onLog: (item: MenuItem) => void;
-  onAdd: (name: string, calories: number, protein: number | null) => void;
+  onAdd: (
+    name: string,
+    calories: number,
+    protein: number | null,
+    category: string | null,
+  ) => void;
   onUpdate: (
     id: string,
     name: string,
     calories: number,
     protein: number | null,
+    category: string | null,
   ) => void;
   onDelete: (id: string) => void;
   onTogglePinned: (id: string) => void;
@@ -91,6 +98,25 @@ export default function MenuScreen({
           {menu.map((item) => (
             <div key={item.id} className="menu-row">
               <button
+                className="menu-main"
+                onClick={() => {
+                  setEditing(item);
+                  setSheetOpen(true);
+                }}
+                aria-label={`Edit ${item.name}`}
+              >
+                <span className="menu-tile" aria-hidden="true">
+                  <CategoryIcon id={item.category as CategoryId | null} />
+                </span>
+                <span className="menu-text">
+                  <span className="menu-name">{item.name}</span>
+                  <span className="menu-detail">
+                    {formatCalories(item.calories)} cal
+                    {item.protein != null && ` · ${item.protein} g protein`}
+                  </span>
+                </span>
+              </button>
+              <button
                 className={`menu-pin${item.pinned ? " pinned" : ""}`}
                 onClick={() => {
                   onTogglePinned(item.id);
@@ -114,20 +140,6 @@ export default function MenuScreen({
                 </svg>
               </button>
               <button
-                className="menu-main"
-                onClick={() => {
-                  setEditing(item);
-                  setSheetOpen(true);
-                }}
-                aria-label={`Edit ${item.name}`}
-              >
-                <span className="menu-name">{item.name}</span>
-                <span className="menu-detail">
-                  {formatCalories(item.calories)} cal
-                  {item.protein != null && ` · ${item.protein} g protein`}
-                </span>
-              </button>
-              <button
                 className="menu-log"
                 onClick={(e) => log(item, e.currentTarget)}
                 aria-label={`Log ${item.name} (${item.calories} calories)`}
@@ -149,9 +161,9 @@ export default function MenuScreen({
       <MenuItemSheet
         open={sheetOpen}
         item={editing}
-        onSave={(name, cal, prot) => {
-          if (editing) onUpdate(editing.id, name, cal, prot);
-          else onAdd(name, cal, prot);
+        onSave={(name, cal, prot, category) => {
+          if (editing) onUpdate(editing.id, name, cal, prot, category);
+          else onAdd(name, cal, prot, category);
         }}
         onDelete={editing ? () => onDelete(editing.id) : undefined}
         onClose={() => setSheetOpen(false)}

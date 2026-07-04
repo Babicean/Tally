@@ -112,17 +112,33 @@ export function useEntries() {
   }, []);
 
   const addMenuItem = useCallback(
-    (name: string, calories: number, protein: number | null) => {
-      setMenu((prev) => [...prev, createMenuItem(name, calories, protein)]);
+    (
+      name: string,
+      calories: number,
+      protein: number | null,
+      category: string | null,
+    ) => {
+      setMenu((prev) => [
+        ...prev,
+        createMenuItem(name, calories, protein, category),
+      ]);
     },
     [],
   );
 
   const updateMenuItem = useCallback(
-    (id: string, name: string, calories: number, protein: number | null) => {
+    (
+      id: string,
+      name: string,
+      calories: number,
+      protein: number | null,
+      category: string | null,
+    ) => {
       setMenu((prev) =>
         prev.map((m) =>
-          m.id === id ? { ...m, name: name.trim(), calories, protein } : m,
+          m.id === id
+            ? { ...m, name: name.trim(), calories, protein, category }
+            : m,
         ),
       );
     },

@@ -1,5 +1,6 @@
 import type { Entry, MenuItem } from "../types";
 import { frequentEntries, type FrequentItem } from "./store";
+import { categoryOrder, isCategoryId } from "../components/CategoryIcon";
 
 /**
  * The user's saved staples ("Menu"), stored under their own versioned key so
@@ -32,7 +33,11 @@ export function loadMenu(): MenuItem[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as MenuShape;
     if (!parsed || !Array.isArray(parsed.items)) return [];
-    return parsed.items.filter(isMenuItem);
+    return parsed.items.filter(isMenuItem).map((m) => ({
+      ...m,
+      // Items saved before categories existed load as uncategorized.
+      category: isCategoryId(m.category) ? m.category : null,
+    }));
   } catch {
     return [];
   }
@@ -51,6 +56,7 @@ export function createMenuItem(
   name: string,
   calories: number,
   protein: number | null,
+  category: string | null = null,
   now: number = Date.now(),
 ): MenuItem {
   return {
@@ -62,15 +68,20 @@ export function createMenuItem(
     calories,
     protein,
     pinned: false,
+    category,
     createdAt: now,
   };
 }
 
-/** Menu display order: pinned first, then alphabetical. */
+/**
+ * Menu display order: pinned first, then grouped by category (so the little
+ * icons cluster visually), then alphabetical.
+ */
 export function sortMenu(items: MenuItem[]): MenuItem[] {
   return [...items].sort(
     (a, b) =>
       Number(b.pinned) - Number(a.pinned) ||
+      categoryOrder(a.category) - categoryOrder(b.category) ||
       a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
   );
 }
