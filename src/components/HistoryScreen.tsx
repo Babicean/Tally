@@ -6,14 +6,23 @@ import type { BackupPayload, MergeResult } from "../lib/backup";
 import { weeklyStats } from "../lib/stats";
 import TrendChart, { TrendPoint } from "./TrendChart";
 import DataCard from "./DataCard";
+import BackdateSheet from "./BackdateSheet";
+import Toast from "./Toast";
+import { useToast } from "../hooks/useToast";
 
 interface Props {
   today: DayKey;
   history: DaySummary[];
   entries: Entry[];
   menu: MenuItem[];
-  dailyGoal: number | null;
+  trackProtein: boolean;
   onImport: (backup: BackupPayload) => MergeResult;
+  onAddBackdated: (
+    calories: number,
+    description: string,
+    protein: number | null,
+    when: Date,
+  ) => void;
 }
 
 export default function HistoryScreen({
@@ -21,10 +30,13 @@ export default function HistoryScreen({
   history,
   entries,
   menu,
-  dailyGoal,
+  trackProtein,
   onImport,
+  onAddBackdated,
 }: Props) {
   const [openDay, setOpenDay] = useState<DayKey | null>(null);
+  const [backdating, setBackdating] = useState<DayKey | null>(null);
+  const { toast, showToast } = useToast();
 
   const { points, average, stats } = useMemo(() => {
     const totals = new Map(history.map((s) => [s.day, s.total]));
@@ -77,7 +89,7 @@ export default function HistoryScreen({
                   <span className="tstat-l">vs last week</span>
                 </div>
               )}
-              {stats.proteinAvg !== null && (
+              {trackProtein && stats.proteinAvg !== null && (
                 <div className="tstat">
                   <span className="tstat-v">
                     {stats.proteinAvg}
@@ -188,6 +200,14 @@ export default function HistoryScreen({
                         </span>
                       </div>
                     ))}
+                    {summary.day !== today && (
+                      <button
+                        className="backdate-btn"
+                        onClick={() => setBackdating(summary.day)}
+                      >
+                        + Add to this day
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -196,12 +216,18 @@ export default function HistoryScreen({
         </div>
       )}
 
-      <DataCard
-        entries={entries}
-        menu={menu}
-        dailyGoal={dailyGoal}
-        onImport={onImport}
+      <DataCard entries={entries} menu={menu} onImport={onImport} />
+
+      <BackdateSheet
+        day={backdating}
+        trackProtein={trackProtein}
+        onAdd={(cal, desc, prot, when) => {
+          onAddBackdated(cal, desc, prot, when);
+          showToast({ kind: "confirm", message: "Added" }, 1600);
+        }}
+        onClose={() => setBackdating(null)}
       />
+      <Toast toast={toast} />
     </div>
   );
 }

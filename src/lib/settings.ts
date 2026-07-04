@@ -15,13 +15,31 @@ export interface Settings {
   dailyGoal: number | null;
   /** Appearance override; "system" follows the OS. */
   theme: "system" | "light" | "dark";
+  /**
+   * Protein tracking is opt-in — off, the app is pure calories.
+   * Installs that predate this switch keep it on (they may have data).
+   */
+  trackProtein: boolean;
+  /** Optional daily protein target in grams; only meaningful when tracking. */
+  proteinTarget: number | null;
 }
 
-const DEFAULTS: Settings = { dailyGoal: 2000, theme: "system" };
+const DEFAULTS: Settings = {
+  dailyGoal: 2000,
+  theme: "system",
+  trackProtein: false,
+  proteinTarget: null,
+};
 
 interface SettingsShape {
   version: number;
-  settings: Settings;
+  settings: Partial<Settings>;
+}
+
+function asTarget(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? Math.round(value)
+    : null;
 }
 
 export function loadSettings(): Settings {
@@ -29,16 +47,14 @@ export function loadSettings(): Settings {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return { ...DEFAULTS };
     const parsed = JSON.parse(raw) as SettingsShape;
-    const goal = parsed?.settings?.dailyGoal;
-    const theme = parsed?.settings?.theme;
+    const s = parsed?.settings ?? {};
     return {
-      ...DEFAULTS,
-      dailyGoal:
-        typeof goal === "number" && Number.isFinite(goal) && goal > 0
-          ? Math.round(goal)
-          : null,
-      theme:
-        theme === "light" || theme === "dark" ? theme : "system",
+      dailyGoal: asTarget(s.dailyGoal),
+      theme: s.theme === "light" || s.theme === "dark" ? s.theme : "system",
+      // Grandfather rule: settings saved before this key existed → on.
+      trackProtein:
+        typeof s.trackProtein === "boolean" ? s.trackProtein : true,
+      proteinTarget: asTarget(s.proteinTarget),
     };
   } catch {
     return { ...DEFAULTS };

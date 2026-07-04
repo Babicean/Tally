@@ -15,17 +15,11 @@ import Toast from "./Toast";
 interface Props {
   entries: Entry[];
   menu: MenuItem[];
-  dailyGoal: number | null;
   onImport: (backup: BackupPayload) => MergeResult;
 }
 
 /** Quiet backup controls at the foot of the History screen. */
-export default function DataCard({
-  entries,
-  menu,
-  dailyGoal,
-  onImport,
-}: Props) {
+export default function DataCard({ entries, menu, onImport }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast, showToast } = useToast();
 
@@ -33,10 +27,7 @@ export default function DataCard({
     showToast({ kind: "undo", message }, 2600);
 
   const exportBackup = async () => {
-    const payload = buildBackup(entries, menu, {
-      dailyGoal,
-      theme: loadSettings().theme,
-    });
+    const payload = buildBackup(entries, menu, loadSettings());
     try {
       await shareBackupFile(
         backupFilename(),

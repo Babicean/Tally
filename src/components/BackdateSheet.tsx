@@ -1,80 +1,70 @@
 import { FormEvent, useEffect, useState } from "react";
-import type { Entry } from "../types";
+import type { DayKey } from "../types";
 import Sheet from "./Sheet";
 import { parseCalories } from "../lib/store";
 import { parseProtein } from "../lib/menu";
+import { fromDayKey } from "../lib/day";
+import { formatDayLabel } from "../lib/format";
 
 interface Props {
-  entry: Entry | null;
+  /** The tracking day being amended, or null when closed. */
+  day: DayKey | null;
   trackProtein: boolean;
-  onSave: (
-    id: string,
+  onAdd: (
     calories: number,
     description: string,
     protein: number | null,
-    timestamp: number,
+    when: Date,
   ) => void;
   onClose: () => void;
 }
 
-/** Epoch ms → the local value string a datetime-local input expects. */
-function toLocalInputValue(ts: number): string {
-  const d = new Date(ts);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
-    d.getHours(),
-  )}:${pad(d.getMinutes())}`;
-}
-
-export default function EditEntrySheet({
-  entry,
+/** Add a forgotten entry to a past day (logged at noon of that day). */
+export default function BackdateSheet({
+  day,
   trackProtein,
-  onSave,
+  onAdd,
   onClose,
 }: Props) {
   const [calories, setCalories] = useState("");
   const [description, setDescription] = useState("");
   const [protein, setProtein] = useState("");
-  const [when, setWhen] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (entry) {
-      setCalories(String(entry.calories));
-      setDescription(entry.description);
-      setProtein(entry.protein != null ? String(entry.protein) : "");
-      setWhen(toLocalInputValue(entry.timestamp));
-      setError(null);
+    if (day) {
+      setCalories("");
+      setDescription("");
+      setProtein("");
+      setError(false);
     }
-  }, [entry]);
+  }, [day]);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (!entry) return;
-    const parsed = parseCalories(calories);
-    const parsedProtein = trackProtein ? parseProtein(protein) : entry.protein ?? null;
-    if (parsed === null || parsedProtein === undefined) {
-      setError("Calories must be 1–20,000; protein 0–1,000 grams or blank.");
+    if (!day) return;
+    const cal = parseCalories(calories);
+    const prot = trackProtein ? parseProtein(protein) : null;
+    if (cal === null || prot === undefined) {
+      setError(true);
       return;
     }
-    const ts = when ? new Date(when).getTime() : entry.timestamp;
-    if (!Number.isFinite(ts)) {
-      setError("That date doesn’t look right.");
-      return;
-    }
-    if (ts > Date.now() + 60_000) {
-      setError("Can’t log into the future.");
-      return;
-    }
-    onSave(entry.id, parsed, description, parsedProtein, ts);
+    // Noon keeps the entry safely inside the day's 2 AM–2 AM window.
+    const when = fromDayKey(day);
+    when.setHours(12, 0, 0, 0);
+    onAdd(cal, description, prot, when);
     onClose();
   };
 
   return (
-    <Sheet open={entry !== null} title="Edit entry" onClose={onClose}>
+    <Sheet
+      open={day !== null}
+      title={day ? `Add to ${formatDayLabel(day)}` : "Add entry"}
+      onClose={onClose}
+    >
       <p className="sheet-sub">
-        Change what it was, how much, or when — moving the time moves it to
-        the right day automatically.
+        For the things you forgot to log. It counts toward this day's total
+        and keeps your streak honest.
       </p>
       <form onSubmit={submit} noValidate>
         <div className="field sheet-name">
@@ -92,9 +82,10 @@ export default function EditEntrySheet({
               value={calories}
               onChange={(e) => {
                 setCalories(e.target.value);
-                setError(null);
+                setError(false);
               }}
               inputMode="numeric"
+              placeholder="500"
               aria-label="Calories"
             />
             <span className="unit">cal</span>
@@ -105,7 +96,7 @@ export default function EditEntrySheet({
                 value={protein}
                 onChange={(e) => {
                   setProtein(e.target.value);
-                  setError(null);
+                  setError(false);
                 }}
                 inputMode="numeric"
                 placeholder="—"
@@ -115,25 +106,14 @@ export default function EditEntrySheet({
             </div>
           )}
         </div>
-        <div className="field sheet-name sheet-when">
-          <input
-            type="datetime-local"
-            value={when}
-            onChange={(e) => {
-              setWhen(e.target.value);
-              setError(null);
-            }}
-            aria-label="Logged at"
-          />
-        </div>
         {error && (
           <p className="add-error" role="alert">
-            {error}
+            Calories must be 1–20,000; protein 0–1,000 grams or blank.
           </p>
         )}
         <div className="sheet-actions">
           <button type="submit" className="add-submit">
-            Save changes
+            Add entry
           </button>
         </div>
       </form>

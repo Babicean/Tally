@@ -18,6 +18,8 @@ interface Props {
   today: DayKey;
   total: number;
   protein: number;
+  trackProtein: boolean;
+  proteinTarget: number | null;
   streak: Streak;
   entries: Entry[];
   quickAdds: FrequentItem[];
@@ -33,6 +35,7 @@ interface Props {
     calories: number,
     description: string,
     protein?: number | null,
+    timestamp?: number,
   ) => void;
   onDelete: (id: string) => Entry | null;
   onRestore: (entry: Entry) => void;
@@ -42,6 +45,8 @@ export default function TodayScreen({
   today,
   total,
   protein,
+  trackProtein,
+  proteinTarget,
   streak,
   entries,
   quickAdds,
@@ -124,6 +129,8 @@ export default function TodayScreen({
         today={today}
         total={total}
         protein={protein}
+        trackProtein={trackProtein}
+        proteinTarget={proteinTarget}
         streak={streak}
         goal={dailyGoal}
         onEditGoal={() => setGoalOpen(true)}
@@ -144,6 +151,7 @@ export default function TodayScreen({
       </h2>
       <EntryList
         entries={entries}
+        trackProtein={trackProtein}
         onDelete={handleDelete}
         onEdit={setEditing}
         onRepeat={(entry, el) =>
@@ -159,6 +167,7 @@ export default function TodayScreen({
       />
       <EditEntrySheet
         entry={editing}
+        trackProtein={trackProtein}
         onSave={onUpdate}
         onClose={() => setEditing(null)}
       />

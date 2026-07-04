@@ -5,6 +5,7 @@ import { formatCalories, formatTime } from "../lib/format";
 
 interface Props {
   entries: Entry[];
+  trackProtein: boolean;
   onDelete: (id: string) => void;
   onEdit: (entry: Entry) => void;
   /** Log the same thing again — the ⊕ on each row. */
@@ -20,6 +21,7 @@ const LEAVE_MS = 240;
  */
 export default function EntryList({
   entries,
+  trackProtein,
   onDelete,
   onEdit,
   onRepeat,
@@ -85,6 +87,7 @@ export default function EntryList({
       {groups.map((group) => {
         const newest = group.items[0];
         const count = group.items.length;
+        const showProtein = trackProtein && group.totalProtein > 0;
         const label = newest.description || formatTime(newest.timestamp);
         const isNew = !seen.has(group.key);
         const isLeaving = leaving.has(group.key);
@@ -109,16 +112,13 @@ export default function EntryList({
                         <span className="entry-count">×{count}</span>
                       )}
                     </span>
-                    {(newest.description || group.totalProtein > 0) && (
+                    {(newest.description || showProtein) && (
                       <span className="entry-time">
                         {newest.description
                           ? formatTime(newest.timestamp)
                           : null}
-                        {newest.description &&
-                          group.totalProtein > 0 &&
-                          " · "}
-                        {group.totalProtein > 0 &&
-                          `${group.totalProtein} g protein`}
+                        {newest.description && showProtein && " · "}
+                        {showProtein && `${group.totalProtein} g protein`}
                       </span>
                     )}
                   </span>

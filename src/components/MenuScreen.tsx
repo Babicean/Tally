@@ -9,6 +9,7 @@ import Toast from "./Toast";
 
 interface Props {
   menu: MenuItem[];
+  trackProtein: boolean;
   onLog: (item: MenuItem) => void;
   onAdd: (
     name: string,
@@ -33,6 +34,7 @@ interface Props {
  */
 export default function MenuScreen({
   menu,
+  trackProtein,
   onLog,
   onAdd,
   onUpdate,
@@ -112,7 +114,9 @@ export default function MenuScreen({
                   <span className="menu-name">{item.name}</span>
                   <span className="menu-detail">
                     {formatCalories(item.calories)} cal
-                    {item.protein != null && ` · ${item.protein} g protein`}
+                    {trackProtein &&
+                      item.protein != null &&
+                      ` · ${item.protein} g protein`}
                   </span>
                 </span>
               </button>
@@ -160,6 +164,7 @@ export default function MenuScreen({
 
       <MenuItemSheet
         open={sheetOpen}
+        trackProtein={trackProtein}
         item={editing}
         onSave={(name, cal, prot, category) => {
           if (editing) onUpdate(editing.id, name, cal, prot, category);

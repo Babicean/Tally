@@ -14,7 +14,10 @@ particle celebration; it rewards showing up, never eating less) and a
 protein per day), identical entries collapse
 into one row with a **×N count, a ⊕ to log it again, and a − to remove one
 instance**, a **Settings** sheet (gear, top right) switches the theme between
-System, Light, and Dark, deletions get a 5-second **undo**, entries are
+System, Light, and Dark and toggles **protein tracking** (off by default —
+pure calories; on, Menu items and entries carry optional grams and a daily
+protein target shows under the ring), entries can be **backdated** (edit any
+entry's time, or "+ Add to this day" inside a History day), deletions get a 5-second **undo**, entries are
 **tap-to-edit**, and the added amount visibly
 flies into the total with a small "Logged ✓" confirmation. Installable as a
 **PWA** with offline support.

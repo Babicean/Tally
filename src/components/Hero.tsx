@@ -7,8 +7,10 @@ import AnimatedNumber from "./AnimatedNumber";
 interface Props {
   today: DayKey;
   total: number;
-  /** Grams of protein logged today; hidden when zero. */
+  /** Grams of protein logged today; hidden when zero or tracking is off. */
   protein: number;
+  trackProtein: boolean;
+  proteinTarget: number | null;
   streak: Streak;
   goal: number | null;
   onEditGoal: () => void;
@@ -54,10 +56,24 @@ export default function Hero({
   today,
   total,
   protein,
+  trackProtein,
+  proteinTarget,
   streak,
   goal,
   onEditGoal,
 }: Props) {
+  const proteinLine =
+    trackProtein && (protein > 0 || proteinTarget !== null) ? (
+      <p
+        className={`hero-protein${
+          proteinTarget !== null && protein >= proteinTarget ? " met" : ""
+        }`}
+      >
+        {formatCalories(protein)}
+        {proteinTarget !== null && ` / ${formatCalories(proteinTarget)}`} g
+        protein
+      </p>
+    ) : null;
   const [pulsing, setPulsing] = useState(false);
   const prevTotal = useRef(total);
   useEffect(() => {
@@ -92,9 +108,7 @@ export default function Hero({
           <AnimatedNumber value={total} />
         </h1>
         <p className="hero-caption">calories today</p>
-        {protein > 0 && (
-          <p className="hero-protein">{formatCalories(protein)} g protein</p>
-        )}
+        {proteinLine}
         <button className="goal-pill ghost" onClick={onEditGoal}>
           Set a calorie target
         </button>
@@ -177,9 +191,7 @@ export default function Hero({
           <p className="ring-caption">of {formatCalories(goal)} cal</p>
         </div>
       </div>
-      {protein > 0 && (
-        <p className="hero-protein">{formatCalories(protein)} g protein</p>
-      )}
+      {proteinLine}
       <button
         className={`goal-pill${over ? " over" : ""}`}
         onClick={onEditGoal}

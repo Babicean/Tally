@@ -71,6 +71,10 @@ export default function App() {
     setDailyGoal,
     theme,
     setTheme,
+    trackProtein,
+    setTrackProtein,
+    proteinTarget,
+    setProteinTarget,
     addEntry,
     updateEntry,
     deleteEntry,
@@ -110,6 +114,8 @@ export default function App() {
           today={today}
           total={todayTotal}
           protein={todayProtein}
+          trackProtein={trackProtein}
+          proteinTarget={proteinTarget}
           streak={streak}
           entries={todayEntries}
           quickAdds={quickAdds}
@@ -124,6 +130,7 @@ export default function App() {
       {tab === "menu" && (
         <MenuScreen
           menu={menu}
+          trackProtein={trackProtein}
           onLog={(item) => addEntry(item.calories, item.name, item.protein)}
           onAdd={addMenuItem}
           onUpdate={updateMenuItem}
@@ -137,8 +144,11 @@ export default function App() {
           history={history}
           entries={entries}
           menu={menu}
-          dailyGoal={dailyGoal}
+          trackProtein={trackProtein}
           onImport={importBackup}
+          onAddBackdated={(cal, desc, prot, when) =>
+            addEntry(cal, desc, prot, when)
+          }
         />
       )}
 
@@ -146,6 +156,10 @@ export default function App() {
         open={settingsOpen}
         theme={theme}
         onSetTheme={setTheme}
+        trackProtein={trackProtein}
+        onSetTrackProtein={setTrackProtein}
+        proteinTarget={proteinTarget}
+        onSetProteinTarget={setProteinTarget}
         onClose={() => setSettingsOpen(false)}
       />
 

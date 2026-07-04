@@ -7,6 +7,7 @@ import CategoryIcon, { CATEGORIES } from "./CategoryIcon";
 
 interface Props {
   open: boolean;
+  trackProtein: boolean;
   /** Item being edited, or null when adding a new one. */
   item: MenuItem | null;
   onSave: (
@@ -21,6 +22,7 @@ interface Props {
 
 export default function MenuItemSheet({
   open,
+  trackProtein,
   item,
   onSave,
   onDelete,
@@ -54,7 +56,7 @@ export default function MenuItemSheet({
       setError("Calories must be a positive number up to 20,000.");
       return;
     }
-    const prot = parseProtein(protein);
+    const prot = trackProtein ? parseProtein(protein) : item?.protein ?? null;
     if (prot === undefined) {
       setError("Protein must be between 0 and 1,000 grams (or left blank).");
       return;
@@ -101,6 +103,7 @@ export default function MenuItemSheet({
             />
             <span className="unit">cal</span>
           </div>
+          {trackProtein && (
           <div className="field field-cal field-protein">
             <input
               value={protein}
@@ -114,6 +117,7 @@ export default function MenuItemSheet({
             />
             <span className="unit">g protein</span>
           </div>
+          )}
         </div>
         <div
           className="cat-grid"

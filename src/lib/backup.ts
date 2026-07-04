@@ -52,6 +52,8 @@ export function parseBackup(json: string): BackupPayload | null {
     }
     const goal = raw.settings?.dailyGoal;
     const theme = raw.settings?.theme;
+    const trackProtein = raw.settings?.trackProtein;
+    const proteinTarget = raw.settings?.proteinTarget;
     return {
       app: "tally",
       version: typeof raw.version === "number" ? raw.version : 1,
@@ -64,6 +66,13 @@ export function parseBackup(json: string): BackupPayload | null {
             ? Math.round(goal)
             : null,
         theme: theme === "light" || theme === "dark" ? theme : "system",
+        trackProtein: typeof trackProtein === "boolean" ? trackProtein : false,
+        proteinTarget:
+          typeof proteinTarget === "number" &&
+          Number.isFinite(proteinTarget) &&
+          proteinTarget > 0
+            ? Math.round(proteinTarget)
+            : null,
       },
     };
   } catch {

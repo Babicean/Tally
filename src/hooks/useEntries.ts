@@ -10,7 +10,7 @@ import {
   summarizeByDay,
   totalForDay,
 } from "../lib/store";
-import { loadSettings, saveSettings } from "../lib/settings";
+import { loadSettings, saveSettings, type Settings } from "../lib/settings";
 import {
   buildQuickAdds,
   createMenuItem,
@@ -23,19 +23,14 @@ import { computeStreak } from "../lib/streak";
 import { applyTheme, type ThemePref } from "../lib/theme";
 
 /**
- * Single source of truth for entries and settings. Persists on every change
- * and rolls the "today" key over automatically when the 2 AM boundary passes
- * while the app is open.
+ * Single source of truth for entries, menu, and settings. Persists on every
+ * change and rolls the "today" key over automatically when the 2 AM boundary
+ * passes while the app is open.
  */
 export function useEntries() {
   const [entries, setEntries] = useState<Entry[]>(() => loadEntries());
   const [today, setToday] = useState<DayKey>(() => trackingDayFor(new Date()));
-  const [dailyGoal, setDailyGoalState] = useState<number | null>(
-    () => loadSettings().dailyGoal,
-  );
-  const [theme, setThemeState] = useState<ThemePref>(
-    () => loadSettings().theme,
-  );
+  const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [menu, setMenu] = useState<MenuItem[]>(() => loadMenu());
 
   useEffect(() => {
@@ -60,10 +55,9 @@ export function useEntries() {
     const onStorage = (event: StorageEvent) => {
       if (event.key === "tally.store") setEntries(loadEntries());
       if (event.key === "tally.settings") {
-        const settings = loadSettings();
-        setDailyGoalState(settings.dailyGoal);
-        setThemeState(settings.theme);
-        applyTheme(settings.theme);
+        const next = loadSettings();
+        setSettings(next);
+        applyTheme(next.theme);
       }
       if (event.key === "tally.menu") setMenu(loadMenu());
     };
@@ -71,9 +65,40 @@ export function useEntries() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  const updateSettings = useCallback((patch: Partial<Settings>) => {
+    setSettings((prev) => {
+      const next = { ...prev, ...patch };
+      saveSettings(next);
+      if (patch.theme !== undefined) applyTheme(next.theme);
+      return next;
+    });
+  }, []);
+
+  const setDailyGoal = useCallback(
+    (goal: number | null) => updateSettings({ dailyGoal: goal }),
+    [updateSettings],
+  );
+  const setTheme = useCallback(
+    (theme: ThemePref) => updateSettings({ theme }),
+    [updateSettings],
+  );
+  const setTrackProtein = useCallback(
+    (trackProtein: boolean) => updateSettings({ trackProtein }),
+    [updateSettings],
+  );
+  const setProteinTarget = useCallback(
+    (proteinTarget: number | null) => updateSettings({ proteinTarget }),
+    [updateSettings],
+  );
+
   const addEntry = useCallback(
-    (calories: number, description: string, protein: number | null = null) => {
-      const entry = createEntry(calories, description, new Date(), protein);
+    (
+      calories: number,
+      description: string,
+      protein: number | null = null,
+      when: Date = new Date(),
+    ) => {
+      const entry = createEntry(calories, description, when, protein);
       setEntries((prev) => [...prev, entry]);
       return entry;
     },
@@ -86,13 +111,22 @@ export function useEntries() {
       calories: number,
       description: string,
       protein: number | null = null,
+      timestamp?: number,
     ) => {
       setEntries((prev) =>
-        prev.map((e) =>
-          e.id === id
-            ? { ...e, calories, description: description.trim(), protein }
-            : e,
-        ),
+        prev.map((e) => {
+          if (e.id !== id) return e;
+          const ts = timestamp ?? e.timestamp;
+          return {
+            ...e,
+            calories,
+            description: description.trim(),
+            protein,
+            timestamp: ts,
+            // Moving an entry in time moves it to the right tracking day.
+            day: trackingDayFor(new Date(ts)),
+          };
+        }),
       );
     },
     [],
@@ -114,23 +148,6 @@ export function useEntries() {
       prev.some((e) => e.id === entry.id) ? prev : [...prev, entry],
     );
   }, []);
-
-  const setDailyGoal = useCallback(
-    (goal: number | null) => {
-      setDailyGoalState(goal);
-      saveSettings({ dailyGoal: goal, theme });
-    },
-    [theme],
-  );
-
-  const setTheme = useCallback(
-    (pref: ThemePref) => {
-      setThemeState(pref);
-      applyTheme(pref);
-      saveSettings({ dailyGoal, theme: pref });
-    },
-    [dailyGoal],
-  );
 
   const addMenuItem = useCallback(
     (
@@ -182,12 +199,12 @@ export function useEntries() {
       const result = mergeBackup(entries, menu, backup);
       setEntries(result.entries);
       setMenu(result.menu);
-      if (dailyGoal === null && backup.settings.dailyGoal !== null) {
-        setDailyGoal(backup.settings.dailyGoal);
+      if (settings.dailyGoal === null && backup.settings.dailyGoal !== null) {
+        updateSettings({ dailyGoal: backup.settings.dailyGoal });
       }
       return result;
     },
-    [entries, menu, dailyGoal, setDailyGoal],
+    [entries, menu, settings.dailyGoal, updateSettings],
   );
 
   const todayEntries = useMemo(
@@ -208,7 +225,10 @@ export function useEntries() {
     [menu, entries],
   );
   const sortedMenu = useMemo(() => sortMenu(menu), [menu]);
-  const streak = useMemo(() => computeStreak(entries, today), [entries, today]);
+  const streak = useMemo(
+    () => computeStreak(entries, today),
+    [entries, today],
+  );
 
   return {
     today,
@@ -221,10 +241,14 @@ export function useEntries() {
     menu: sortedMenu,
     streak,
     importBackup,
-    dailyGoal,
+    dailyGoal: settings.dailyGoal,
     setDailyGoal,
-    theme,
+    theme: settings.theme,
     setTheme,
+    trackProtein: settings.trackProtein,
+    setTrackProtein,
+    proteinTarget: settings.proteinTarget,
+    setProteinTarget,
     addEntry,
     updateEntry,
     deleteEntry,

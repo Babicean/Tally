@@ -723,6 +723,103 @@ input {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 0.125rem 0;
+}
+
+.settings-row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-title {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.settings-row-sub {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  margin-top: 0.0625rem;
+}
+
+.switch {
+  flex: none;
+  width: 2.875rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: var(--hairline);
+  position: relative;
+  transition: background-color 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.switch.on {
+  background: var(--accent);
+}
+
+.switch-knob {
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 200ms cubic-bezier(0.3, 0.9, 0.4, 1);
+}
+
+.switch.on .switch-knob {
+  transform: translateX(1.125rem);
+}
+
+.settings-target {
+  flex: none;
+  width: 6.25rem;
+}
+
+.settings-target input {
+  padding-right: 2rem;
+}
+
+.sheet-when {
+  margin-top: 0.5rem;
+}
+
+.sheet-when input {
+  color-scheme: inherit;
+}
+
+.backdate-btn {
+  display: block;
+  width: calc(100% - 2.25rem);
+  margin: 0.25rem 1.125rem 1rem;
+  padding: 0.5625rem;
+  border-radius: 0.75rem;
+  border: 1px dashed var(--hairline);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  transition:
+    color 140ms ease,
+    background-color 140ms ease;
+}
+
+.backdate-btn:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.hero-protein.met {
+  color: var(--accent);
+}
+
 .settings-foot {
   margin-top: 1.5rem;
   font-size: 0.8125rem;
