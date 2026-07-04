@@ -136,6 +136,9 @@ export default function TodayScreen({
         entries={entries}
         onDelete={handleDelete}
         onEdit={setEditing}
+        onRepeat={(entry, el) =>
+          handleAdd(entry.calories, entry.description, el, entry.protein ?? null)
+        }
       />
 
       <GoalSheet

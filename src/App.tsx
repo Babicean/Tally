@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SettingsSheet from "./components/SettingsSheet";
 import { useEntries } from "./hooks/useEntries";
 import TodayScreen from "./components/TodayScreen";
 import MenuScreen from "./components/MenuScreen";
@@ -68,6 +69,8 @@ export default function App() {
     importBackup,
     dailyGoal,
     setDailyGoal,
+    theme,
+    setTheme,
     addEntry,
     updateEntry,
     deleteEntry,
@@ -78,9 +81,28 @@ export default function App() {
     togglePinned,
   } = useEntries();
 
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   return (
     <div className="app">
-      <span className="wordmark">Tally</span>
+      <div className="top-bar">
+        <span className="wordmark">Tally</span>
+        <button
+          className="settings-btn"
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Settings"
+        >
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="2.4" stroke="currentColor" strokeWidth="1.5" />
+            <path
+              d="M10 1.9l.9 2.1a6.2 6.2 0 011.9.8l2.2-.7 1.6 2.7-1.6 1.6a6.4 6.4 0 010 2.1l1.6 1.6-1.6 2.7-2.2-.7a6.2 6.2 0 01-1.9.8l-.9 2.2H8.4l-.9-2.2a6.2 6.2 0 01-1.9-.8l-2.2.7-1.6-2.7 1.6-1.6a6.4 6.4 0 010-2.1L1.8 6.8l1.6-2.7 2.2.7a6.2 6.2 0 011.9-.8l.9-2.1H10z"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
 
       {tab === "today" && (
         <TodayScreen
@@ -119,6 +141,13 @@ export default function App() {
           onImport={importBackup}
         />
       )}
+
+      <SettingsSheet
+        open={settingsOpen}
+        theme={theme}
+        onSetTheme={setTheme}
+        onClose={() => setSettingsOpen(false)}
+      />
 
       <nav className="tabbar-wrap" aria-label="Screens">
         <div className="tabbar">

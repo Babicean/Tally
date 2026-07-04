@@ -10,9 +10,11 @@ const SETTINGS_VERSION = 1;
 export interface Settings {
   /** Daily calorie target, or null when the user hasn't set one. */
   dailyGoal: number | null;
+  /** Appearance override; "system" follows the OS. */
+  theme: "system" | "light" | "dark";
 }
 
-const DEFAULTS: Settings = { dailyGoal: null };
+const DEFAULTS: Settings = { dailyGoal: null, theme: "system" };
 
 interface SettingsShape {
   version: number;
@@ -25,12 +27,15 @@ export function loadSettings(): Settings {
     if (!raw) return { ...DEFAULTS };
     const parsed = JSON.parse(raw) as SettingsShape;
     const goal = parsed?.settings?.dailyGoal;
+    const theme = parsed?.settings?.theme;
     return {
       ...DEFAULTS,
       dailyGoal:
         typeof goal === "number" && Number.isFinite(goal) && goal > 0
           ? Math.round(goal)
           : null,
+      theme:
+        theme === "light" || theme === "dark" ? theme : "system",
     };
   } catch {
     return { ...DEFAULTS };

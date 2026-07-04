@@ -51,6 +51,7 @@ export function parseBackup(json: string): BackupPayload | null {
       return null;
     }
     const goal = raw.settings?.dailyGoal;
+    const theme = raw.settings?.theme;
     return {
       app: "tally",
       version: typeof raw.version === "number" ? raw.version : 1,
@@ -62,6 +63,7 @@ export function parseBackup(json: string): BackupPayload | null {
           typeof goal === "number" && Number.isFinite(goal) && goal > 0
             ? Math.round(goal)
             : null,
+        theme: theme === "light" || theme === "dark" ? theme : "system",
       },
     };
   } catch {

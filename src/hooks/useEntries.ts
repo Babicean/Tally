@@ -20,6 +20,7 @@ import {
 } from "../lib/menu";
 import { mergeBackup, type BackupPayload } from "../lib/backup";
 import { computeStreak } from "../lib/streak";
+import { applyTheme, type ThemePref } from "../lib/theme";
 
 /**
  * Single source of truth for entries and settings. Persists on every change
@@ -31,6 +32,9 @@ export function useEntries() {
   const [today, setToday] = useState<DayKey>(() => trackingDayFor(new Date()));
   const [dailyGoal, setDailyGoalState] = useState<number | null>(
     () => loadSettings().dailyGoal,
+  );
+  const [theme, setThemeState] = useState<ThemePref>(
+    () => loadSettings().theme,
   );
   const [menu, setMenu] = useState<MenuItem[]>(() => loadMenu());
 
@@ -56,7 +60,10 @@ export function useEntries() {
     const onStorage = (event: StorageEvent) => {
       if (event.key === "tally.store") setEntries(loadEntries());
       if (event.key === "tally.settings") {
-        setDailyGoalState(loadSettings().dailyGoal);
+        const settings = loadSettings();
+        setDailyGoalState(settings.dailyGoal);
+        setThemeState(settings.theme);
+        applyTheme(settings.theme);
       }
       if (event.key === "tally.menu") setMenu(loadMenu());
     };
@@ -108,10 +115,22 @@ export function useEntries() {
     );
   }, []);
 
-  const setDailyGoal = useCallback((goal: number | null) => {
-    setDailyGoalState(goal);
-    saveSettings({ dailyGoal: goal });
-  }, []);
+  const setDailyGoal = useCallback(
+    (goal: number | null) => {
+      setDailyGoalState(goal);
+      saveSettings({ dailyGoal: goal, theme });
+    },
+    [theme],
+  );
+
+  const setTheme = useCallback(
+    (pref: ThemePref) => {
+      setThemeState(pref);
+      applyTheme(pref);
+      saveSettings({ dailyGoal, theme: pref });
+    },
+    [dailyGoal],
+  );
 
   const addMenuItem = useCallback(
     (
@@ -204,6 +223,8 @@ export function useEntries() {
     importBackup,
     dailyGoal,
     setDailyGoal,
+    theme,
+    setTheme,
     addEntry,
     updateEntry,
     deleteEntry,

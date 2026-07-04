@@ -1,40 +1,55 @@
 import { useEffect, useRef, useState } from "react";
 import type { Entry } from "../types";
+import { groupEntries } from "../lib/store";
 import { formatCalories, formatTime } from "../lib/format";
 
 interface Props {
   entries: Entry[];
   onDelete: (id: string) => void;
   onEdit: (entry: Entry) => void;
+  /** Log the same thing again — the ⊕ on each row. */
+  onRepeat: (entry: Entry, sourceEl: HTMLElement) => void;
 }
 
 const LEAVE_MS = 240;
 
 /**
- * Today's entries with enter/exit animations. Deletions collapse the row
- * (grid-rows 1fr → 0fr) before the entry is actually removed from state.
- * Tapping a row opens it for editing.
+ * Today's entries, collapsed so identical items become one row with a ×N
+ * count. ⊕ logs another instance; ✕ removes one instance at a time (the
+ * newest), only collapsing the row when the last one goes.
  */
-export default function EntryList({ entries, onDelete, onEdit }: Props) {
+export default function EntryList({
+  entries,
+  onDelete,
+  onEdit,
+  onRepeat,
+}: Props) {
+  const groups = groupEntries(entries);
+
   const [leaving, setLeaving] = useState<Set<string>>(new Set());
-  // Ids rendered at least once — new ids after mount get the enter animation.
+  // Group keys rendered at least once — new keys after mount animate in.
   const seenRef = useRef<Set<string> | null>(null);
   if (seenRef.current === null) {
-    seenRef.current = new Set(entries.map((e) => e.id));
+    seenRef.current = new Set(groups.map((g) => g.key));
   }
   const seen = seenRef.current;
 
   useEffect(() => {
-    for (const e of entries) seen.add(e.id);
-  }, [entries, seen]);
+    for (const g of groups) seen.add(g.key);
+  }, [groups, seen]);
 
-  const remove = (id: string) => {
-    setLeaving((prev) => new Set(prev).add(id));
+  const remove = (groupKey: string, items: Entry[]) => {
+    if (items.length > 1) {
+      // Just decrement: drop the newest instance, row stays put.
+      onDelete(items[0].id);
+      return;
+    }
+    setLeaving((prev) => new Set(prev).add(groupKey));
     window.setTimeout(() => {
-      onDelete(id);
+      onDelete(items[0].id);
       setLeaving((prev) => {
         const next = new Set(prev);
-        next.delete(id);
+        next.delete(groupKey);
         return next;
       });
     }, LEAVE_MS);
@@ -67,12 +82,15 @@ export default function EntryList({ entries, onDelete, onEdit }: Props) {
 
   return (
     <div className="card entry-list">
-      {entries.map((entry) => {
-        const isNew = !seen.has(entry.id);
-        const isLeaving = leaving.has(entry.id);
+      {groups.map((group) => {
+        const newest = group.items[0];
+        const count = group.items.length;
+        const label = newest.description || formatTime(newest.timestamp);
+        const isNew = !seen.has(group.key);
+        const isLeaving = leaving.has(group.key);
         return (
           <div
-            key={entry.id}
+            key={group.key}
             className={`entry-shell${isLeaving ? " leaving" : ""}${
               isNew ? " entering" : ""
             }`}
@@ -81,40 +99,60 @@ export default function EntryList({ entries, onDelete, onEdit }: Props) {
               <div className="entry-row">
                 <button
                   className="entry-main"
-                  onClick={() => onEdit(entry)}
-                  aria-label={`Edit ${
-                    entry.description || "entry"
-                  } (${entry.calories} calories)`}
+                  onClick={() => onEdit(newest)}
+                  aria-label={`Edit ${label} (${group.totalCalories} calories)`}
                 >
                   <span className="entry-text">
                     <span className="entry-title">
-                      {entry.description || formatTime(entry.timestamp)}
+                      {label}
+                      {count > 1 && (
+                        <span className="entry-count">×{count}</span>
+                      )}
                     </span>
-                    {(entry.description || entry.protein != null) && (
+                    {(newest.description || group.totalProtein > 0) && (
                       <span className="entry-time">
-                        {entry.description
-                          ? formatTime(entry.timestamp)
+                        {newest.description
+                          ? formatTime(newest.timestamp)
                           : null}
-                        {entry.description && entry.protein != null && " · "}
-                        {entry.protein != null && `${entry.protein} g protein`}
+                        {newest.description &&
+                          group.totalProtein > 0 &&
+                          " · "}
+                        {group.totalProtein > 0 &&
+                          `${group.totalProtein} g protein`}
                       </span>
                     )}
                   </span>
                   <span className="entry-cal">
-                    +{formatCalories(entry.calories)}
+                    +{formatCalories(group.totalCalories)}
                     <span className="unit">cal</span>
                   </span>
                 </button>
                 <button
+                  className="entry-repeat"
+                  onClick={(e) => onRepeat(newest, e.currentTarget)}
+                  aria-label={`Log ${label} again (${newest.calories} calories)`}
+                >
+                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                    <path
+                      d="M7 2.5v9M2.5 7h9"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+                <button
                   className="entry-delete"
-                  onClick={() => remove(entry.id)}
-                  aria-label={`Delete ${
-                    entry.description || "entry"
-                  } (${entry.calories} calories)`}
+                  onClick={() => remove(group.key, group.items)}
+                  aria-label={
+                    count > 1
+                      ? `Remove one ${label} (${count} logged)`
+                      : `Delete ${label} (${newest.calories} calories)`
+                  }
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <path
-                      d="M3 3l8 8M11 3l-8 8"
+                      d={count > 1 ? "M3 7h8" : "M3 3l8 8M11 3l-8 8"}
                       stroke="currentColor"
                       strokeWidth="1.8"
                       strokeLinecap="round"

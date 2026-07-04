@@ -11,7 +11,10 @@ chips** also learn your habitual entries automatically, a **logging streak**
 (consecutive days with at least one entry — extending it earns a small
 particle celebration; it rewards showing up, never eating less) and a
 **weekly recap** row under the trend chart (days logged, vs last week,
-protein per day), deletions get a 5-second **undo**, entries are
+protein per day), identical entries collapse
+into one row with a **×N count, a ⊕ to log it again, and a − to remove one
+instance**, a **Settings** sheet (gear, top right) switches the theme between
+System, Light, and Dark, deletions get a 5-second **undo**, entries are
 **tap-to-edit**, and the added amount visibly
 flies into the total with a small "Logged ✓" confirmation. Installable as a
 **PWA** with offline support.

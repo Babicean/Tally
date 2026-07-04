@@ -8,6 +8,7 @@ import {
   type BackupPayload,
 } from "../lib/backup";
 import { shareBackupFile } from "../lib/exportFile";
+import { loadSettings } from "../lib/settings";
 import { useToast } from "../hooks/useToast";
 import Toast from "./Toast";
 
@@ -32,7 +33,10 @@ export default function DataCard({
     showToast({ kind: "undo", message }, 2600);
 
   const exportBackup = async () => {
-    const payload = buildBackup(entries, menu, { dailyGoal });
+    const payload = buildBackup(entries, menu, {
+      dailyGoal,
+      theme: loadSettings().theme,
+    });
     try {
       await shareBackupFile(
         backupFilename(),

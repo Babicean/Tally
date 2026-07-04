@@ -137,6 +137,39 @@ export function totalForDay(entries: Entry[], day: DayKey): number {
   return total;
 }
 
+export interface EntryGroup {
+  /** Stable identity for the group across re-renders. */
+  key: string;
+  /** Instances, newest first. */
+  items: Entry[];
+  totalCalories: number;
+  totalProtein: number;
+}
+
+/**
+ * Collapse identical entries (same note, calories, protein) into one display
+ * group so "the second Pepsi" is a +1 on an existing row, not a new row.
+ * Input is expected newest-first; groups keep that order by latest activity.
+ */
+export function groupEntries(entries: Entry[]): EntryGroup[] {
+  const map = new Map<string, Entry[]>();
+  for (const e of entries) {
+    const key = `${e.description.trim().toLowerCase()}|${e.calories}|${e.protein ?? ""}`;
+    const bucket = map.get(key);
+    if (bucket) bucket.push(e);
+    else map.set(key, [e]);
+  }
+  return [...map.entries()].map(([key, items]) => ({
+    key,
+    items,
+    totalCalories: items.reduce((s, e) => s + e.calories, 0),
+    totalProtein: items.reduce(
+      (s, e) => s + (typeof e.protein === "number" ? e.protein : 0),
+      0,
+    ),
+  }));
+}
+
 /** Grams of protein logged on one tracking day (entries without protein count 0). */
 export function proteinForDay(entries: Entry[], day: DayKey): number {
   let total = 0;

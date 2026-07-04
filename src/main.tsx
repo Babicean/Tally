@@ -2,11 +2,15 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import { restoreFromMirror } from "./lib/mirror";
+import { loadSettings } from "./lib/settings";
+import { applyTheme, watchSystemTheme } from "./lib/theme";
 import "./styles.css";
 
 // If WebView storage was wiped (it happens), recover from the native
 // mirror before the app reads localStorage.
 restoreFromMirror().finally(() => {
+  applyTheme(loadSettings().theme);
+  watchSystemTheme();
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <App />
