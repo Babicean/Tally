@@ -40,8 +40,19 @@ const TABS: { id: Tab; label: string; icon: JSX.Element }[] = [
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("today");
-  const { today, todayEntries, todayTotal, history, addEntry, deleteEntry } =
-    useEntries();
+  const {
+    today,
+    todayEntries,
+    todayTotal,
+    history,
+    quickAdds,
+    dailyGoal,
+    setDailyGoal,
+    addEntry,
+    updateEntry,
+    deleteEntry,
+    restoreEntry,
+  } = useEntries();
 
   return (
     <div className="app">
@@ -53,8 +64,13 @@ export default function App() {
           today={today}
           total={todayTotal}
           entries={todayEntries}
+          quickAdds={quickAdds}
+          dailyGoal={dailyGoal}
+          onSetGoal={setDailyGoal}
           onAdd={addEntry}
+          onUpdate={updateEntry}
           onDelete={deleteEntry}
+          onRestore={restoreEntry}
         />
       ) : (
         <HistoryScreen today={today} history={history} />

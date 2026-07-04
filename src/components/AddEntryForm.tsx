@@ -3,7 +3,7 @@ import { MAX_CALORIES, parseCalories } from "../lib/store";
 import { formatCalories } from "../lib/format";
 
 interface Props {
-  onAdd: (calories: number, description: string) => void;
+  onAdd: (calories: number, description: string, sourceEl: HTMLElement) => void;
 }
 
 export default function AddEntryForm({ onAdd }: Props) {
@@ -12,6 +12,7 @@ export default function AddEntryForm({ onAdd }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [shaking, setShaking] = useState(false);
   const calRef = useRef<HTMLInputElement>(null);
+  const submitRef = useRef<HTMLButtonElement>(null);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -27,7 +28,7 @@ export default function AddEntryForm({ onAdd }: Props) {
       calRef.current?.focus();
       return;
     }
-    onAdd(parsed, description);
+    onAdd(parsed, description, submitRef.current ?? calRef.current!);
     setCalories("");
     setDescription("");
     setError(null);
@@ -63,7 +64,7 @@ export default function AddEntryForm({ onAdd }: Props) {
             aria-label="Description"
           />
         </div>
-        <button type="submit" className="add-submit">
+        <button ref={submitRef} type="submit" className="add-submit">
           Add
         </button>
       </div>

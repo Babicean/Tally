@@ -83,6 +83,44 @@ export function createEntry(
   };
 }
 
+export interface FrequentItem {
+  description: string;
+  calories: number;
+}
+
+/**
+ * The user's habitual entries, for one-tap quick-add chips. An item qualifies
+ * once the same description + calorie pair has been logged at least twice;
+ * the most-used (then most recent) items win.
+ */
+export function frequentEntries(entries: Entry[], limit = 4): FrequentItem[] {
+  const stats = new Map<
+    string,
+    { item: FrequentItem; count: number; lastUsed: number }
+  >();
+  for (const e of entries) {
+    const description = e.description.trim();
+    if (!description) continue;
+    const key = `${description.toLowerCase()}|${e.calories}`;
+    const existing = stats.get(key);
+    if (existing) {
+      existing.count += 1;
+      existing.lastUsed = Math.max(existing.lastUsed, e.timestamp);
+    } else {
+      stats.set(key, {
+        item: { description, calories: e.calories },
+        count: 1,
+        lastUsed: e.timestamp,
+      });
+    }
+  }
+  return [...stats.values()]
+    .filter((s) => s.count >= 2)
+    .sort((a, b) => b.count - a.count || b.lastUsed - a.lastUsed)
+    .slice(0, limit)
+    .map((s) => s.item);
+}
+
 /** Sum of entries belonging to one tracking day. */
 export function totalForDay(entries: Entry[], day: DayKey): number {
   let total = 0;

@@ -3,6 +3,13 @@
 A calm, minimal daily calorie tracker. Log what you eat in two taps, watch the
 day's total tick up, and let history collect itself.
 
+Beyond the basics: an optional **daily goal** wraps the total in a progress
+ring (green under target, calm amber over — never red), **quick-add chips**
+learn your habitual entries for one-tap logging, deletions get a 5-second
+**undo**, entries are **tap-to-edit**, and the added amount visibly flies into
+the total with a small "Logged ✓" confirmation. Installable as a **PWA** with
+offline support.
+
 ## Running it
 
 ```sh
@@ -35,6 +42,11 @@ rolls itself over automatically if it's open when 2 AM passes.
   aggregation and never re-derives boundaries from raw timestamps.
 - **State** flows through one hook (`src/hooks/useEntries.ts`): load, persist,
   cross-tab sync, and the 2 AM rollover timer.
+- **Settings** (the daily goal) live in their own versioned localStorage key
+  (`src/lib/settings.ts`), separate from entry data.
+- **PWA**: `public/manifest.webmanifest` + a small hand-written service worker
+  (`public/sw.js`) — cache-first for hashed assets, network-first navigations
+  with an offline fallback.
 
 ```
 src/

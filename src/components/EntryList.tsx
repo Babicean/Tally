@@ -5,6 +5,7 @@ import { formatCalories, formatTime } from "../lib/format";
 interface Props {
   entries: Entry[];
   onDelete: (id: string) => void;
+  onEdit: (entry: Entry) => void;
 }
 
 const LEAVE_MS = 240;
@@ -12,8 +13,9 @@ const LEAVE_MS = 240;
 /**
  * Today's entries with enter/exit animations. Deletions collapse the row
  * (grid-rows 1fr → 0fr) before the entry is actually removed from state.
+ * Tapping a row opens it for editing.
  */
-export default function EntryList({ entries, onDelete }: Props) {
+export default function EntryList({ entries, onDelete, onEdit }: Props) {
   const [leaving, setLeaving] = useState<Set<string>>(new Set());
   // Ids rendered at least once — new ids after mount get the enter animation.
   const seenRef = useRef<Set<string> | null>(null);
@@ -77,18 +79,28 @@ export default function EntryList({ entries, onDelete }: Props) {
           >
             <div className="entry-clip">
               <div className="entry-row">
-                <div className="entry-text">
-                  <p className="entry-title">
-                    {entry.description || formatTime(entry.timestamp)}
-                  </p>
-                  {entry.description && (
-                    <p className="entry-time">{formatTime(entry.timestamp)}</p>
-                  )}
-                </div>
-                <span className="entry-cal">
-                  +{formatCalories(entry.calories)}
-                  <span className="unit">cal</span>
-                </span>
+                <button
+                  className="entry-main"
+                  onClick={() => onEdit(entry)}
+                  aria-label={`Edit ${
+                    entry.description || "entry"
+                  } (${entry.calories} calories)`}
+                >
+                  <span className="entry-text">
+                    <span className="entry-title">
+                      {entry.description || formatTime(entry.timestamp)}
+                    </span>
+                    {entry.description && (
+                      <span className="entry-time">
+                        {formatTime(entry.timestamp)}
+                      </span>
+                    )}
+                  </span>
+                  <span className="entry-cal">
+                    +{formatCalories(entry.calories)}
+                    <span className="unit">cal</span>
+                  </span>
+                </button>
                 <button
                   className="entry-delete"
                   onClick={() => remove(entry.id)}
