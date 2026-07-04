@@ -4,20 +4,20 @@
 --------------------------------------------------------------------------- */
 
 /*
- * Theme: "Slate" — cool porcelain surfaces, muted slate-blue accent,
+ * Theme: "Denim" — cool porcelain surfaces, saturated denim-blue accent,
  * reserved amber for the over-goal state. One accent, used sparingly.
  */
 :root {
-  --bg: #f4f5f7;
+  --bg: #f5f6f8;
   --card: #ffffff;
-  --card-press: #f7f8fa;
+  --card-press: #f8f9fb;
   --ink: #1b1d22;
   --ink-2: #6b6e76;
   --ink-3: #a9acb4;
-  --accent: #4a72b8;
-  --accent-strong: #3e64a6;
+  --accent: #3b6fc4;
+  --accent-strong: #3260b2;
   --accent-ink: #ffffff;
-  --accent-soft: rgba(74, 114, 184, 0.1);
+  --accent-soft: rgba(59, 111, 196, 0.1);
   --danger: #c0453e;
   --warn: #b5822f;
   --hairline: rgba(27, 29, 34, 0.07);
@@ -28,7 +28,7 @@
     0 2px 6px rgba(23, 26, 33, 0.06),
     0 12px 40px rgba(23, 26, 33, 0.14);
   --blur-bg: rgba(255, 255, 255, 0.72);
-  --focus-ring: rgba(74, 114, 184, 0.35);
+  --focus-ring: rgba(59, 111, 196, 0.35);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,10 +39,10 @@
     --ink: #f4f5f7;
     --ink-2: #9a9da6;
     --ink-3: #62656e;
-    --accent: #5b84c9;
-    --accent-strong: #5b84c9;
-    --accent-ink: #0a0f18;
-    --accent-soft: rgba(91, 132, 201, 0.16);
+    --accent: #5b8ad6;
+    --accent-strong: #5b8ad6;
+    --accent-ink: #0a1220;
+    --accent-soft: rgba(91, 138, 214, 0.16);
     --danger: #d8655d;
     --warn: #d9a54a;
     --hairline: rgba(255, 255, 255, 0.08);
@@ -53,7 +53,7 @@
       0 2px 6px rgba(0, 0, 0, 0.35),
       0 12px 40px rgba(0, 0, 0, 0.5);
     --blur-bg: rgba(23, 24, 28, 0.72);
-    --focus-ring: rgba(91, 132, 201, 0.45);
+    --focus-ring: rgba(91, 138, 214, 0.45);
   }
 }
 
