@@ -55,3 +55,17 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: android/app/build/outputs/apk/release/app-release.apk
+
+      # Rolling release: every branch build refreshes the APK at a stable URL
+      # (…/releases/download/latest/app-release.apk) — no login, no zip.
+      - name: Update rolling 'latest' release
+        if: github.ref_type == 'branch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Tally — latest build
+          body: |
+            Signed sideload APK from the most recent build. Download
+            app-release.apk below and open it on your phone to install
+            or update — data carries over.
+          files: android/app/build/outputs/apk/release/app-release.apk
