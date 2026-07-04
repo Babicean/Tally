@@ -6,6 +6,8 @@ import AnimatedNumber from "./AnimatedNumber";
 interface Props {
   today: DayKey;
   total: number;
+  /** Grams of protein logged today; hidden when zero. */
+  protein: number;
   goal: number | null;
   onEditGoal: () => void;
 }
@@ -21,7 +23,13 @@ const CIRCUMFERENCE = 2 * Math.PI * R;
  * goal it sits inside a progress ring that fills toward the target and shifts
  * to a calm amber once the target is passed.
  */
-export default function Hero({ today, total, goal, onEditGoal }: Props) {
+export default function Hero({
+  today,
+  total,
+  protein,
+  goal,
+  onEditGoal,
+}: Props) {
   const [pulsing, setPulsing] = useState(false);
   const prevTotal = useRef(total);
   useEffect(() => {
@@ -48,6 +56,9 @@ export default function Hero({ today, total, goal, onEditGoal }: Props) {
           <AnimatedNumber value={total} />
         </h1>
         <p className="hero-caption">calories today</p>
+        {protein > 0 && (
+          <p className="hero-protein">{formatCalories(protein)} g protein</p>
+        )}
         <button className="goal-pill ghost" onClick={onEditGoal}>
           Set a daily goal
         </button>
@@ -96,6 +107,9 @@ export default function Hero({ today, total, goal, onEditGoal }: Props) {
           <p className="ring-caption">of {formatCalories(goal)} cal</p>
         </div>
       </div>
+      {protein > 0 && (
+        <p className="hero-protein">{formatCalories(protein)} g protein</p>
+      )}
       <button
         className={`goal-pill${over ? " over" : ""}`}
         onClick={onEditGoal}

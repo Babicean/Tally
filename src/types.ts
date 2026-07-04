@@ -17,6 +17,20 @@ export interface Entry {
   timestamp: number;
   /** The tracking day this entry counts toward (2 AM local boundary). */
   day: DayKey;
+  /** Grams of protein, when known (usually via a Menu item). */
+  protein?: number | null;
+}
+
+/** A saved staple food in the user's personal menu. */
+export interface MenuItem {
+  id: string;
+  name: string;
+  calories: number;
+  /** Grams of protein, or null when not tracked for this item. */
+  protein: number | null;
+  /** Pinned items surface as quick-add chips on the Today screen. */
+  pinned: boolean;
+  createdAt: number;
 }
 
 /** Aggregated view of one tracking day, used by the History screen. */

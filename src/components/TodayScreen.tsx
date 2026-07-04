@@ -1,35 +1,44 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import type { DayKey, Entry } from "../types";
 import type { FrequentItem } from "../lib/store";
 import { formatCalories } from "../lib/format";
 import { flyCalories, haptic } from "../lib/fly";
+import { useToast } from "../hooks/useToast";
 import Hero from "./Hero";
 import AddEntryForm from "./AddEntryForm";
 import QuickAddChips from "./QuickAddChips";
 import EntryList from "./EntryList";
 import EditEntrySheet from "./EditEntrySheet";
 import GoalSheet from "./GoalSheet";
-import Toast, { ToastData } from "./Toast";
+import Toast from "./Toast";
 
 interface Props {
   today: DayKey;
   total: number;
+  protein: number;
   entries: Entry[];
   quickAdds: FrequentItem[];
   dailyGoal: number | null;
   onSetGoal: (goal: number | null) => void;
-  onAdd: (calories: number, description: string) => Entry;
-  onUpdate: (id: string, calories: number, description: string) => void;
+  onAdd: (
+    calories: number,
+    description: string,
+    protein?: number | null,
+  ) => Entry;
+  onUpdate: (
+    id: string,
+    calories: number,
+    description: string,
+    protein?: number | null,
+  ) => void;
   onDelete: (id: string) => Entry | null;
   onRestore: (entry: Entry) => void;
 }
 
-// Rotating confirmation copy — short, warm, never a lecture.
-const CONFIRMATIONS = ["Logged", "Counted", "On the tally", "Noted"];
-
 export default function TodayScreen({
   today,
   total,
+  protein,
   entries,
   quickAdds,
   dailyGoal,
@@ -39,37 +48,23 @@ export default function TodayScreen({
   onDelete,
   onRestore,
 }: Props) {
-  const [toast, setToast] = useState<ToastData | null>(null);
+  const { toast, showToast, showConfirmation, dismiss } = useToast();
   const [goalOpen, setGoalOpen] = useState(false);
   const [editing, setEditing] = useState<Entry | null>(null);
-  const toastTimer = useRef(0);
-  const toastId = useRef(0);
-
-  const showToast = useCallback(
-    (data: Omit<ToastData, "id">, duration: number) => {
-      window.clearTimeout(toastTimer.current);
-      toastId.current += 1;
-      setToast({ ...data, id: toastId.current });
-      toastTimer.current = window.setTimeout(() => setToast(null), duration);
-    },
-    [],
-  );
 
   const handleAdd = useCallback(
-    (calories: number, description: string, sourceEl: HTMLElement) => {
-      onAdd(calories, description);
+    (
+      calories: number,
+      description: string,
+      sourceEl: HTMLElement,
+      itemProtein: number | null = null,
+    ) => {
+      onAdd(calories, description, itemProtein);
       flyCalories(`+${formatCalories(calories)}`, sourceEl);
       haptic(10);
-      showToast(
-        {
-          kind: "confirm",
-          message:
-            CONFIRMATIONS[Math.floor(Math.random() * CONFIRMATIONS.length)],
-        },
-        1600,
-      );
+      showConfirmation();
     },
-    [onAdd, showToast],
+    [onAdd, showConfirmation],
   );
 
   const handleDelete = useCallback(
@@ -86,7 +81,7 @@ export default function TodayScreen({
               onPress: () => {
                 onRestore(deleted);
                 haptic(10);
-                setToast(null);
+                dismiss();
               },
             },
           },
@@ -94,7 +89,7 @@ export default function TodayScreen({
         );
       }
     },
-    [onDelete, onRestore, showToast],
+    [onDelete, onRestore, showToast, dismiss],
   );
 
   return (
@@ -102,16 +97,19 @@ export default function TodayScreen({
       <Hero
         today={today}
         total={total}
+        protein={protein}
         goal={dailyGoal}
         onEditGoal={() => setGoalOpen(true)}
       />
 
       <QuickAddChips
         items={quickAdds}
-        onAdd={(item, el) => handleAdd(item.calories, item.description, el)}
+        onAdd={(item, el) =>
+          handleAdd(item.calories, item.description, el, item.protein ?? null)
+        }
       />
 
-      <AddEntryForm onAdd={handleAdd} />
+      <AddEntryForm onAdd={(cal, desc, el) => handleAdd(cal, desc, el)} />
 
       <h2 className="section-label">
         Today’s entries

@@ -90,9 +90,13 @@ export default function EntryList({ entries, onDelete, onEdit }: Props) {
                     <span className="entry-title">
                       {entry.description || formatTime(entry.timestamp)}
                     </span>
-                    {entry.description && (
+                    {(entry.description || entry.protein != null) && (
                       <span className="entry-time">
-                        {formatTime(entry.timestamp)}
+                        {entry.description
+                          ? formatTime(entry.timestamp)
+                          : null}
+                        {entry.description && entry.protein != null && " · "}
+                        {entry.protein != null && `${entry.protein} g protein`}
                       </span>
                     )}
                   </span>

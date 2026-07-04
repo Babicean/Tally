@@ -70,6 +70,7 @@ export function createEntry(
   calories: number,
   description: string,
   when: Date = new Date(),
+  protein: number | null = null,
 ): Entry {
   return {
     id:
@@ -80,12 +81,15 @@ export function createEntry(
     description: description.trim(),
     timestamp: when.getTime(),
     day: trackingDayFor(when),
+    protein,
   };
 }
 
 export interface FrequentItem {
   description: string;
   calories: number;
+  /** Grams of protein carried along when logging (Menu items only). */
+  protein?: number | null;
 }
 
 /**
@@ -126,6 +130,15 @@ export function totalForDay(entries: Entry[], day: DayKey): number {
   let total = 0;
   for (const e of entries) {
     if (e.day === day) total += e.calories;
+  }
+  return total;
+}
+
+/** Grams of protein logged on one tracking day (entries without protein count 0). */
+export function proteinForDay(entries: Entry[], day: DayKey): number {
+  let total = 0;
+  for (const e of entries) {
+    if (e.day === day && typeof e.protein === "number") total += e.protein;
   }
   return total;
 }

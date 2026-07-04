@@ -1,16 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { DayKey, Entry } from "../types";
+import type { DayKey, Entry, MenuItem } from "../types";
 import { msUntilNextBoundary, trackingDayFor } from "../lib/day";
 import {
   createEntry,
   entriesForDay,
-  frequentEntries,
   loadEntries,
+  proteinForDay,
   saveEntries,
   summarizeByDay,
   totalForDay,
 } from "../lib/store";
 import { loadSettings, saveSettings } from "../lib/settings";
+import {
+  buildQuickAdds,
+  createMenuItem,
+  loadMenu,
+  saveMenu,
+  sortMenu,
+} from "../lib/menu";
 
 /**
  * Single source of truth for entries and settings. Persists on every change
@@ -23,6 +30,11 @@ export function useEntries() {
   const [dailyGoal, setDailyGoalState] = useState<number | null>(
     () => loadSettings().dailyGoal,
   );
+  const [menu, setMenu] = useState<MenuItem[]>(() => loadMenu());
+
+  useEffect(() => {
+    saveMenu(menu);
+  }, [menu]);
 
   useEffect(() => {
     saveEntries(entries);
@@ -44,23 +56,32 @@ export function useEntries() {
       if (event.key === "tally.settings") {
         setDailyGoalState(loadSettings().dailyGoal);
       }
+      if (event.key === "tally.menu") setMenu(loadMenu());
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  const addEntry = useCallback((calories: number, description: string) => {
-    const entry = createEntry(calories, description);
-    setEntries((prev) => [...prev, entry]);
-    return entry;
-  }, []);
+  const addEntry = useCallback(
+    (calories: number, description: string, protein: number | null = null) => {
+      const entry = createEntry(calories, description, new Date(), protein);
+      setEntries((prev) => [...prev, entry]);
+      return entry;
+    },
+    [],
+  );
 
   const updateEntry = useCallback(
-    (id: string, calories: number, description: string) => {
+    (
+      id: string,
+      calories: number,
+      description: string,
+      protein: number | null = null,
+    ) => {
       setEntries((prev) =>
         prev.map((e) =>
           e.id === id
-            ? { ...e, calories, description: description.trim() }
+            ? { ...e, calories, description: description.trim(), protein }
             : e,
         ),
       );
@@ -90,6 +111,34 @@ export function useEntries() {
     saveSettings({ dailyGoal: goal });
   }, []);
 
+  const addMenuItem = useCallback(
+    (name: string, calories: number, protein: number | null) => {
+      setMenu((prev) => [...prev, createMenuItem(name, calories, protein)]);
+    },
+    [],
+  );
+
+  const updateMenuItem = useCallback(
+    (id: string, name: string, calories: number, protein: number | null) => {
+      setMenu((prev) =>
+        prev.map((m) =>
+          m.id === id ? { ...m, name: name.trim(), calories, protein } : m,
+        ),
+      );
+    },
+    [],
+  );
+
+  const deleteMenuItem = useCallback((id: string) => {
+    setMenu((prev) => prev.filter((m) => m.id !== id));
+  }, []);
+
+  const togglePinned = useCallback((id: string) => {
+    setMenu((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, pinned: !m.pinned } : m)),
+    );
+  }, []);
+
   const todayEntries = useMemo(
     () => entriesForDay(entries, today),
     [entries, today],
@@ -98,20 +147,34 @@ export function useEntries() {
     () => totalForDay(entries, today),
     [entries, today],
   );
+  const todayProtein = useMemo(
+    () => proteinForDay(entries, today),
+    [entries, today],
+  );
   const history = useMemo(() => summarizeByDay(entries), [entries]);
-  const quickAdds = useMemo(() => frequentEntries(entries), [entries]);
+  const quickAdds = useMemo(
+    () => buildQuickAdds(menu, entries),
+    [menu, entries],
+  );
+  const sortedMenu = useMemo(() => sortMenu(menu), [menu]);
 
   return {
     today,
     todayEntries,
     todayTotal,
+    todayProtein,
     history,
     quickAdds,
+    menu: sortedMenu,
     dailyGoal,
     setDailyGoal,
     addEntry,
     updateEntry,
     deleteEntry,
     restoreEntry,
+    addMenuItem,
+    updateMenuItem,
+    deleteMenuItem,
+    togglePinned,
   };
 }
