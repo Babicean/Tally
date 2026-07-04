@@ -168,6 +168,7 @@ export default function App() {
         onClose={() => setSettingsOpen(false)}
       />
 
+      <div className="bottom-scrim" aria-hidden="true" />
       <nav className="tabbar-wrap" aria-label="Screens">
         <div className="tabbar">
           <span

@@ -471,7 +471,11 @@ input {
   position: fixed;
   z-index: 60;
   pointer-events: none;
-  font-size: 1.0625rem;
+  padding: 0.25rem 0.6875rem;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: var(--shadow-float);
+  font-size: 0.9375rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--accent);
@@ -1651,6 +1655,17 @@ input {
 }
 
 /* ---- Tab bar ------------------------------------------------------------ */
+
+.bottom-scrim {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(8.75rem + var(--sab));
+  background: linear-gradient(to top, var(--bg) 42%, transparent);
+  pointer-events: none;
+  z-index: 9;
+}
 
 .tabbar-wrap {
   position: fixed;
