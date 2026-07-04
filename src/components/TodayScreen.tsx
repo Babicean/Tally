@@ -64,6 +64,8 @@ export default function TodayScreen({
       itemProtein: number | null = null,
     ) => {
       const extendsStreak = !streak.loggedToday && streak.length + 1 >= 2;
+      const crossesTarget =
+        dailyGoal !== null && total < dailyGoal && total + calories >= dailyGoal;
       onAdd(calories, description, itemProtein);
       flyCalories(`+${formatCalories(calories)}`, sourceEl);
       if (extendsStreak) {
@@ -75,12 +77,20 @@ export default function TodayScreen({
           showToast({ kind: "streak", message: `${day}-day streak` }, 2600);
         }, 350);
         haptic(10);
+      } else if (crossesTarget) {
+        // Hitting the day's target earns the small fireworks too.
+        window.setTimeout(() => {
+          celebrate(document.getElementById("hero-total"));
+          haptic(24);
+          showToast({ kind: "streak", message: "Target reached" }, 2600);
+        }, 350);
+        haptic(10);
       } else {
         haptic(10);
         showConfirmation();
       }
     },
-    [onAdd, streak, showToast, showConfirmation],
+    [onAdd, streak, total, dailyGoal, showToast, showConfirmation],
   );
 
   const handleDelete = useCallback(

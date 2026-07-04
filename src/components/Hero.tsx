@@ -21,6 +21,31 @@ const R = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * R;
 
 /**
+ * Ambient sparkles: deterministic positions (golden-angle scatter inside the
+ * ring) so existing sparkles never move — progress just reveals more of them.
+ */
+const SPARK_COLORS = ["var(--accent)", "var(--warn)", "var(--ink-3)"];
+const SPARKS = Array.from({ length: 16 }, (_, i) => {
+  const angle = i * 137.508 * (Math.PI / 180);
+  const radius = 64 + ((i * 31) % 40);
+  return {
+    x: SIZE / 2 + Math.cos(angle) * radius,
+    y: SIZE / 2 + Math.sin(angle) * radius,
+    size: 1.6 + ((i * 13) % 10) / 6,
+    star: i % 3 === 0, // every third is a tiny 4-point spark
+    color: SPARK_COLORS[i % SPARK_COLORS.length],
+    delay: (i % 7) * 0.55,
+    duration: 2.6 + (i % 4) * 0.7,
+  };
+});
+
+/** A tiny 4-point star path centred on (0,0). */
+function starPath(r: number): string {
+  const inner = r * 0.38;
+  return `M0 ${-r} L${inner} ${-inner} L${r} 0 L${inner} ${inner} L0 ${r} L${-inner} ${inner} L${-r} 0 L${-inner} ${-inner} Z`;
+}
+
+/**
  * The hero total. Without a goal it's the big free-standing number; with a
  * goal it sits inside a progress ring that fills toward the target and shifts
  * to a calm amber once the target is passed.
@@ -98,6 +123,32 @@ export default function Hero({
           role="img"
           aria-label={`${total} of ${goal} calories`}
         >
+          {/* Sparkles accumulate with progress; each keeps its spot. */}
+          <g className="sparkles">
+            {SPARKS.slice(
+              0,
+              Math.min(SPARKS.length, Math.floor(progress * SPARKS.length)),
+            ).map((sp, i) => (
+              <g
+                key={i}
+                className="sparkle"
+                style={
+                  {
+                    "--tw-delay": `${sp.delay}s`,
+                    "--tw-dur": `${sp.duration}s`,
+                  } as React.CSSProperties
+                }
+                transform={`translate(${sp.x} ${sp.y})`}
+                fill={sp.color}
+              >
+                {sp.star ? (
+                  <path d={starPath(sp.size * 1.9)} />
+                ) : (
+                  <circle r={sp.size} />
+                )}
+              </g>
+            ))}
+          </g>
           <circle
             className="ring-track"
             cx={SIZE / 2}
