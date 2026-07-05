@@ -124,6 +124,13 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* No scrollbars anywhere; the overscroll stretch is the scroll signal.
+     The Android WebView scrollbar is disabled natively in MainActivity. */
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -684,11 +691,37 @@ input {
   position: relative;
   width: 100%;
   max-width: 32.5rem;
+  /* Never taller than the screen: outsized content (large system font
+     scale, long menus) scrolls inside .sheet-body while the grabber and
+     a slice of backdrop stay reachable — a sheet must never trap. */
+  max-height: calc(100dvh - 3rem);
+  display: flex;
+  flex-direction: column;
   background: var(--card);
   border-radius: 1.5rem 1.5rem 0 0;
   padding: 0.75rem 1.375rem calc(1.75rem + var(--sab));
   box-shadow: var(--shadow-float);
   animation: sheet-up 320ms cubic-bezier(0.3, 0.9, 0.35, 1) both;
+}
+
+.sheet-handle {
+  flex: none;
+}
+
+.sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  /* Bleed to the sheet's edges so focus rings aren't clipped, while the
+     content keeps the sheet's own gutters. */
+  margin: 0 -1.375rem;
+  padding: 0 1.375rem;
+}
+
+.sheet-body::-webkit-scrollbar {
+  display: none;
 }
 
 /* Bleed below the bottom edge: pulling the sheet up reveals this instead

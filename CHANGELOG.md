@@ -10,6 +10,20 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.3.1 — code 21 — 2026-07-05
+
+Fixes for phones with a large system font size, where WebView's text
+zoom inflated every layout (full-screen settings sheet with no way
+out, overflowing pages, visible scrollbars).
+
+- System font size is honored up to 115%, then capped — beyond that
+  the layouts broke apart instead of getting more readable.
+- Sheets can never trap again: they cap below full-screen height and
+  scroll internally, so the grabber and a slice of backdrop always
+  stay reachable no matter how tall the content gets.
+- Scrollbars disabled everywhere, natively and in CSS — the
+  overscroll stretch is the only scroll signal.
+
 ## 2.3 — code 20 — 2026-07-05
 
 **Optional account (beta), merged from the side branch** after three

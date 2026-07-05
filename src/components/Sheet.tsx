@@ -146,7 +146,7 @@ export default function Sheet({ open, title, onClose, children }: Props) {
           <div className="sheet-grabber" aria-hidden="true" />
           <h2 className="sheet-title">{title}</h2>
         </div>
-        {children}
+        <div className="sheet-body">{children}</div>
       </div>
     </div>,
     document.body,
