@@ -355,6 +355,25 @@ input {
   font-variant-numeric: tabular-nums;
 }
 
+/* Thin bar under the protein line; fills toward the target in the
+   accent color, capped at full — protein over target is a win, not a
+   warning. */
+.protein-bar {
+  width: 7.5rem;
+  height: 0.1875rem;
+  margin: 0.4375rem auto 0;
+  border-radius: 999px;
+  background: var(--hairline);
+  overflow: hidden;
+}
+
+.protein-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 900ms cubic-bezier(0.25, 0.8, 0.3, 1);
+}
+
 .goal-pill {
   display: inline-flex;
   align-items: center;

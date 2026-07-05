@@ -62,18 +62,6 @@ export default function Hero({
   goal,
   onEditGoal,
 }: Props) {
-  const proteinLine =
-    trackProtein && (protein > 0 || proteinTarget !== null) ? (
-      <p
-        className={`hero-protein${
-          proteinTarget !== null && protein >= proteinTarget ? " met" : ""
-        }`}
-      >
-        {formatCalories(protein)}
-        {proteinTarget !== null && ` / ${formatCalories(proteinTarget)}`} g
-        protein
-      </p>
-    ) : null;
   const [pulsing, setPulsing] = useState(false);
   const prevTotal = useRef(total);
   useEffect(() => {
@@ -91,6 +79,37 @@ export default function Hero({
     const raf = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(raf);
   }, []);
+
+  const proteinLine =
+    trackProtein && (protein > 0 || proteinTarget !== null) ? (
+      <div className="hero-protein-wrap">
+        <p
+          className={`hero-protein${
+            proteinTarget !== null && protein >= proteinTarget ? " met" : ""
+          }`}
+        >
+          {formatCalories(protein)}
+          {proteinTarget !== null && ` / ${formatCalories(proteinTarget)}`} g
+          protein
+        </p>
+        {proteinTarget !== null && (
+          <div
+            className="protein-bar"
+            role="img"
+            aria-label={`${protein} of ${proteinTarget} grams of protein`}
+          >
+            <div
+              className="protein-bar-fill"
+              style={{
+                width: `${
+                  (mounted ? Math.min(protein / proteinTarget, 1) : 0) * 100
+                }%`,
+              }}
+            />
+          </div>
+        )}
+      </div>
+    ) : null;
 
   if (goal === null) {
     return (

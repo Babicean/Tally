@@ -38,6 +38,13 @@ beta.2:
   True mailbox verification still needs the server; the record now
   carries a `verified` flag (always false locally) ready for it.
 
+## 2.2.1 — code 19 — 2026-07-05
+
+- Thin protein progress bar under the protein line on Today, filling
+  toward the daily protein target in the accent color. Only shown when
+  protein tracking is on and a target is set; caps at full — protein
+  over target is a win, not a warning.
+
 ## 2.2 — code 18 — 2026-07-05
 
 - **Menu, one tap closer.** The Today screen's chip row now leads with
