@@ -22,6 +22,9 @@ entry's time, or "+ Add to this day" inside a History day), deletions get a 5-se
 flies into the total with a small "Logged ✓" confirmation. Installable as a
 **PWA** with offline support.
 
+Version history lives in [CHANGELOG.md](CHANGELOG.md) — one entry per
+release, updated with every version bump.
+
 ## Running it
 
 ```sh
