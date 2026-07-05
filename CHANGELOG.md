@@ -10,6 +10,31 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.3 — code 20 — 2026-07-05
+
+**Optional account (beta), merged from the side branch** after three
+beta rounds of on-device testing. Still local-only: nothing leaves
+the device, and the privacy policy is unchanged until the sync server
+exists. The revert point is the `stable-pre-account` branch.
+
+- Settings gains an **Account** row (person icon on the right, your
+  initial-letter avatar once signed in) that drills into its own
+  panel — iOS-style slide, back button returns. No dedicated page,
+  no first-open wall; the app stays instant.
+- Create account / log in with just an email and a password — no
+  username, no name, no photo. Show/hide password toggle. Passwords
+  are salted and hashed even locally.
+- Email checks that work offline: shape rules with specific messages,
+  plus a typo catcher for classic domain slips (gmail.con,
+  hotnail.com, yaho.com…) offering "Did you mean…?" with one tap to
+  accept. True mailbox verification arrives with the server; records
+  carry a `verified` flag (always false locally) ready for it.
+- Signed-in panel: avatar, email, member-since date, an honest "Last
+  backed up: not yet" row, Log out, and two-tap Delete account
+  (deleting the account never touches entries or settings).
+- Account record is mirrored to native storage like everything else,
+  and clear BETA notes mark the feature until sync is real.
+
 ## 2.2.1 — code 19 — 2026-07-05
 
 - Thin protein progress bar under the protein line on Today, filling

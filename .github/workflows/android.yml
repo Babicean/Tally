@@ -69,3 +69,20 @@ jobs:
             app-release.apk below and open it on your phone to install
             or update — data carries over.
           files: android/app/build/outputs/apk/release/app-release.apk
+
+      # Beta channel: the account side branch publishes to its own tag so
+      # the beta can be tested without ever touching the stable release.
+      - name: Update rolling 'beta' release
+        if: github.ref == 'refs/heads/claude/tally-account'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: beta
+          name: Tally — account beta
+          prerelease: true
+          body: |
+            Beta build from the account side branch: optional email and
+            password account in Settings, local-only for now (no server,
+            nothing is transmitted). Installs over the stable app with
+            your data intact; reinstall from the 'latest' release to go
+            back — same signature, same data.
+          files: android/app/build/outputs/apk/release/app-release.apk
