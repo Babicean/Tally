@@ -10,6 +10,13 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.1.2 — code 17 — 2026-07-05
+
+- Today and Menu now have the same living pull-and-bounce as History.
+  The stretch is Android's native overscroll, which only engages on
+  scrollable pages; every tab now overflows the viewport by one
+  invisible pixel so the physics work everywhere.
+
 ## 2.1.1 — code 16 — 2026-07-05
 
 Feel tweaks to 2.1 from on-device testing.
