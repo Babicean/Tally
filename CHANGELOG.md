@@ -10,6 +10,23 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## Unreleased — account beta (side branch `claude/tally-account`)
+
+Design pass for optional accounts, ahead of a future sync server.
+Local-only: nothing leaves the device, and the privacy policy is
+unchanged until real transmission exists.
+
+- Settings gains an **Account** row that drills into its own panel
+  (iOS-style slide, back button returns).
+- Create account / log in with just an email and a password — no
+  username, no name, no photo. Password is salted and hashed even
+  locally.
+- Signed-in panel: initial-letter avatar, email, member-since date, a
+  "Last backed up" row (honest: "not yet — syncing arrives with the
+  server update"), Log out, and two-tap Delete account.
+- Clear "Beta — local only" notes wherever the account appears.
+- Account record is mirrored to native storage like everything else.
+
 ## 2.1.1 — code 16 — 2026-07-05
 
 Feel tweaks to 2.1 from on-device testing.
