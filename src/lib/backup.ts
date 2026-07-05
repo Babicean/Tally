@@ -54,6 +54,7 @@ export function parseBackup(json: string): BackupPayload | null {
     const theme = raw.settings?.theme;
     const trackProtein = raw.settings?.trackProtein;
     const proteinTarget = raw.settings?.proteinTarget;
+    const accent = raw.settings?.accent;
     return {
       app: "tally",
       version: typeof raw.version === "number" ? raw.version : 1,
@@ -73,6 +74,7 @@ export function parseBackup(json: string): BackupPayload | null {
           proteinTarget > 0
             ? Math.round(proteinTarget)
             : null,
+        accent: accent === "emerald" ? "emerald" : "azure",
       },
     };
   } catch {

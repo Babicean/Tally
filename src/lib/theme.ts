@@ -2,6 +2,17 @@ import { Capacitor } from "@capacitor/core";
 import { loadSettings } from "./settings";
 
 export type ThemePref = "system" | "light" | "dark";
+export type AccentPref = "azure" | "emerald";
+
+/** Stamp the accent family on <html>; CSS tokens key off it. */
+export function applyAccent(accent: AccentPref): void {
+  const root = document.documentElement;
+  if (accent === "azure") {
+    delete root.dataset.accent;
+  } else {
+    root.dataset.accent = accent;
+  }
+}
 
 export function isThemePref(value: unknown): value is ThemePref {
   return value === "system" || value === "light" || value === "dark";

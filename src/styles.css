@@ -86,6 +86,36 @@
     --focus-ring: rgba(93, 141, 255, 0.45);
 }
 
+/* ---- Emerald accent (Settings → Accent) ----------------------------------
+   Only the accent family changes; surfaces and inks stay put. The dark
+   variants must out-rank BOTH dark token blocks above, hence the doubled
+   selectors. */
+
+:root[data-accent="emerald"] {
+  --accent: #149e60;
+  --accent-strong: #0f8a52;
+  --accent-soft: rgba(20, 158, 96, 0.1);
+  --focus-ring: rgba(20, 158, 96, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-accent="emerald"]:not([data-theme="light"]) {
+    --accent: #27a468;
+    --accent-strong: #27a468;
+    --accent-ink: #06130c;
+    --accent-soft: rgba(39, 164, 104, 0.16);
+    --focus-ring: rgba(39, 164, 104, 0.45);
+  }
+}
+
+:root[data-theme="dark"][data-accent="emerald"] {
+  --accent: #27a468;
+  --accent-strong: #27a468;
+  --accent-ink: #06130c;
+  --accent-soft: rgba(39, 164, 104, 0.16);
+  --focus-ring: rgba(39, 164, 104, 0.45);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -597,6 +627,17 @@ input {
   animation: sheet-up 320ms cubic-bezier(0.3, 0.9, 0.35, 1) both;
 }
 
+/* Once a drag has happened, the finger (not the keyframe) owns the
+   transform; releasing springs back via the transition. */
+.sheet.dragged {
+  animation: none;
+  transition: transform 300ms cubic-bezier(0.3, 0.9, 0.35, 1);
+}
+
+.sheet.dragging {
+  transition: none;
+}
+
 .sheet.closing {
   animation: sheet-down 200ms ease-in both;
 }
@@ -612,11 +653,27 @@ input {
 
 @keyframes sheet-down {
   from {
-    transform: none;
+    /* Dismissed mid-drag? Continue from wherever the finger left off. */
+    transform: translateY(var(--drag-y, 0px));
   }
   to {
     transform: translateY(100%);
   }
+}
+
+/* Generous edge-to-edge drag target around the grabber and title. */
+.sheet-handle {
+  margin: -0.75rem -1.375rem 0;
+  padding: 0.75rem 1.375rem 0;
+  border-radius: 1.5rem 1.5rem 0 0;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sheet-handle:active {
+  cursor: grabbing;
 }
 
 .sheet-grabber {
@@ -793,6 +850,72 @@ input {
 .settings-target {
   flex: none;
   width: 6.25rem;
+}
+
+.accent-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.25rem;
+  margin-top: 0.625rem;
+  padding: 0.25rem;
+  border-radius: 0.875rem;
+  background: var(--bg);
+}
+
+.accent-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5625rem 0;
+  border-radius: 0.625rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.accent-btn.active {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.accent-dot {
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+}
+
+.accent-dot.azure {
+  background: #2e6be6;
+}
+
+.accent-dot.emerald {
+  background: #149e60;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .accent-dot.azure {
+    background: #5d8dff;
+  }
+
+  :root:not([data-theme="light"]) .accent-dot.emerald {
+    background: #27a468;
+  }
+}
+
+:root[data-theme="dark"] .accent-dot.azure {
+  background: #5d8dff;
+}
+
+:root[data-theme="dark"] .accent-dot.emerald {
+  background: #27a468;
 }
 
 .settings-target input {

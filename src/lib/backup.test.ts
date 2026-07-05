@@ -17,7 +17,7 @@ describe("backup round-trip", () => {
     const payload = buildBackup(
       [entryA, entryB],
       [itemA],
-      { dailyGoal: 2200, theme: "dark", trackProtein: true, proteinTarget: 140 },
+      { dailyGoal: 2200, theme: "dark", trackProtein: true, proteinTarget: 140, accent: "emerald" },
       new Date(2026, 6, 4, 10, 0),
     );
     const parsed = parseBackup(JSON.stringify(payload));
@@ -29,6 +29,7 @@ describe("backup round-trip", () => {
     expect(parsed!.settings.theme).toBe("dark");
     expect(parsed!.settings.trackProtein).toBe(true);
     expect(parsed!.settings.proteinTarget).toBe(140);
+    expect(parsed!.settings.accent).toBe("emerald");
   });
 
   it("names the file after the export date", () => {
@@ -62,7 +63,7 @@ describe("parseBackup validation", () => {
 
 describe("mergeBackup", () => {
   it("unions by id — current data wins, gaps are filled", () => {
-    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, proteinTarget: null });
+    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, proteinTarget: null, accent: "azure" });
     const result = mergeBackup([entryA], [], backup);
     expect(result.entries).toHaveLength(2);
     expect(result.addedEntries).toBe(1);
@@ -70,7 +71,7 @@ describe("mergeBackup", () => {
   });
 
   it("is idempotent — importing the same backup twice adds nothing", () => {
-    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, proteinTarget: null });
+    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, proteinTarget: null, accent: "azure" });
     const once = mergeBackup([], [], backup);
     const twice = mergeBackup(once.entries, once.menu, backup);
     expect(twice.addedEntries).toBe(0);

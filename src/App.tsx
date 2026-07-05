@@ -71,6 +71,8 @@ export default function App() {
     setDailyGoal,
     theme,
     setTheme,
+    accent,
+    setAccent,
     trackProtein,
     setTrackProtein,
     proteinTarget,
@@ -161,6 +163,8 @@ export default function App() {
         open={settingsOpen}
         theme={theme}
         onSetTheme={setTheme}
+        accent={accent}
+        onSetAccent={setAccent}
         trackProtein={trackProtein}
         onSetTrackProtein={setTrackProtein}
         proteinTarget={proteinTarget}

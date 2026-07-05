@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import Sheet from "./Sheet";
-import type { ThemePref } from "../lib/theme";
+import type { AccentPref, ThemePref } from "../lib/theme";
 import { parseProtein } from "../lib/menu";
 
 interface Props {
   open: boolean;
   theme: ThemePref;
   onSetTheme: (theme: ThemePref) => void;
+  accent: AccentPref;
+  onSetAccent: (accent: AccentPref) => void;
   trackProtein: boolean;
   onSetTrackProtein: (on: boolean) => void;
   proteinTarget: number | null;
@@ -20,10 +22,17 @@ const THEME_OPTIONS: { id: ThemePref; label: string }[] = [
   { id: "dark", label: "Dark" },
 ];
 
+const ACCENT_OPTIONS: { id: AccentPref; label: string }[] = [
+  { id: "azure", label: "Azure" },
+  { id: "emerald", label: "Emerald" },
+];
+
 export default function SettingsSheet({
   open,
   theme,
   onSetTheme,
+  accent,
+  onSetAccent,
   trackProtein,
   onSetTrackProtein,
   proteinTarget,
@@ -58,6 +67,22 @@ export default function SettingsSheet({
             className={`seg-btn${theme === o.id ? " active" : ""}`}
             onClick={() => onSetTheme(o.id)}
           >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
+      <p className="settings-label">Accent</p>
+      <div className="accent-row" role="radiogroup" aria-label="Accent color">
+        {ACCENT_OPTIONS.map((o) => (
+          <button
+            key={o.id}
+            role="radio"
+            aria-checked={accent === o.id}
+            className={`accent-btn${accent === o.id ? " active" : ""}`}
+            onClick={() => onSetAccent(o.id)}
+          >
+            <span className={`accent-dot ${o.id}`} aria-hidden="true" />
             {o.label}
           </button>
         ))}

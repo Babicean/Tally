@@ -20,7 +20,7 @@ import {
 } from "../lib/menu";
 import { mergeBackup, type BackupPayload } from "../lib/backup";
 import { computeStreak } from "../lib/streak";
-import { applyTheme, type ThemePref } from "../lib/theme";
+import { applyAccent, applyTheme, type AccentPref, type ThemePref } from "../lib/theme";
 
 /**
  * Single source of truth for entries, menu, and settings. Persists on every
@@ -58,6 +58,7 @@ export function useEntries() {
         const next = loadSettings();
         setSettings(next);
         applyTheme(next.theme);
+        applyAccent(next.accent);
       }
       if (event.key === "tally.menu") setMenu(loadMenu());
     };
@@ -70,6 +71,7 @@ export function useEntries() {
       const next = { ...prev, ...patch };
       saveSettings(next);
       if (patch.theme !== undefined) applyTheme(next.theme);
+      if (patch.accent !== undefined) applyAccent(next.accent);
       return next;
     });
   }, []);
@@ -88,6 +90,10 @@ export function useEntries() {
   );
   const setProteinTarget = useCallback(
     (proteinTarget: number | null) => updateSettings({ proteinTarget }),
+    [updateSettings],
+  );
+  const setAccent = useCallback(
+    (accent: AccentPref) => updateSettings({ accent }),
     [updateSettings],
   );
 
@@ -249,6 +255,8 @@ export function useEntries() {
     setTrackProtein,
     proteinTarget: settings.proteinTarget,
     setProteinTarget,
+    accent: settings.accent,
+    setAccent,
     addEntry,
     updateEntry,
     deleteEntry,

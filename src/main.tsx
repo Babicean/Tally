@@ -3,14 +3,16 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { restoreFromMirror } from "./lib/mirror";
 import { loadSettings } from "./lib/settings";
-import { applyTheme, watchSystemTheme } from "./lib/theme";
+import { applyAccent, applyTheme, watchSystemTheme } from "./lib/theme";
 import "@fontsource-variable/inter";
 import "./styles.css";
 
 // If WebView storage was wiped (it happens), recover from the native
 // mirror before the app reads localStorage.
 restoreFromMirror().finally(() => {
-  applyTheme(loadSettings().theme);
+  const boot = loadSettings();
+  applyTheme(boot.theme);
+  applyAccent(boot.accent);
   watchSystemTheme();
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
