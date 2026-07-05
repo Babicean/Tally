@@ -10,6 +10,17 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.3.2 — code 22 — 2026-07-05
+
+Same proportions on every phone.
+
+- Text zoom locked to 100%: the app's own type scale is the design,
+  identical on every device. (The system font-size setting no longer
+  affects Tally; it was distorting layouts differently per phone.)
+- Fluid base unit: the whole UI scales gently with viewport width, so
+  narrower phones render the same proportions as big flagships
+  instead of a zoomed-in crop. Large phones and desktop unchanged.
+
 ## 2.3.1 — code 21 — 2026-07-05
 
 Fixes for phones with a large system font size, where WebView's text

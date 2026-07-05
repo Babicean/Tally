@@ -19,11 +19,10 @@ public class MainActivity extends BridgeActivity {
         webView.setHorizontalScrollBarEnabled(false);
 
         // WebView multiplies all web text by the system font-size setting
-        // (textZoom). Honor it up to 115%, where the layouts still hold;
-        // beyond that, sheets outgrow the screen and the UI breaks apart
-        // instead of getting more readable.
+        // (textZoom), which distorts the layout differently on every
+        // phone. Lock it to 100: the app's own type scale (already large)
+        // is the design, identical on every device.
         WebSettings settings = webView.getSettings();
-        int zoom = settings.getTextZoom();
-        settings.setTextZoom(Math.max(100, Math.min(zoom, 115)));
+        settings.setTextZoom(100);
     }
 }
