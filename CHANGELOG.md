@@ -10,6 +10,16 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.2 — code 18 — 2026-07-05
+
+- **Menu, one tap closer.** The Today screen's chip row now leads with
+  an accent-tinted Menu chip. Tapping it opens a "From the Menu" sheet
+  listing every saved staple in the Menu tab's own row style; one tap
+  logs it to today (fly animation, streak and target celebrations
+  included) and the sheet slips away. Habit chips stay right where
+  they were, after the Menu chip. The chip only appears once the Menu
+  has at least one item, so day one stays clean.
+
 ## 2.1.2 — code 17 — 2026-07-05
 
 - Today and Menu now have the same living pull-and-bounce as History.

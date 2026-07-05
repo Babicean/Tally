@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { DayKey, Entry } from "../types";
+import type { DayKey, Entry, MenuItem } from "../types";
 import type { FrequentItem } from "../lib/store";
 import { formatCalories } from "../lib/format";
 import { flyCalories, haptic } from "../lib/fly";
@@ -9,6 +9,7 @@ import { useToast } from "../hooks/useToast";
 import Hero from "./Hero";
 import AddEntryForm from "./AddEntryForm";
 import QuickAddChips from "./QuickAddChips";
+import MenuPickSheet from "./MenuPickSheet";
 import EntryList from "./EntryList";
 import EditEntrySheet from "./EditEntrySheet";
 import GoalSheet from "./GoalSheet";
@@ -23,6 +24,7 @@ interface Props {
   streak: Streak;
   entries: Entry[];
   quickAdds: FrequentItem[];
+  menu: MenuItem[];
   dailyGoal: number | null;
   onSetGoal: (goal: number | null) => void;
   onAdd: (
@@ -50,6 +52,7 @@ export default function TodayScreen({
   streak,
   entries,
   quickAdds,
+  menu,
   dailyGoal,
   onSetGoal,
   onAdd,
@@ -59,6 +62,7 @@ export default function TodayScreen({
 }: Props) {
   const { toast, showToast, showConfirmation, dismiss } = useToast();
   const [goalOpen, setGoalOpen] = useState(false);
+  const [menuPickOpen, setMenuPickOpen] = useState(false);
   const [editing, setEditing] = useState<Entry | null>(null);
 
   const handleAdd = useCallback(
@@ -138,6 +142,8 @@ export default function TodayScreen({
 
       <QuickAddChips
         items={quickAdds}
+        menuAvailable={menu.length > 0}
+        onBrowseMenu={() => setMenuPickOpen(true)}
         onAdd={(item, el) =>
           handleAdd(item.calories, item.description, el, item.protein ?? null)
         }
@@ -159,6 +165,16 @@ export default function TodayScreen({
         }
       />
 
+      <MenuPickSheet
+        open={menuPickOpen}
+        menu={menu}
+        trackProtein={trackProtein}
+        onPick={(item, el) => {
+          handleAdd(item.calories, item.name, el, item.protein ?? null);
+          setMenuPickOpen(false);
+        }}
+        onClose={() => setMenuPickOpen(false)}
+      />
       <GoalSheet
         open={goalOpen}
         goal={dailyGoal}

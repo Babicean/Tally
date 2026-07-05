@@ -126,6 +126,7 @@ export default function App() {
           streak={streak}
           entries={todayEntries}
           quickAdds={quickAdds}
+          menu={menu}
           dailyGoal={dailyGoal}
           onSetGoal={setDailyGoal}
           onAdd={addEntry}
