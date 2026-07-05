@@ -162,7 +162,10 @@ input {
   max-width: 32.5rem;
   margin: 0 auto;
   padding: var(--sat) 1.375rem calc(7.5rem + var(--sab));
-  min-height: 100dvh;
+  /* One invisible pixel past the viewport keeps every tab scrollable, so
+     the native overscroll stretch works even when content fits — Today
+     and Menu bounce like History instead of feeling bolted down. */
+  min-height: calc(100dvh + 1px);
 }
 
 .top-bar {
