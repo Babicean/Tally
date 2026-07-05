@@ -10,6 +10,13 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.2.1 — code 19 — 2026-07-05
+
+- Thin protein progress bar under the protein line on Today, filling
+  toward the daily protein target in the accent color. Only shown when
+  protein tracking is on and a target is set; caps at full — protein
+  over target is a win, not a warning.
+
 ## 2.2 — code 18 — 2026-07-05
 
 - **Menu, one tap closer.** The Today screen's chip row now leads with
