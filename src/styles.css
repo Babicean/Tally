@@ -1128,21 +1128,23 @@ input {
   vertical-align: 1px;
 }
 
+/* Trails the row text so titles stay flush with the rows above. */
 .settings-icon {
   flex: none;
-  width: 2.125rem;
-  height: 2.125rem;
+  width: 1.875rem;
+  height: 1.875rem;
   border-radius: 50%;
   display: grid;
   place-items: center;
   background: var(--bg);
   color: var(--ink-2);
+  margin-right: -0.25rem;
 }
 
 .settings-icon.avatar {
   background: var(--accent-soft);
   color: var(--accent);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 700;
 }
 

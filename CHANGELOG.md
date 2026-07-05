@@ -38,6 +38,12 @@ beta.2:
   True mailbox verification still needs the server; the record now
   carries a `verified` flag (always false locally) ready for it.
 
+beta.3:
+
+- The Account row's icon moves to the right of the text (slightly
+  smaller), so the row's title lines up with everything above it.
+- Includes 2.2.1's protein progress bar from the main line.
+
 ## 2.2.1 — code 19 — 2026-07-05
 
 - Thin protein progress bar under the protein line on Today, filling

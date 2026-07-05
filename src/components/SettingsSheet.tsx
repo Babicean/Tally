@@ -470,13 +470,23 @@ export default function SettingsSheet({
         className="settings-row settings-link"
         onClick={() => setView("account")}
       >
+        <div className="settings-row-text">
+          <span className="settings-row-title">
+            {signedIn && acct.account ? acct.account.email : "Account"}
+          </span>
+          <span className="settings-row-sub">
+            {signedIn
+              ? "Signed in · local beta"
+              : "Optional. Keep your data safe beyond this phone."}
+          </span>
+        </div>
         {signedIn && acct.account ? (
           <span className="settings-icon avatar" aria-hidden="true">
             {acct.account.email[0].toUpperCase()}
           </span>
         ) : (
           <span className="settings-icon" aria-hidden="true">
-            <svg width="17" height="17" viewBox="0 0 20 20" fill="none">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
               <circle
                 cx="10"
                 cy="7"
@@ -493,16 +503,6 @@ export default function SettingsSheet({
             </svg>
           </span>
         )}
-        <div className="settings-row-text">
-          <span className="settings-row-title">
-            {signedIn && acct.account ? acct.account.email : "Account"}
-          </span>
-          <span className="settings-row-sub">
-            {signedIn
-              ? "Signed in · local beta"
-              : "Optional. Keep your data safe beyond this phone."}
-          </span>
-        </div>
         <span className="chevron" aria-hidden="true">
           ›
         </span>
