@@ -27,6 +27,17 @@ unchanged until real transmission exists.
 - Clear "Beta — local only" notes wherever the account appears.
 - Account record is mirrored to native storage like everything else.
 
+beta.2:
+
+- The Account row in Settings gets a quiet person icon; once signed
+  in it becomes your initial-letter avatar.
+- Show/hide password toggle (the eye) on the account forms.
+- Sharper email checks: length limits, double-dot and TLD rules, and
+  a typo catcher for classic domain slips (gmail.con, hotnail.com,
+  yaho.com…) that offers "Did you mean…?" with one tap to accept.
+  True mailbox verification still needs the server; the record now
+  carries a `verified` flag (always false locally) ready for it.
+
 ## 2.2 — code 18 — 2026-07-05
 
 - **Menu, one tap closer.** The Today screen's chip row now leads with

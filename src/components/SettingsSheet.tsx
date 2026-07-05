@@ -5,11 +5,12 @@ import { parseProtein } from "../lib/menu";
 import {
   createAccount,
   deleteAccount,
-  isValidEmail,
+  emailProblem,
   loadAccountState,
   passwordProblem,
   signIn,
   signOut,
+  suggestEmailFix,
   type AccountState,
 } from "../lib/account";
 
@@ -59,6 +60,8 @@ export default function SettingsSheet({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   // Direction-aware drill animation: forward slides in from the right,
@@ -94,27 +97,19 @@ export default function SettingsSheet({
     setEmail("");
     setPassword("");
     setFormError(null);
+    setSuggestion(null);
+    setShowPassword(false);
   };
 
-  const submitAccount = async (e: FormEvent) => {
-    e.preventDefault();
-    if (busy) return;
-    if (!isValidEmail(email)) {
-      setFormError("That doesn't look like an email address.");
-      return;
-    }
-    const pwProblem = passwordProblem(password);
-    if (form === "create" && pwProblem) {
-      setFormError(pwProblem);
-      return;
-    }
+  /** Run the actual create/login once the address is settled. */
+  const finishSubmit = async (emailValue: string) => {
     setBusy(true);
     try {
       if (form === "create") {
-        setAcct(await createAccount(email, password));
+        setAcct(await createAccount(emailValue, password));
         setForm("none");
       } else {
-        const result = await signIn(acct, email, password);
+        const result = await signIn(acct, emailValue, password);
         if (result.ok) {
           setAcct(result.state);
           setForm("none");
@@ -125,6 +120,31 @@ export default function SettingsSheet({
     } finally {
       setBusy(false);
     }
+  };
+
+  const submitAccount = async (e: FormEvent) => {
+    e.preventDefault();
+    if (busy) return;
+    const emProblem = emailProblem(email);
+    if (emProblem) {
+      setFormError(emProblem);
+      return;
+    }
+    const pwProblem = passwordProblem(password);
+    if (form === "create" && pwProblem) {
+      setFormError(pwProblem);
+      return;
+    }
+    // Well-formed but suspicious (gmail.con and friends): offer the fix
+    // once instead of silently accepting an address mail can't reach.
+    if (form === "create" && !suggestion) {
+      const fix = suggestEmailFix(email);
+      if (fix) {
+        setSuggestion(fix);
+        return;
+      }
+    }
+    await finishSubmit(email);
   };
 
   const signedIn = acct.signedIn && acct.account !== null;
@@ -251,6 +271,7 @@ export default function SettingsSheet({
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setFormError(null);
+                  setSuggestion(null);
                 }}
                 placeholder="you@example.com"
                 aria-label="Email address"
@@ -258,7 +279,7 @@ export default function SettingsSheet({
             </div>
             <div className="field sheet-name">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete={
                   form === "create" ? "new-password" : "current-password"
                 }
@@ -272,11 +293,76 @@ export default function SettingsSheet({
                 }
                 aria-label="Password"
               />
+              <button
+                type="button"
+                className="pw-toggle"
+                onClick={() => setShowPassword((s) => !s)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? (
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                    <path
+                      d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5z"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinejoin="round"
+                    />
+                    <circle
+                      cx="10"
+                      cy="10"
+                      r="2.4"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                    <path
+                      d="M3.5 8.5c1.6 1.9 3.9 3.25 6.5 3.25s4.9-1.35 6.5-3.25M10 12v2.25M5.4 11.2l-1.4 1.9M14.6 11.2l1.4 1.9"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                )}
+              </button>
             </div>
-            {formError && (
-              <p className="add-error" role="alert">
-                {formError}
-              </p>
+            {suggestion ? (
+              <div className="acct-suggest" role="alert">
+                <p>
+                  Did you mean <strong>{suggestion}</strong>?
+                </p>
+                <div className="suggest-actions">
+                  <button
+                    type="button"
+                    className="suggest-use"
+                    onClick={() => {
+                      setEmail(suggestion);
+                      setSuggestion(null);
+                      void finishSubmit(suggestion);
+                    }}
+                  >
+                    Yes, use that
+                  </button>
+                  <button
+                    type="button"
+                    className="suggest-keep"
+                    onClick={() => {
+                      setSuggestion(null);
+                      void finishSubmit(email);
+                    }}
+                  >
+                    Keep what I typed
+                  </button>
+                </div>
+              </div>
+            ) : (
+              formError && (
+                <p className="add-error" role="alert">
+                  {formError}
+                </p>
+              )
             )}
             <div className="sheet-actions">
               <button type="submit" className="add-submit" disabled={busy}>
@@ -384,6 +470,29 @@ export default function SettingsSheet({
         className="settings-row settings-link"
         onClick={() => setView("account")}
       >
+        {signedIn && acct.account ? (
+          <span className="settings-icon avatar" aria-hidden="true">
+            {acct.account.email[0].toUpperCase()}
+          </span>
+        ) : (
+          <span className="settings-icon" aria-hidden="true">
+            <svg width="17" height="17" viewBox="0 0 20 20" fill="none">
+              <circle
+                cx="10"
+                cy="7"
+                r="3.1"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              />
+              <path
+                d="M4.2 16.4c1-2.6 3.2-4 5.8-4s4.8 1.4 5.8 4"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+          </span>
+        )}
         <div className="settings-row-text">
           <span className="settings-row-title">
             {signedIn && acct.account ? acct.account.email : "Account"}
