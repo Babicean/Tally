@@ -75,6 +75,11 @@ build numbers must increase.
 
 ## Notes
 
+- **Minimum iOS: 16.0** (set in the Xcode project). Everything Tally
+  uses is native to iOS 16; the CSS fallbacks for older engines remain
+  as free insurance but 15.x is unsupported. iOS 16 covers roughly
+  95%+ of active iPhones, including iPhone 8/X on their final OS.
+
 - Safe areas (notch / home indicator) are already handled: the app
   uses `viewport-fit=cover` plus `env(safe-area-inset-*)` fallbacks.
 - The status-bar plugin's `setBackgroundColor` is Android-only; on
