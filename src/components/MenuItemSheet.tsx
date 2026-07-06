@@ -14,6 +14,7 @@ interface Props {
     name: string,
     calories: number,
     protein: number | null,
+    fat: number | null,
     category: string | null,
   ) => void;
   onDelete?: () => void;
@@ -31,6 +32,7 @@ export default function MenuItemSheet({
   const [name, setName] = useState("");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
+  const [fat, setFat] = useState("");
   const [category, setCategory] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,6 +41,7 @@ export default function MenuItemSheet({
       setName(item?.name ?? "");
       setCalories(item ? String(item.calories) : "");
       setProtein(item?.protein != null ? String(item.protein) : "");
+      setFat(item?.fat != null ? String(item.fat) : "");
       setCategory(item?.category ?? null);
       setError(null);
     }
@@ -57,11 +60,12 @@ export default function MenuItemSheet({
       return;
     }
     const prot = trackProtein ? parseProtein(protein) : item?.protein ?? null;
-    if (prot === undefined) {
-      setError("Protein must be between 0 and 1,000 grams (or left blank).");
+    const fatG = trackProtein ? parseProtein(fat) : item?.fat ?? null;
+    if (prot === undefined || fatG === undefined) {
+      setError("Grams must be between 0 and 1,000 (or left blank).");
       return;
     }
-    onSave(trimmed, cal, prot, category);
+    onSave(trimmed, cal, prot, fatG, category);
     onClose();
   };
 
@@ -115,6 +119,20 @@ export default function MenuItemSheet({
               aria-label="Protein in grams (optional)"
             />
             <span className="unit">g protein</span>
+          </div>
+          )}
+          {trackProtein && (
+          <div className="field field-cal field-protein">
+            <input
+              value={fat}
+              onChange={(e) => {
+                setFat(e.target.value);
+                setError(null);
+              }}
+              inputMode="numeric"
+              aria-label="Fat in grams (optional)"
+            />
+            <span className="unit">g fat</span>
           </div>
           )}
         </div>

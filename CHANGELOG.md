@@ -10,6 +10,28 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.4 — code 24 — 2026-07-06
+
+Advanced tracking: fat joins protein, plus a protein-target
+celebration and a cleaner fork icon.
+
+- **Advanced tracking** (formerly "Track protein" in Settings) now
+  covers protein *and* fat. Menu items, entries, the edit sheet, and
+  backdated logs all take optional fat grams; carbs stay off the
+  books because calories − protein − fat already implies them.
+- Second hero line: fat logged today, with its own thin progress bar
+  (neutral fill, so the protein bar keeps the accent) and an optional
+  **daily fat target** in Settings.
+- Hitting your protein target now earns a little celebration — a
+  burst right on the protein line, a haptic tick, and a "Protein
+  target hit" toast. Calorie-target and streak moments still win if
+  they land on the same log.
+- The Menu tab's fork icon was redrawn — smooth single-arc tines and
+  a full-height handle replace the glitchy segmented path (same fix
+  in the quick-add chip menu).
+- Entry groups and menu rows show "· N g fat" alongside protein.
+- Backups carry the fat target and per-entry/menu fat grams.
+
 ## 2.3.3 — code 23 — 2026-07-06
 
 iOS-compatibility hardening ahead of the iPhone port (no visible

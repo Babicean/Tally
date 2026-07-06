@@ -24,6 +24,7 @@ export function isMenuItem(value: unknown): value is MenuItem {
     typeof m.calories === "number" &&
     Number.isFinite(m.calories) &&
     (m.protein === null || typeof m.protein === "number") &&
+    (m.fat === undefined || m.fat === null || typeof m.fat === "number") &&
     typeof m.pinned === "boolean"
   );
 }
@@ -38,6 +39,8 @@ export function loadMenu(): MenuItem[] {
       ...m,
       // Items saved before categories existed load as uncategorized.
       category: isCategoryId(m.category) ? m.category : null,
+      // Items saved before fat tracking load as fat-unknown.
+      fat: typeof m.fat === "number" ? m.fat : null,
     }));
   } catch {
     return [];
@@ -59,6 +62,7 @@ export function createMenuItem(
   name: string,
   calories: number,
   protein: number | null,
+  fat: number | null,
   category: string | null = null,
   now: number = Date.now(),
 ): MenuItem {
@@ -70,6 +74,7 @@ export function createMenuItem(
     name: name.trim(),
     calories,
     protein,
+    fat,
     pinned: false,
     category,
     createdAt: now,
@@ -117,6 +122,7 @@ export function buildQuickAdds(
       description: m.name,
       calories: m.calories,
       protein: m.protein,
+      fat: m.fat,
     }));
 
   const taken = new Set(

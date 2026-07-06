@@ -2217,3 +2217,12 @@ input {
   }
 
 }
+
+/* Fat is the quieter macro: same thin bar, neutral fill. */
+.protein-bar-fill.fat {
+  background: var(--ink-3);
+}
+
+.hero-protein.fat {
+  margin-top: 0.5rem;
+}

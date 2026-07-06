@@ -15,6 +15,7 @@ const item = (
     name,
     calories,
     opts.protein ?? null,
+    null,
     opts.category ?? null,
     1000,
   ),

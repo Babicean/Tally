@@ -74,6 +74,7 @@ export function createEntry(
   description: string,
   when: Date = new Date(),
   protein: number | null = null,
+  fat: number | null = null,
 ): Entry {
   return {
     id:
@@ -85,6 +86,7 @@ export function createEntry(
     timestamp: when.getTime(),
     day: trackingDayFor(when),
     protein,
+    fat,
   };
 }
 
@@ -93,6 +95,8 @@ export interface FrequentItem {
   calories: number;
   /** Grams of protein carried along when logging (Menu items only). */
   protein?: number | null;
+  /** Grams of fat carried along when logging (Menu items only). */
+  fat?: number | null;
 }
 
 /**
@@ -144,6 +148,7 @@ export interface EntryGroup {
   items: Entry[];
   totalCalories: number;
   totalProtein: number;
+  totalFat: number;
 }
 
 /**
@@ -167,7 +172,20 @@ export function groupEntries(entries: Entry[]): EntryGroup[] {
       (s, e) => s + (typeof e.protein === "number" ? e.protein : 0),
       0,
     ),
+    totalFat: items.reduce(
+      (s, e) => s + (typeof e.fat === "number" ? e.fat : 0),
+      0,
+    ),
   }));
+}
+
+/** Grams of fat logged on one tracking day (entries without fat count 0). */
+export function fatForDay(entries: Entry[], day: DayKey): number {
+  let total = 0;
+  for (const e of entries) {
+    if (e.day === day && typeof e.fat === "number") total += e.fat;
+  }
+  return total;
 }
 
 /** Grams of protein logged on one tracking day (entries without protein count 0). */

@@ -22,6 +22,8 @@ export interface Settings {
   trackProtein: boolean;
   /** Optional daily protein target in grams; only meaningful when tracking. */
   proteinTarget: number | null;
+  /** Optional daily fat target in grams; only meaningful when tracking. */
+  fatTarget: number | null;
   /** Accent color family. */
   accent: "azure" | "emerald";
 }
@@ -31,6 +33,7 @@ const DEFAULTS: Settings = {
   theme: "system",
   trackProtein: false,
   proteinTarget: null,
+  fatTarget: null,
   accent: "azure",
 };
 
@@ -58,6 +61,7 @@ export function loadSettings(): Settings {
       trackProtein:
         typeof s.trackProtein === "boolean" ? s.trackProtein : true,
       proteinTarget: asTarget(s.proteinTarget),
+      fatTarget: asTarget(s.fatTarget),
       accent: s.accent === "emerald" ? "emerald" : "azure",
     };
   } catch {

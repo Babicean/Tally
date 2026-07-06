@@ -19,6 +19,8 @@ export interface Entry {
   day: DayKey;
   /** Grams of protein, when known (usually via a Menu item). */
   protein?: number | null;
+  /** Grams of fat, when known (advanced tracking). */
+  fat?: number | null;
 }
 
 /** A saved staple food in the user's personal menu. */
@@ -28,6 +30,8 @@ export interface MenuItem {
   calories: number;
   /** Grams of protein, or null when not tracked for this item. */
   protein: number | null;
+  /** Grams of fat, or null when not tracked for this item. */
+  fat: number | null;
   /** Pinned items surface as quick-add chips on the Today screen. */
   pinned: boolean;
   /** Optional preset category (see CategoryIcon), or null for none. */

@@ -19,8 +19,10 @@ interface Props {
   today: DayKey;
   total: number;
   protein: number;
+  fat: number;
   trackProtein: boolean;
   proteinTarget: number | null;
+  fatTarget: number | null;
   streak: Streak;
   entries: Entry[];
   quickAdds: FrequentItem[];
@@ -31,12 +33,14 @@ interface Props {
     calories: number,
     description: string,
     protein?: number | null,
+    fat?: number | null,
   ) => Entry;
   onUpdate: (
     id: string,
     calories: number,
     description: string,
     protein?: number | null,
+    fat?: number | null,
     timestamp?: number,
   ) => void;
   onDelete: (id: string) => Entry | null;
@@ -47,8 +51,10 @@ export default function TodayScreen({
   today,
   total,
   protein,
+  fat,
   trackProtein,
   proteinTarget,
+  fatTarget,
   streak,
   entries,
   quickAdds,
@@ -71,11 +77,18 @@ export default function TodayScreen({
       description: string,
       sourceEl: HTMLElement,
       itemProtein: number | null = null,
+      itemFat: number | null = null,
     ) => {
       const extendsStreak = !streak.loggedToday && streak.length + 1 >= 2;
       const crossesTarget =
         dailyGoal !== null && total < dailyGoal && total + calories >= dailyGoal;
-      onAdd(calories, description, itemProtein);
+      const crossesProtein =
+        trackProtein &&
+        proteinTarget !== null &&
+        itemProtein !== null &&
+        protein < proteinTarget &&
+        protein + itemProtein >= proteinTarget;
+      onAdd(calories, description, itemProtein, itemFat);
       flyCalories(`+${formatCalories(calories)}`, sourceEl);
       if (extendsStreak) {
         // First log of the day and the chain holds — small fireworks.
@@ -94,12 +107,20 @@ export default function TodayScreen({
           showToast({ kind: "streak", message: "Target reached" }, 2600);
         }, 350);
         haptic(10);
+      } else if (crossesProtein) {
+        // Protein goal met: a smaller burst, right on the protein line.
+        window.setTimeout(() => {
+          celebrate(document.getElementById("protein-line"));
+          haptic(20);
+          showToast({ kind: "streak", message: "Protein target hit" }, 2600);
+        }, 350);
+        haptic(10);
       } else {
         haptic(10);
         showConfirmation();
       }
     },
-    [onAdd, streak, total, dailyGoal, showToast, showConfirmation],
+    [onAdd, streak, total, dailyGoal, trackProtein, proteinTarget, protein, showToast, showConfirmation],
   );
 
   const handleDelete = useCallback(
@@ -133,8 +154,10 @@ export default function TodayScreen({
         today={today}
         total={total}
         protein={protein}
+        fat={fat}
         trackProtein={trackProtein}
         proteinTarget={proteinTarget}
+        fatTarget={fatTarget}
         streak={streak}
         goal={dailyGoal}
         onEditGoal={() => setGoalOpen(true)}
@@ -145,7 +168,13 @@ export default function TodayScreen({
         menuAvailable={menu.length > 0}
         onBrowseMenu={() => setMenuPickOpen(true)}
         onAdd={(item, el) =>
-          handleAdd(item.calories, item.description, el, item.protein ?? null)
+          handleAdd(
+            item.calories,
+            item.description,
+            el,
+            item.protein ?? null,
+            item.fat ?? null,
+          )
         }
       />
 
@@ -161,7 +190,13 @@ export default function TodayScreen({
         onDelete={handleDelete}
         onEdit={setEditing}
         onRepeat={(entry, el) =>
-          handleAdd(entry.calories, entry.description, el, entry.protein ?? null)
+          handleAdd(
+            entry.calories,
+            entry.description,
+            el,
+            entry.protein ?? null,
+            entry.fat ?? null,
+          )
         }
       />
 
@@ -170,7 +205,13 @@ export default function TodayScreen({
         menu={menu}
         trackProtein={trackProtein}
         onPick={(item, el) => {
-          handleAdd(item.calories, item.name, el, item.protein ?? null);
+          handleAdd(
+            item.calories,
+            item.name,
+            el,
+            item.protein ?? null,
+            item.fat ?? null,
+          );
           setMenuPickOpen(false);
         }}
         onClose={() => setMenuPickOpen(false)}

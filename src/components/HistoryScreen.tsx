@@ -21,6 +21,7 @@ interface Props {
     calories: number,
     description: string,
     protein: number | null,
+    fat: number | null,
     when: Date,
   ) => void;
 }
@@ -221,8 +222,8 @@ export default function HistoryScreen({
       <BackdateSheet
         day={backdating}
         trackProtein={trackProtein}
-        onAdd={(cal, desc, prot, when) => {
-          onAddBackdated(cal, desc, prot, when);
+        onAdd={(cal, desc, prot, fatG, when) => {
+          onAddBackdated(cal, desc, prot, fatG, when);
           showToast({ kind: "confirm", message: "Added" }, 1600);
         }}
         onClose={() => setBackdating(null)}

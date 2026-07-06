@@ -9,8 +9,11 @@ interface Props {
   total: number;
   /** Grams of protein logged today; hidden when zero or tracking is off. */
   protein: number;
+  /** Grams of fat logged today; shown under protein with advanced tracking. */
+  fat: number;
   trackProtein: boolean;
   proteinTarget: number | null;
+  fatTarget: number | null;
   streak: Streak;
   goal: number | null;
   onEditGoal: () => void;
@@ -56,8 +59,10 @@ export default function Hero({
   today,
   total,
   protein,
+  fat,
   trackProtein,
   proteinTarget,
+  fatTarget,
   streak,
   goal,
   onEditGoal,
@@ -82,7 +87,7 @@ export default function Hero({
 
   const proteinLine =
     trackProtein && (protein > 0 || proteinTarget !== null) ? (
-      <div className="hero-protein-wrap">
+      <div className="hero-protein-wrap" id="protein-line">
         <p
           className={`hero-protein${
             proteinTarget !== null && protein >= proteinTarget ? " met" : ""
@@ -111,6 +116,32 @@ export default function Hero({
       </div>
     ) : null;
 
+  const fatLine =
+    trackProtein && (fat > 0 || fatTarget !== null) ? (
+      <div className="hero-protein-wrap">
+        <p className="hero-protein fat">
+          {formatCalories(fat)}
+          {fatTarget !== null && ` / ${formatCalories(fatTarget)}`} g fat
+        </p>
+        {fatTarget !== null && (
+          <div
+            className="protein-bar"
+            role="img"
+            aria-label={`${fat} of ${fatTarget} grams of fat`}
+          >
+            <div
+              className="protein-bar-fill fat"
+              style={{
+                width: `${
+                  (mounted ? Math.min(fat / fatTarget, 1) : 0) * 100
+                }%`,
+              }}
+            />
+          </div>
+        )}
+      </div>
+    ) : null;
+
   if (goal === null) {
     return (
       <header className="hero">
@@ -128,6 +159,7 @@ export default function Hero({
         </h1>
         <p className="hero-caption">calories today</p>
         {proteinLine}
+        {fatLine}
         <button className="goal-pill ghost" onClick={onEditGoal}>
           Set a calorie target
         </button>
@@ -211,6 +243,7 @@ export default function Hero({
         </div>
       </div>
       {proteinLine}
+      {fatLine}
       <button
         className={`goal-pill${over ? " over" : ""}`}
         onClick={onEditGoal}

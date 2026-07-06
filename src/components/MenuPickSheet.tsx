@@ -45,6 +45,9 @@ export default function MenuPickSheet({
                 {trackProtein &&
                   item.protein != null &&
                   ` · ${item.protein} g protein`}
+                {trackProtein &&
+                  item.fat != null &&
+                  ` · ${item.fat} g fat`}
               </span>
             </span>
             <span className="menu-log" aria-hidden="true">

@@ -54,6 +54,7 @@ export function parseBackup(json: string): BackupPayload | null {
     const theme = raw.settings?.theme;
     const trackProtein = raw.settings?.trackProtein;
     const proteinTarget = raw.settings?.proteinTarget;
+    const fatTarget = raw.settings?.fatTarget;
     const accent = raw.settings?.accent;
     return {
       app: "tally",
@@ -73,6 +74,12 @@ export function parseBackup(json: string): BackupPayload | null {
           Number.isFinite(proteinTarget) &&
           proteinTarget > 0
             ? Math.round(proteinTarget)
+            : null,
+        fatTarget:
+          typeof fatTarget === "number" &&
+          Number.isFinite(fatTarget) &&
+          fatTarget > 0
+            ? Math.round(fatTarget)
             : null,
         accent: accent === "emerald" ? "emerald" : "azure",
       },

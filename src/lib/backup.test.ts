@@ -8,16 +8,16 @@ import {
 import { createEntry } from "./store";
 import { createMenuItem } from "./menu";
 
-const entryA = createEntry(545, "Burrito", new Date(2026, 6, 1, 12, 0), 32);
+const entryA = createEntry(545, "Burrito", new Date(2026, 6, 1, 12, 0), 32, 21);
 const entryB = createEntry(160, "Energy drink", new Date(2026, 6, 2, 9, 0));
-const itemA = createMenuItem("Burrito", 545, 32, "meat", 1000);
+const itemA = createMenuItem("Burrito", 545, 32, 21, "meat", 1000);
 
 describe("backup round-trip", () => {
   it("serializes and parses back losslessly", () => {
     const payload = buildBackup(
       [entryA, entryB],
       [itemA],
-      { dailyGoal: 2200, theme: "dark", trackProtein: true, proteinTarget: 140, accent: "emerald" },
+      { dailyGoal: 2200, theme: "dark", trackProtein: true, proteinTarget: 140, fatTarget: 70, accent: "emerald" },
       new Date(2026, 6, 4, 10, 0),
     );
     const parsed = parseBackup(JSON.stringify(payload));
@@ -63,7 +63,7 @@ describe("parseBackup validation", () => {
 
 describe("mergeBackup", () => {
   it("unions by id — current data wins, gaps are filled", () => {
-    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, proteinTarget: null, accent: "azure" });
+    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, proteinTarget: null, fatTarget: null, accent: "azure" });
     const result = mergeBackup([entryA], [], backup);
     expect(result.entries).toHaveLength(2);
     expect(result.addedEntries).toBe(1);
@@ -71,7 +71,7 @@ describe("mergeBackup", () => {
   });
 
   it("is idempotent — importing the same backup twice adds nothing", () => {
-    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, proteinTarget: null, accent: "azure" });
+    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, proteinTarget: null, fatTarget: null, accent: "azure" });
     const once = mergeBackup([], [], backup);
     const twice = mergeBackup(once.entries, once.menu, backup);
     expect(twice.addedEntries).toBe(0);

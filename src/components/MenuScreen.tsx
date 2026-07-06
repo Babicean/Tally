@@ -15,6 +15,7 @@ interface Props {
     name: string,
     calories: number,
     protein: number | null,
+    fat: number | null,
     category: string | null,
   ) => void;
   onUpdate: (
@@ -22,6 +23,7 @@ interface Props {
     name: string,
     calories: number,
     protein: number | null,
+    fat: number | null,
     category: string | null,
   ) => void;
   onDelete: (id: string) => void;
@@ -117,6 +119,9 @@ export default function MenuScreen({
                     {trackProtein &&
                       item.protein != null &&
                       ` · ${item.protein} g protein`}
+                    {trackProtein &&
+                      item.fat != null &&
+                      ` · ${item.fat} g fat`}
                   </span>
                 </span>
               </button>
@@ -166,9 +171,9 @@ export default function MenuScreen({
         open={sheetOpen}
         trackProtein={trackProtein}
         item={editing}
-        onSave={(name, cal, prot, category) => {
-          if (editing) onUpdate(editing.id, name, cal, prot, category);
-          else onAdd(name, cal, prot, category);
+        onSave={(name, cal, prot, fatG, category) => {
+          if (editing) onUpdate(editing.id, name, cal, prot, fatG, category);
+          else onAdd(name, cal, prot, fatG, category);
         }}
         onDelete={editing ? () => onDelete(editing.id) : undefined}
         onClose={() => setSheetOpen(false)}

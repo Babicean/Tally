@@ -14,6 +14,7 @@ interface Props {
     calories: number,
     description: string,
     protein: number | null,
+    fat: number | null,
     when: Date,
   ) => void;
   onClose: () => void;
@@ -29,6 +30,7 @@ export default function BackdateSheet({
   const [calories, setCalories] = useState("");
   const [description, setDescription] = useState("");
   const [protein, setProtein] = useState("");
+  const [fat, setFat] = useState("");
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -36,6 +38,7 @@ export default function BackdateSheet({
       setCalories("");
       setDescription("");
       setProtein("");
+      setFat("");
       setError(false);
     }
   }, [day]);
@@ -45,14 +48,15 @@ export default function BackdateSheet({
     if (!day) return;
     const cal = parseCalories(calories);
     const prot = trackProtein ? parseProtein(protein) : null;
-    if (cal === null || prot === undefined) {
+    const fatG = trackProtein ? parseProtein(fat) : null;
+    if (cal === null || prot === undefined || fatG === undefined) {
       setError(true);
       return;
     }
     // Noon keeps the entry safely inside the day's 2 AM–2 AM window.
     const when = fromDayKey(day);
     when.setHours(12, 0, 0, 0);
-    onAdd(cal, description, prot, when);
+    onAdd(cal, description, prot, fatG, when);
     onClose();
   };
 
@@ -99,9 +103,23 @@ export default function BackdateSheet({
                   setError(false);
                 }}
                 inputMode="numeric"
-                  aria-label="Protein in grams (optional)"
+                aria-label="Protein in grams (optional)"
               />
               <span className="unit">g protein</span>
+            </div>
+          )}
+          {trackProtein && (
+            <div className="field field-cal field-protein">
+              <input
+                value={fat}
+                onChange={(e) => {
+                  setFat(e.target.value);
+                  setError(false);
+                }}
+                inputMode="numeric"
+                aria-label="Fat in grams (optional)"
+              />
+              <span className="unit">g fat</span>
             </div>
           )}
         </div>

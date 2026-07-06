@@ -24,6 +24,8 @@ interface Props {
   onSetTrackProtein: (on: boolean) => void;
   proteinTarget: number | null;
   onSetProteinTarget: (grams: number | null) => void;
+  fatTarget: number | null;
+  onSetFatTarget: (grams: number | null) => void;
   onClose: () => void;
 }
 
@@ -51,9 +53,12 @@ export default function SettingsSheet({
   onSetTrackProtein,
   proteinTarget,
   onSetProteinTarget,
+  fatTarget,
+  onSetFatTarget,
   onClose,
 }: Props) {
   const [target, setTarget] = useState("");
+  const [fatT, setFatT] = useState("");
   const [view, setView] = useState<View>("settings");
   const [acct, setAcct] = useState<AccountState>(() => loadAccountState());
   const [form, setForm] = useState<AccountForm>("none");
@@ -71,6 +76,7 @@ export default function SettingsSheet({
   useEffect(() => {
     if (open) {
       setTarget(proteinTarget !== null ? String(proteinTarget) : "");
+      setFatT(fatTarget !== null ? String(fatTarget) : "");
       setView("settings");
       setAcct(loadAccountState());
       setForm("none");
@@ -80,16 +86,26 @@ export default function SettingsSheet({
       setConfirmDelete(false);
       setBackAnim(false);
     }
-  }, [open, proteinTarget]);
+  }, [open, proteinTarget, fatTarget]);
 
   const commitTarget = () => {
     const parsed = parseProtein(target);
     if (parsed === undefined) {
       // Invalid input: fall back to what's stored.
       setTarget(proteinTarget !== null ? String(proteinTarget) : "");
+      setFatT(fatTarget !== null ? String(fatTarget) : "");
       return;
     }
     onSetProteinTarget(parsed === 0 ? null : parsed);
+  };
+
+  const commitFatTarget = () => {
+    const parsed = parseProtein(fatT);
+    if (parsed === undefined) {
+      setFatT(fatTarget !== null ? String(fatTarget) : "");
+      return;
+    }
+    onSetFatTarget(parsed === 0 ? null : parsed);
   };
 
   const openForm = (which: AccountForm) => {
@@ -424,19 +440,20 @@ export default function SettingsSheet({
         ))}
       </div>
 
-      <p className="settings-label">Protein</p>
+      <p className="settings-label">Advanced tracking</p>
       <div className="settings-row">
         <div className="settings-row-text">
-          <span className="settings-row-title">Track protein</span>
+          <span className="settings-row-title">Track macros</span>
           <span className="settings-row-sub">
-            Adds optional grams to Menu items and entries.
+            Adds optional protein and fat grams to Menu items and
+            entries. Carbs are what's left.
           </span>
         </div>
         <button
           className={`switch${trackProtein ? " on" : ""}`}
           role="switch"
           aria-checked={trackProtein}
-          aria-label="Track protein"
+          aria-label="Advanced tracking"
           onClick={() => onSetTrackProtein(!trackProtein)}
         >
           <span className="switch-knob" />
@@ -458,6 +475,27 @@ export default function SettingsSheet({
               }}
               inputMode="numeric"
               aria-label="Daily protein target in grams"
+            />
+            <span className="unit">g</span>
+          </div>
+        </div>
+      )}
+      {trackProtein && (
+        <div className="settings-row">
+          <div className="settings-row-text">
+            <span className="settings-row-title">Daily fat target</span>
+            <span className="settings-row-sub">Blank for no target.</span>
+          </div>
+          <div className="field field-cal settings-target">
+            <input
+              value={fatT}
+              onChange={(e) => setFatT(e.target.value)}
+              onBlur={commitFatTarget}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+              }}
+              inputMode="numeric"
+              aria-label="Daily fat target in grams"
             />
             <span className="unit">g</span>
           </div>

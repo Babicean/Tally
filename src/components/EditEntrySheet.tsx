@@ -12,6 +12,7 @@ interface Props {
     calories: number,
     description: string,
     protein: number | null,
+    fat: number | null,
     timestamp: number,
   ) => void;
   onClose: () => void;
@@ -35,6 +36,7 @@ export default function EditEntrySheet({
   const [calories, setCalories] = useState("");
   const [description, setDescription] = useState("");
   const [protein, setProtein] = useState("");
+  const [fat, setFat] = useState("");
   const [when, setWhen] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -43,6 +45,7 @@ export default function EditEntrySheet({
       setCalories(String(entry.calories));
       setDescription(entry.description);
       setProtein(entry.protein != null ? String(entry.protein) : "");
+      setFat(entry.fat != null ? String(entry.fat) : "");
       setWhen(toLocalInputValue(entry.timestamp));
       setError(null);
     }
@@ -53,8 +56,9 @@ export default function EditEntrySheet({
     if (!entry) return;
     const parsed = parseCalories(calories);
     const parsedProtein = trackProtein ? parseProtein(protein) : entry.protein ?? null;
-    if (parsed === null || parsedProtein === undefined) {
-      setError("Calories must be 1–20,000; protein 0–1,000 grams or blank.");
+    const parsedFat = trackProtein ? parseProtein(fat) : entry.fat ?? null;
+    if (parsed === null || parsedProtein === undefined || parsedFat === undefined) {
+      setError("Calories must be 1–20,000; grams 0–1,000 or blank.");
       return;
     }
     const ts = when ? new Date(when).getTime() : entry.timestamp;
@@ -66,7 +70,7 @@ export default function EditEntrySheet({
       setError("Can’t log into the future.");
       return;
     }
-    onSave(entry.id, parsed, description, parsedProtein, ts);
+    onSave(entry.id, parsed, description, parsedProtein, parsedFat, ts);
     onClose();
   };
 
@@ -108,9 +112,23 @@ export default function EditEntrySheet({
                   setError(null);
                 }}
                 inputMode="numeric"
-                  aria-label="Protein in grams (optional)"
+                aria-label="Protein in grams (optional)"
               />
               <span className="unit">g protein</span>
+            </div>
+          )}
+          {trackProtein && (
+            <div className="field field-cal field-protein">
+              <input
+                value={fat}
+                onChange={(e) => {
+                  setFat(e.target.value);
+                  setError(null);
+                }}
+                inputMode="numeric"
+                aria-label="Fat in grams (optional)"
+              />
+              <span className="unit">g fat</span>
             </div>
           )}
         </div>

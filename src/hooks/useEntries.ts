@@ -4,6 +4,7 @@ import { msUntilNextBoundary, trackingDayFor } from "../lib/day";
 import {
   createEntry,
   entriesForDay,
+  fatForDay,
   loadEntries,
   proteinForDay,
   saveEntries,
@@ -92,6 +93,10 @@ export function useEntries() {
     (proteinTarget: number | null) => updateSettings({ proteinTarget }),
     [updateSettings],
   );
+  const setFatTarget = useCallback(
+    (fatTarget: number | null) => updateSettings({ fatTarget }),
+    [updateSettings],
+  );
   const setAccent = useCallback(
     (accent: AccentPref) => updateSettings({ accent }),
     [updateSettings],
@@ -102,9 +107,10 @@ export function useEntries() {
       calories: number,
       description: string,
       protein: number | null = null,
+      fat: number | null = null,
       when: Date = new Date(),
     ) => {
-      const entry = createEntry(calories, description, when, protein);
+      const entry = createEntry(calories, description, when, protein, fat);
       setEntries((prev) => [...prev, entry]);
       return entry;
     },
@@ -117,6 +123,7 @@ export function useEntries() {
       calories: number,
       description: string,
       protein: number | null = null,
+      fat: number | null = null,
       timestamp?: number,
     ) => {
       setEntries((prev) =>
@@ -128,6 +135,7 @@ export function useEntries() {
             calories,
             description: description.trim(),
             protein,
+            fat,
             timestamp: ts,
             // Moving an entry in time moves it to the right tracking day.
             day: trackingDayFor(new Date(ts)),
@@ -160,11 +168,12 @@ export function useEntries() {
       name: string,
       calories: number,
       protein: number | null,
+      fat: number | null,
       category: string | null,
     ) => {
       setMenu((prev) => [
         ...prev,
-        createMenuItem(name, calories, protein, category),
+        createMenuItem(name, calories, protein, fat, category),
       ]);
     },
     [],
@@ -176,12 +185,13 @@ export function useEntries() {
       name: string,
       calories: number,
       protein: number | null,
+      fat: number | null,
       category: string | null,
     ) => {
       setMenu((prev) =>
         prev.map((m) =>
           m.id === id
-            ? { ...m, name: name.trim(), calories, protein, category }
+            ? { ...m, name: name.trim(), calories, protein, fat, category }
             : m,
         ),
       );
@@ -225,6 +235,10 @@ export function useEntries() {
     () => proteinForDay(entries, today),
     [entries, today],
   );
+  const todayFat = useMemo(
+    () => fatForDay(entries, today),
+    [entries, today],
+  );
   const history = useMemo(() => summarizeByDay(entries), [entries]);
   const quickAdds = useMemo(
     () => buildQuickAdds(menu, entries),
@@ -242,6 +256,7 @@ export function useEntries() {
     todayEntries,
     todayTotal,
     todayProtein,
+    todayFat,
     history,
     quickAdds,
     menu: sortedMenu,
@@ -255,6 +270,8 @@ export function useEntries() {
     setTrackProtein,
     proteinTarget: settings.proteinTarget,
     setProteinTarget,
+    fatTarget: settings.fatTarget,
+    setFatTarget,
     accent: settings.accent,
     setAccent,
     addEntry,

@@ -32,7 +32,7 @@ export default function QuickAddChips({
         >
           <svg width="14" height="14" viewBox="0 0 17 17" fill="none" aria-hidden="true">
             <path
-              d="M5 2v4.5a2 2 0 01-2 2h0a2 2 0 01-2-2V2M3.5 2v13M12.75 10c-1.5 0-2.5-1.8-2.5-4.25S11.35 2 12.75 2 15 3.8 15 5.75 14.25 10 12.75 10zm0 0v5"
+              d="M3 2v3.75a2.5 2.5 0 005 0V2M5.5 2v13M12.75 10c-1.5 0-2.5-1.8-2.5-4.25S11.35 2 12.75 2 15 3.8 15 5.75 14.25 10 12.75 10zm0 0v5"
               stroke="currentColor"
               strokeWidth="1.6"
               strokeLinecap="round"

@@ -118,7 +118,14 @@ export default function EntryList({
                           ? formatTime(newest.timestamp)
                           : null}
                         {newest.description && showProtein && " · "}
-                        {showProtein && `${group.totalProtein} g protein`}
+                        {showProtein &&
+                          [
+                            group.totalProtein > 0 &&
+                              `${group.totalProtein} g protein`,
+                            group.totalFat > 0 && `${group.totalFat} g fat`,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
                       </span>
                     )}
                   </span>
