@@ -10,6 +10,19 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.3.3 — code 23 — 2026-07-06
+
+iOS-compatibility hardening ahead of the iPhone port (no visible
+change on Android):
+
+- vh fallbacks behind every dvh use, so pre-15.4 iOS engines still cap
+  sheets and size pages correctly.
+- Solid focus-ring fallback behind the color-mix() ring (iOS < 16.2).
+- Inputs never render below 16px, preventing iOS's auto-zoom-on-focus
+  on very narrow screens.
+- Verified at iPhone 13 / mini / Pro Max dimensions: no overflow,
+  sheets cap and sit on the bottom edge, inputs zoom-safe.
+
 ## 2.3.2 — code 22 — 2026-07-05
 
 Same proportions on every phone.
