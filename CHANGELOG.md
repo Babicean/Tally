@@ -10,6 +10,17 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.5 — code 26 — 2026-07-06
+
+Two little delighters.
+
+- Tap the **Tally** wordmark at the top and it takes a smooth 3D
+  spin — that's it, that's the feature.
+- The protein-goal moment is now unmissable: a handful of little
+  fire emoji flicker up off the protein line (with the haptic and
+  "Protein target hit" toast as before). Skipped under
+  reduced-motion, cleaned from the DOM when done.
+
 ## 2.4.1 — code 25 — 2026-07-06
 
 Wording touch-ups.

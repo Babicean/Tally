@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { haptic } from "./lib/fly";
 import SettingsSheet from "./components/SettingsSheet";
 import { useEntries } from "./hooks/useEntries";
 import TodayScreen from "./components/TodayScreen";
@@ -92,11 +93,24 @@ export default function App() {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [gearSpin, setGearSpin] = useState(false);
+  const [wordmarkSpin, setWordmarkSpin] = useState(false);
 
   return (
     <div className="app">
       <div className="top-bar">
-        <span className="wordmark">Tally</span>
+        <span className="wordmark">
+          {/* Purely for fun: tap the name and it takes a spin. */}
+          <button
+            className={`wordmark-btn${wordmarkSpin ? " spinning" : ""}`}
+            onClick={() => {
+              setWordmarkSpin(true);
+              haptic(8);
+            }}
+            onAnimationEnd={() => setWordmarkSpin(false)}
+          >
+            Tally
+          </button>
+        </span>
         <button
           className={`settings-btn${gearSpin ? " spinning" : ""}`}
           onClick={() => {

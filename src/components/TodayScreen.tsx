@@ -3,7 +3,7 @@ import type { DayKey, Entry, MenuItem } from "../types";
 import type { FrequentItem } from "../lib/store";
 import { formatCalories } from "../lib/format";
 import { flyCalories, haptic } from "../lib/fly";
-import { celebrate } from "../lib/burst";
+import { celebrate, emberBurst } from "../lib/burst";
 import type { Streak } from "../lib/streak";
 import { useToast } from "../hooks/useToast";
 import Hero from "./Hero";
@@ -108,9 +108,9 @@ export default function TodayScreen({
         }, 350);
         haptic(10);
       } else if (crossesProtein) {
-        // Protein goal met: a smaller burst, right on the protein line.
+        // Protein goal met: little fires rise off the protein line.
         window.setTimeout(() => {
-          celebrate(document.getElementById("protein-line"));
+          emberBurst(document.getElementById("protein-line"));
           haptic(20);
           showToast({ kind: "streak", message: "Protein target hit" }, 2600);
         }, 350);

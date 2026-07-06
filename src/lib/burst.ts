@@ -56,3 +56,54 @@ export function celebrate(originEl: HTMLElement | null): void {
     animation.onfinish = () => p.remove();
   }
 }
+
+/**
+ * The protein-goal moment: a handful of little fires rise from the protein
+ * line, flickering out as they go. Same lifecycle as `celebrate` — pure DOM,
+ * gone in about a second, skipped under reduced motion.
+ */
+export function emberBurst(originEl: HTMLElement | null): void {
+  if (!originEl) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const rect = originEl.getBoundingClientRect();
+  const COUNT = 7;
+  for (let i = 0; i < COUNT; i++) {
+    const p = document.createElement("span");
+    p.className = "ember-p";
+    p.textContent = "🔥";
+    // Scatter along the width of the line, not from a single point.
+    p.style.left = `${rect.left + rect.width * (0.1 + Math.random() * 0.8)}px`;
+    p.style.top = `${rect.top + rect.height * 0.5}px`;
+    p.style.fontSize = `${13 + Math.random() * 8}px`;
+    document.body.appendChild(p);
+
+    const rise = 44 + Math.random() * 42;
+    const sway = (Math.random() - 0.5) * 34;
+    const tilt = (Math.random() - 0.5) * 28;
+    const duration = 800 + Math.random() * 450;
+    const delay = i * 45 + Math.random() * 120;
+
+    const animation = p.animate(
+      [
+        { transform: "translate(-50%, -50%) scale(0.2)", opacity: 0 },
+        {
+          transform: `translate(calc(-50% + ${sway * 0.4}px), calc(-50% - ${rise * 0.45}px)) scale(1.05) rotate(${tilt}deg)`,
+          opacity: 1,
+          offset: 0.35,
+        },
+        {
+          transform: `translate(calc(-50% + ${sway}px), calc(-50% - ${rise}px)) scale(0.6) rotate(${-tilt}deg)`,
+          opacity: 0,
+        },
+      ],
+      {
+        duration,
+        delay,
+        easing: "cubic-bezier(0.25, 0.6, 0.35, 1)",
+        fill: "backwards",
+      },
+    );
+    animation.onfinish = () => p.remove();
+  }
+}
