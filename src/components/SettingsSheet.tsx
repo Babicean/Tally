@@ -445,8 +445,7 @@ export default function SettingsSheet({
         <div className="settings-row-text">
           <span className="settings-row-title">Track macros</span>
           <span className="settings-row-sub">
-            Adds optional protein and fat grams to Menu items and
-            entries. Carbs are what's left.
+            Adds protein and fat to menu items and entries.
           </span>
         </div>
         <button

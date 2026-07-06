@@ -10,6 +10,15 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.4.1 — code 25 — 2026-07-06
+
+Wording touch-ups.
+
+- Track macros description tightened to "Adds protein and fat to
+  menu items and entries." — one line on modern phones, and the
+  "carbs are what's left" aside is gone.
+- Calorie target sheet no longer calls the target "gentle".
+
 ## 2.4 — code 24 — 2026-07-06
 
 Advanced tracking: fat joins protein, plus a protein-target

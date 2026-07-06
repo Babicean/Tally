@@ -34,8 +34,8 @@ export default function GoalSheet({ open, goal, onSave, onClose }: Props) {
   return (
     <Sheet open={open} title="Calorie target" onClose={onClose}>
       <p className="sheet-sub">
-        A gentle daily target. The ring fills as you log. Information,
-        never judgement.
+        A daily target. The ring fills as you log. Information, never
+        judgement.
       </p>
       <form onSubmit={submit} noValidate>
         <div className={`field field-cal sheet-field${error ? " invalid" : ""}`}>
