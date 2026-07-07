@@ -84,7 +84,60 @@ In Xcode:
 That's the productive end of today. When the enrollment email lands,
 come back for the upload.
 
-## Ship to TestFlight (after the enrollment email arrives)
+## No-Mac path: ship via Codemagic (recommended)
+
+`codemagic.yaml` in the repo root builds Tally on a hosted Mac and
+uploads to TestFlight — no Mac or Xcode of your own. Each build spins
+up a fresh macOS VM with Xcode pre-installed, runs the config, and
+tears down. The paid Apple Developer account is the only hard
+requirement (you have it).
+
+### One-time, all in a browser
+
+1. **Create an App Store Connect API key.** appstoreconnect.apple.com
+   → **Users and Access** → **Integrations** → **App Store Connect
+   API** → **Team Keys** → generate a key with the **App Manager**
+   role. Download the `.p8` file (you only get one download) and note
+   the **Issuer ID** (top of the page) and the **Key ID**.
+2. **Create the app record.** App Store Connect → **Apps** → **+** →
+   **New App**: platform iOS, name **Tally**, primary language
+   English, bundle ID **com.babicean.tally**, and any SKU (e.g.
+   `tally-001`). This is the app your builds land in.
+3. **Set up Codemagic.** Sign in at codemagic.io with GitHub, grant
+   access to `Babicean/Tally`, and add the app.
+   - Team/app **Settings → Integrations → App Store Connect**: add the
+     key — upload the `.p8`, paste the Issuer ID and Key ID — and
+     **name it `tally_app_store`** (the name `codemagic.yaml`
+     references). 
+   - Codemagic auto-detects `codemagic.yaml`. Pick the
+     **ios-testflight** workflow and **Start new build**.
+4. First build takes ~10–15 min. It signs automatically (no
+   certificates to touch), uploads to TestFlight, and the build then
+   processes on Apple's side (~15 min) before it's testable.
+
+### Adding your friends
+
+- **Internal testing** (fastest, no review): App Store Connect →
+  TestFlight → Internal Testing → create a group named **Internal**
+  (the config auto-adds builds to it) → add each friend as a user on
+  your account. They get it within minutes of processing.
+- **External / public link** (best for "a couple of friends" who
+  aren't account users): TestFlight → External Testing → make a
+  group, add the build, submit for the one-time Beta App Review
+  (~1 day). Once approved you get a public link — friends install the
+  free **TestFlight** app, tap the link, done.
+
+### Every update after this
+
+Just push to the branch (or hit Start new build). Codemagic rebuilds
+from the current repo and uploads a new TestFlight build with an
+auto-incremented build number. You never open Xcode.
+
+---
+
+## Ship to TestFlight from your own Mac (alternative)
+
+If you ever *do* have a Mac you control, this is the manual path.
 
 There is no iOS equivalent of "download the APK". TestFlight is the
 only way onto friends' iPhones, and it needs the paid account from

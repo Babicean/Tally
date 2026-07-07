@@ -1,0 +1,69 @@
+# Codemagic CI — builds Tally's iOS app on a hosted Mac and ships it to
+# TestFlight. No local Mac or Xcode required; Codemagic provisions a
+# fresh macOS machine per build. See docs/IOS.md for the full walkthrough.
+#
+# Before the first run, in the Codemagic UI you must:
+#   1. Add an App Store Connect API key integration and NAME it
+#      "tally_app_store" (Team settings → Integrations → App Store
+#      Connect). That name is referenced below.
+#   2. Nothing else — signing certificates and profiles are created
+#      automatically from that key.
+
+workflows:
+  ios-testflight:
+    name: Tally iOS → TestFlight
+    # A hosted Apple-silicon Mac with Xcode pre-installed.
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+    integrations:
+      # Must match the integration name you set in the Codemagic UI.
+      app_store_connect: tally_app_store
+    environment:
+      ios_signing:
+        # Automatic signing: Codemagic fetches/creates the distribution
+        # certificate and an App Store provisioning profile from the API
+        # key, so there are no certificates to manage by hand.
+        distribution_type: app_store
+        bundle_identifier: com.babicean.tally
+      vars:
+        BUNDLE_ID: "com.babicean.tally"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
+      node: 20
+      xcode: latest
+    scripts:
+      - name: Install JS dependencies
+        script: npm ci
+      - name: Build the web app
+        script: npm run build
+      - name: Sync Capacitor into the iOS project (SPM, no CocoaPods)
+        script: npx cap sync ios
+      - name: Set the TestFlight build number
+        script: |
+          # Codemagic's own build counter auto-increments every build,
+          # so each upload gets a strictly higher number than the last
+          # (TestFlight's only rule). No manual bumping ever.
+          set -e
+          cd "$CM_BUILD_DIR/ios/App"
+          agvtool new-version -all "$BUILD_NUMBER"
+      - name: Fetch signing profiles onto the machine
+        script: xcode-project use-profiles
+      - name: Build the signed .ipa
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        # Upload to TestFlight, don't auto-submit for App Store review.
+        auth: integration
+        submit_to_testflight: true
+        # Auto-distribute to your internal testers as soon as it
+        # finishes processing. Create this group in App Store Connect
+        # (TestFlight → Internal Testing) with this exact name, or
+        # remove these two lines to add testers manually each build.
+        beta_groups:
+          - Internal
