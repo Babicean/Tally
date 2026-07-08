@@ -10,6 +10,16 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.5.2 — code 28 — 2026-07-08
+
+Graphite dark mode, inherited from Reps.
+
+- Dark surfaces now separate by color, not by shadows that darkness
+  swallows: page down to #0c0d10, cards up to #1e2126, a 1px light
+  catch along every card and floating surface's top edge, brighter
+  secondary text. Status bar, navigation bar, and PWA theme color
+  follow. Light mode untouched; Azure and Emerald both sit fine.
+
 ## 2.5.1 — code 27 — 2026-07-08
 
 One proportional design on every screen size.
