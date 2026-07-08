@@ -194,7 +194,7 @@ export default function App() {
         fatTarget={fatTarget}
         onSetFatTarget={setFatTarget}
         getBackup={() => buildBackup(entries, menu, loadSettings())}
-        onRestore={importBackup}
+        onRestore={(b) => importBackup(b, { applySettings: true })}
         onClose={() => setSettingsOpen(false)}
       />
 

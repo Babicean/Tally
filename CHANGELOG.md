@@ -10,6 +10,17 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.6-beta.3 — code 31 — 2026-07-08 (beta channel)
+
+Restore brings your whole setup back.
+
+- Restoring from your account now applies the backup's settings too —
+  theme, accent, calorie goal, macro tracking and targets — not just
+  entries and menu. Your dark theme follows you to the new phone.
+- File imports in the History tab stay conservative on settings (the
+  file might be someone else's); only your account restore assumes
+  the backup is *your* setup.
+
 ## 2.6-beta.2 — code 30 — 2026-07-08 (beta channel)
 
 First real-server field test fixes.

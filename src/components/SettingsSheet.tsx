@@ -23,7 +23,6 @@ import {
   type BackupPayload,
   type MergeResult,
 } from "../lib/backup";
-import { loadSettings } from "../lib/settings";
 
 interface Props {
   open: boolean;
@@ -221,8 +220,10 @@ export default function SettingsSheet({
             }.`,
       );
       // Push the merged whole back so the server copy is the union too.
+      // Settings come from the backup we just applied (React hasn't
+      // flushed the state yet, so loadSettings() would race it).
       const push = await pushBackup(
-        buildBackup(merged.entries, merged.menu, loadSettings()),
+        buildBackup(merged.entries, merged.menu, backup.settings),
       );
       if (push.ok) {
         rememberLastBackup(push.updatedAt);
