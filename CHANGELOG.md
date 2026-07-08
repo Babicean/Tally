@@ -10,6 +10,18 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.6-beta.2 — code 30 — 2026-07-08 (beta channel)
+
+First real-server field test fixes.
+
+- The waiting-for-verification screen gains "Wrong address? Start
+  over" — a typo'd email no longer traps you; you can go back and
+  create the account again or log in with another one.
+- docs/verified.html: a Tally-styled landing page for the email
+  verification link, replacing Supabase's default redirect to
+  localhost:3000 (served via GitHub Pages; set as the Site URL in
+  Supabase's auth settings).
+
 ## 2.6-beta.1 — code 29 — 2026-07-08 (beta channel)
 
 Account sync, for real. First release on the `beta` channel from the

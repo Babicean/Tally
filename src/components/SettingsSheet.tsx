@@ -420,6 +420,18 @@ export default function SettingsSheet({
             >
               Resend the email
             </button>
+            <button
+              type="button"
+              className="sheet-secondary quiet"
+              onClick={() => {
+                // Escape hatch: typo'd address, or changed your mind.
+                setAwaitingVerify(null);
+                setSyncNote(null);
+                setForm("none");
+              }}
+            >
+              Wrong address? Start over
+            </button>
           </div>
           {syncNote && (
             <p className="acct-note" role="status">
