@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { haptic } from "./lib/fly";
+import { buildBackup } from "./lib/backup";
+import { loadSettings } from "./lib/settings";
 import SettingsSheet from "./components/SettingsSheet";
 import { useEntries } from "./hooks/useEntries";
 import TodayScreen from "./components/TodayScreen";
@@ -191,6 +193,8 @@ export default function App() {
         onSetProteinTarget={setProteinTarget}
         fatTarget={fatTarget}
         onSetFatTarget={setFatTarget}
+        getBackup={() => buildBackup(entries, menu, loadSettings())}
+        onRestore={importBackup}
         onClose={() => setSettingsOpen(false)}
       />
 

@@ -18,7 +18,7 @@ export const MIRRORED_KEYS = [
   "tally.store",
   "tally.menu",
   "tally.settings",
-  "tally.account",
+  "tally.session",
 ] as const;
 
 /** Fire-and-forget mirror write; storage failures must never break the UI. */

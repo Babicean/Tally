@@ -10,6 +10,31 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.6-beta.1 — code 29 — 2026-07-08 (beta channel)
+
+Account sync, for real. First release on the `beta` channel from the
+`claude/tally-sync` branch; docs/SYNC.md has the architecture.
+
+- Accounts now live on the server (Supabase, Sydney): sign-up sends a
+  real verification email, sign-in gets a real session, and the
+  `verified` flag finally means something. The v2.3 local-only
+  account record is retired and cleaned up on first sign-in.
+- **Back up now** pushes the export-format backup to your account;
+  "Last backed up" shows the real server timestamp. **Restore from
+  backup** pulls, merges (union by id, local always wins), reports
+  what was added, and pushes the union back.
+- **Delete account** now truly deletes: a server-side function
+  removes the account and the backup cascades away in the same
+  transaction. On-device data is never touched.
+- Honest copy everywhere: Settings footer and the History data card
+  now say data stays on-device *unless you turn on sync*; the
+  account panel states exactly what the server stores and where.
+  docs/PRIVACY.md is the policy.
+- Security: no SQL from the client (parameterized REST only), Row
+  Level Security scopes every request to the signed-in user, the
+  embedded key is the public project key (the privileged key never
+  leaves the Supabase dashboard).
+
 ## 2.5.2 — code 28 — 2026-07-08
 
 Graphite dark mode, inherited from Reps.
