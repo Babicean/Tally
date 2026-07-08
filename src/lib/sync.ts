@@ -235,6 +235,38 @@ export async function resendConfirmation(
   }
 }
 
+/**
+ * Send a password-reset email. The link lands on docs/reset.html
+ * (hosted on GitHub Pages), which sets the new password against the
+ * recovery token — the app never sees or stores it.
+ */
+export async function requestPasswordReset(
+  email: string,
+): Promise<SyncResult<object> | SyncProblem> {
+  try {
+    const redirect = encodeURIComponent(
+      "https://babicean.github.io/Tally/reset.html",
+    );
+    const res = await fetch(
+      `${SYNC_URL}/auth/v1/recover?redirect_to=${redirect}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: SYNC_KEY },
+        body: JSON.stringify({ email }),
+      },
+    );
+    if (!res.ok) {
+      return {
+        ok: false,
+        problem: friendlyAuthProblem(res.status, await bodyOf(res)),
+      };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, problem: NETWORK_PROBLEM };
+  }
+}
+
 export async function signOut(): Promise<void> {
   const session = loadSession();
   saveSession(null);
@@ -310,6 +342,9 @@ export async function pushBackup(
             updated_at: new Date().toISOString(),
           },
         ]),
+        // Let an auto-backup finish even if the app is backgrounded
+        // mid-request.
+        keepalive: true,
       },
     );
     if (!res.ok) {

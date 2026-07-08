@@ -10,6 +10,20 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.6-beta.4 — code 32 — 2026-07-08 (beta channel)
+
+Forgot password + invisible sync.
+
+- **Forgot password?** on the log-in form sends a reset email; the
+  link opens a Tally-styled page (docs/reset.html on GitHub Pages)
+  where you set a new password against the one-hour recovery token.
+  Expired or reused links get a clear dead-end page.
+- **Auto-backup.** Signed in, your changes back themselves up: edits
+  mark the data dirty, a quiet minute later it pushes — and leaving
+  the app flushes immediately (with keepalive, so backgrounding
+  mid-push doesn't lose it). Failures stay silent and retry on the
+  next change; Back up now remains for the impatient.
+
 ## 2.6-beta.3 — code 31 — 2026-07-08 (beta channel)
 
 Restore brings your whole setup back.

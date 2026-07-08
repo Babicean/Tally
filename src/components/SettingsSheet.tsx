@@ -11,6 +11,7 @@ import {
   pullBackup,
   pushBackup,
   rememberLastBackup,
+  requestPasswordReset,
   resendConfirmation,
   signIn,
   signOut,
@@ -383,8 +384,9 @@ export default function SettingsSheet({
             </p>
           )}
           <p className="acct-note">
-            Backups live encrypted at rest on our server (Supabase, Sydney)
-            and are deleted the moment you delete your account.
+            Changes back up by themselves about a minute after you make
+            them. Backups live encrypted at rest on our server (Supabase,
+            Sydney) and are deleted the moment you delete your account.
           </p>
         </>
       ) : awaitingVerify && form === "none" ? (
@@ -584,6 +586,34 @@ export default function SettingsSheet({
               <button type="submit" className="add-submit" disabled={busy}>
                 {form === "create" ? "Create account" : "Log in"}
               </button>
+              {form === "login" && (
+                <button
+                  type="button"
+                  className="sheet-secondary quiet"
+                  disabled={busy}
+                  onClick={() => {
+                    const problem = emailProblem(email);
+                    if (problem) {
+                      setFormError(
+                        "Enter your email above first, then tap this.",
+                      );
+                      return;
+                    }
+                    setBusy(true);
+                    void requestPasswordReset(email)
+                      .then((result) =>
+                        setFormError(
+                          result.ok
+                            ? "Reset email sent — set a new password there, then log in here."
+                            : result.problem,
+                        ),
+                      )
+                      .finally(() => setBusy(false));
+                  }}
+                >
+                  Forgot password?
+                </button>
+              )}
               <button
                 type="button"
                 className="sheet-secondary quiet"
