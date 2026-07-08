@@ -10,6 +10,20 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.5.1 — code 27 — 2026-07-08
+
+One proportional design on every screen size.
+
+- The fluid base unit now slides across the whole phone range instead
+  of capping at 16px: the layout is anchored to a 412px-wide
+  reference screen and every other device renders it at width/412
+  scale — identical ratios, spacing, and typography, just linearly
+  sized. Verified 0.00% ratio drift from 360px to 430px.
+- Reference phones (412px) are pixel-identical to 2.5; narrow phones
+  keep a readability floor; tablets/desktop cap at Pro-Max scale.
+- Applies to iOS the same way (CSS pt widths: 375/390/430), so the
+  TestFlight build inherits it.
+
 ## 2.5 — code 26 — 2026-07-06
 
 Two little delighters.
