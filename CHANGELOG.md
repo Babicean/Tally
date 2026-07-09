@@ -10,6 +10,14 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.6 — code 35 — 2026-07-09
+
+**Account sync, stable.** Six beta rounds (beta.1-beta.6 below)
+merged to the release line. Optional accounts back up your data to
+the cloud automatically and restore it on any device; delete removes
+everything server-side instantly. Without an account, nothing ever
+leaves your phone. Revert point: `stable-pre-sync` branch.
+
 ## 2.6-beta.6 — code 34 — 2026-07-09 (beta channel)
 
 Less reading, same app.
