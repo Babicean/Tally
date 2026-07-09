@@ -19,12 +19,6 @@ workflows:
       # Must match the integration name you set in the Codemagic UI.
       app_store_connect: tally_app_store
     environment:
-      ios_signing:
-        # Automatic signing: Codemagic fetches/creates the distribution
-        # certificate and an App Store provisioning profile from the API
-        # key, so there are no certificates to manage by hand.
-        distribution_type: app_store
-        bundle_identifier: com.babicean.tally
       vars:
         BUNDLE_ID: "com.babicean.tally"
         XCODE_PROJECT: "ios/App/App.xcodeproj"
@@ -32,6 +26,26 @@ workflows:
       node: 20
       xcode: latest
     scripts:
+      - name: Fetch signing certificate and profile from Apple
+        script: |
+          # Runs first so signing problems fail the build in seconds and
+          # Apple's actual API error lands in this step's log, instead of
+          # the opaque "No matching profiles found" preflight banner.
+          # The integration above exports APP_STORE_CONNECT_ISSUER_ID,
+          # APP_STORE_CONNECT_KEY_IDENTIFIER and APP_STORE_CONNECT_PRIVATE_KEY,
+          # which the app-store-connect CLI reads by default.
+          # The RSA key is generated per build, so each run mints a fresh
+          # distribution certificate. Apple caps those at a handful per
+          # team; once builds are green, park the key in a Codemagic
+          # secret (CERTIFICATE_PRIVATE_KEY) so the certificate is reused.
+          set -e
+          ssh-keygen -t rsa -b 2048 -m PEM -f "$HOME/tally_cert_key" -q -N ""
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --certificate-key="@file:$HOME/tally_cert_key" \
+            --create
+          keychain initialize
+          keychain add-certificates
       - name: Install JS dependencies
         script: npm ci
       - name: Build the web app
@@ -46,7 +60,7 @@ workflows:
           set -e
           cd "$CM_BUILD_DIR/ios/App"
           agvtool new-version -all "$BUILD_NUMBER"
-      - name: Fetch signing profiles onto the machine
+      - name: Apply the signing profile to the Xcode project
         script: xcode-project use-profiles
       - name: Build the signed .ipa
         script: |
