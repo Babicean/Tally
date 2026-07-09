@@ -732,7 +732,7 @@ export default function SettingsSheet({
         <div className="settings-row-text">
           <span className="settings-row-title">Track weight</span>
           <span className="settings-row-sub">
-            A quiet daily weigh-in; the trend lives in History.
+            Track your weight and view trends over time.
           </span>
         </div>
         <button

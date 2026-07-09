@@ -6,6 +6,7 @@ import type { BackupPayload, MergeResult } from "../lib/backup";
 import { weeklyStats } from "../lib/stats";
 import type { WeightEntry } from "../lib/weight";
 import WeightCard from "./WeightCard";
+import WeightSheet from "./WeightSheet";
 import TrendChart, { TrendPoint } from "./TrendChart";
 import DataCard from "./DataCard";
 import BackdateSheet from "./BackdateSheet";
@@ -20,6 +21,10 @@ interface Props {
   trackProtein: boolean;
   trackWeight: boolean;
   weights: WeightEntry[];
+  todayWeight: number | null;
+  lastWeight: number | null;
+  onLogWeight: (kg: number) => void;
+  onRemoveWeight: () => void;
   onImport: (backup: BackupPayload) => MergeResult;
   onAddBackdated: (
     calories: number,
@@ -38,10 +43,15 @@ export default function HistoryScreen({
   trackProtein,
   trackWeight,
   weights,
+  todayWeight,
+  lastWeight,
+  onLogWeight,
+  onRemoveWeight,
   onImport,
   onAddBackdated,
 }: Props) {
   const [openDay, setOpenDay] = useState<DayKey | null>(null);
+  const [weightOpen, setWeightOpen] = useState(false);
   const [backdating, setBackdating] = useState<DayKey | null>(null);
   const { toast, showToast } = useToast();
 
@@ -110,7 +120,21 @@ export default function HistoryScreen({
         </section>
       )}
 
-      {trackWeight && weights.length > 0 && <WeightCard weights={weights} />}
+      {trackWeight && (
+        <WeightCard
+          weights={weights}
+          todayWeight={todayWeight}
+          onLog={() => setWeightOpen(true)}
+        />
+      )}
+      <WeightSheet
+        open={weightOpen}
+        today={todayWeight}
+        last={lastWeight}
+        onSave={onLogWeight}
+        onRemove={onRemoveWeight}
+        onClose={() => setWeightOpen(false)}
+      />
 
       {history.length > 0 && <h2 className="section-label">All days</h2>}
       {history.length === 0 ? (

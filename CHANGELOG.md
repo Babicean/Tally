@@ -10,6 +10,15 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.7.1 — code 37 — 2026-07-09
+
+Weight moves fully into History.
+
+- The weight pill left the Today screen; logging now happens on the
+  History weight card itself (a pill in its header — "Log weight"
+  until you do, then today's number). Today stays purely calories.
+- Settings wording: "Track your weight and view trends over time."
+
 ## 2.7 — code 36 — 2026-07-09
 
 Weight tracking and Meals.

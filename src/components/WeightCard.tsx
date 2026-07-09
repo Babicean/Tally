@@ -11,6 +11,8 @@ function shortDay(day: string): string {
 
 interface Props {
   weights: WeightEntry[];
+  todayWeight: number | null;
+  onLog: () => void;
 }
 
 const X0 = 10;
@@ -23,7 +25,30 @@ const Y1 = 84;
  * plain numbers. No colors for up or down — information, never
  * judgement.
  */
-export default function WeightCard({ weights }: Props) {
+export default function WeightCard({ weights, todayWeight, onLog }: Props) {
+  const pill = (
+    <button
+      className={`weight-pill${todayWeight === null ? " ghost" : ""}`}
+      onClick={onLog}
+    >
+      {todayWeight === null ? "Log weight" : `${todayWeight} kg`}
+    </button>
+  );
+
+  if (weights.length === 0) {
+    return (
+      <section className="card trend-card weight-card">
+        <div className="trend-head">
+          <span className="trend-label">Weight</span>
+          {pill}
+        </div>
+        <p className="trend-avg-caption">
+          Log your first weigh-in and the trend grows here.
+        </p>
+      </section>
+    );
+  }
+
   const series = weights.slice(-60);
   const values = series.map((w) => w.kg);
   const lo = Math.min(...values);
@@ -58,6 +83,7 @@ export default function WeightCard({ weights }: Props) {
           {current}
           <span className="unit"> kg</span>
         </span>
+        {pill}
       </div>
       <p className="trend-avg-caption">{changeText}</p>
       <svg

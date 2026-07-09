@@ -166,11 +166,6 @@ export default function App() {
           menu={menu}
           dailyGoal={dailyGoal}
           onSetGoal={setDailyGoal}
-          trackWeight={trackWeight}
-          todayWeight={todayWeight}
-          lastWeight={lastWeight}
-          onLogWeight={logWeight}
-          onRemoveWeight={removeTodayWeight}
           onAdd={addEntry}
           onUpdate={updateEntry}
           onDelete={deleteEntry}
@@ -199,6 +194,10 @@ export default function App() {
           trackProtein={trackProtein}
           trackWeight={trackWeight}
           weights={weights}
+          todayWeight={todayWeight}
+          lastWeight={lastWeight}
+          onLogWeight={logWeight}
+          onRemoveWeight={removeTodayWeight}
           onImport={importBackup}
           onAddBackdated={(cal, desc, prot, fatG, when) => {
             addEntry(cal, desc, prot, fatG, when);

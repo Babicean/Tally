@@ -2270,7 +2270,7 @@ input {
 .weight-pill {
   display: inline-flex;
   align-items: center;
-  margin-top: 0.5rem;
+  margin-left: 0.75rem;
   padding: 0.3125rem 0.875rem;
   border-radius: 999px;
   font-size: 0.8125rem;

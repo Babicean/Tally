@@ -13,7 +13,6 @@ import MenuPickSheet from "./MenuPickSheet";
 import EntryList from "./EntryList";
 import EditEntrySheet from "./EditEntrySheet";
 import GoalSheet from "./GoalSheet";
-import WeightSheet from "./WeightSheet";
 import Toast from "./Toast";
 
 interface Props {
@@ -30,11 +29,6 @@ interface Props {
   menu: MenuItem[];
   dailyGoal: number | null;
   onSetGoal: (goal: number | null) => void;
-  trackWeight: boolean;
-  todayWeight: number | null;
-  lastWeight: number | null;
-  onLogWeight: (kg: number) => void;
-  onRemoveWeight: () => void;
   onAdd: (
     calories: number,
     description: string,
@@ -67,11 +61,6 @@ export default function TodayScreen({
   menu,
   dailyGoal,
   onSetGoal,
-  trackWeight,
-  todayWeight,
-  lastWeight,
-  onLogWeight,
-  onRemoveWeight,
   onAdd,
   onUpdate,
   onDelete,
@@ -79,7 +68,6 @@ export default function TodayScreen({
 }: Props) {
   const { toast, showToast, showConfirmation, dismiss } = useToast();
   const [goalOpen, setGoalOpen] = useState(false);
-  const [weightOpen, setWeightOpen] = useState(false);
   const [menuPickOpen, setMenuPickOpen] = useState(false);
   const [editing, setEditing] = useState<Entry | null>(null);
 
@@ -173,9 +161,6 @@ export default function TodayScreen({
         streak={streak}
         goal={dailyGoal}
         onEditGoal={() => setGoalOpen(true)}
-        trackWeight={trackWeight}
-        todayWeight={todayWeight}
-        onEditWeight={() => setWeightOpen(true)}
       />
 
       <QuickAddChips
@@ -236,17 +221,6 @@ export default function TodayScreen({
         goal={dailyGoal}
         onSave={onSetGoal}
         onClose={() => setGoalOpen(false)}
-      />
-      <WeightSheet
-        open={weightOpen}
-        today={todayWeight}
-        last={lastWeight}
-        onSave={(kg) => {
-          onLogWeight(kg);
-          haptic(10);
-        }}
-        onRemove={onRemoveWeight}
-        onClose={() => setWeightOpen(false)}
       />
       <EditEntrySheet
         entry={editing}
