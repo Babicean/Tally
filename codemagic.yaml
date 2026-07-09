@@ -40,21 +40,21 @@ workflows:
           # two. Revoke the strays first — harmless, revocation never
           # affects builds already uploaded to TestFlight or the store.
           set -e
-          python3 - <<'PY' || echo "certificate cleanup skipped"
+          python3 - <<'PY'
           import json, subprocess
-          for ctype in ("DISTRIBUTION", "IOS_DISTRIBUTION"):
-              out = subprocess.run(
-                  ["app-store-connect", "list-certificates", "--type", ctype, "--json"],
-                  capture_output=True, text=True)
-              if out.returncode:
-                  continue
-              try:
-                  certs = json.loads(out.stdout)
-              except ValueError:
-                  continue
-              for cert in certs:
-                  if cert.get("id"):
-                      subprocess.run(["app-store-connect", "delete-certificate", cert["id"]])
+          out = subprocess.run(
+              ["app-store-connect", "certificates", "list",
+               "--type", "DISTRIBUTION", "--type", "IOS_DISTRIBUTION", "--json"],
+              capture_output=True, text=True)
+          try:
+              certs = json.loads(out.stdout) if out.returncode == 0 else []
+          except ValueError:
+              certs = []
+          for cert in certs:
+              if cert.get("id"):
+                  subprocess.run(["app-store-connect", "certificates", "delete",
+                                  cert["id"], "--ignore-not-found"])
+          print("Revoked %d stranded distribution certificate(s)" % len(certs))
           PY
           ssh-keygen -t rsa -b 2048 -m PEM -f "$HOME/tally_cert_key" -q -N ""
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
