@@ -87,7 +87,7 @@ export function friendlyAuthProblem(
     return "Wrong email or password.";
   }
   if (code === "email_not_confirmed" || msg.includes("not confirmed")) {
-    return "Your email isn't verified yet — check your inbox for the link.";
+    return "Your email isn't verified yet. Check your inbox for the link.";
   }
   if (
     code === "user_already_exists" ||
@@ -97,10 +97,10 @@ export function friendlyAuthProblem(
     return "That email already has an account. Try logging in.";
   }
   if (code === "weak_password" || msg.includes("password")) {
-    return "That password is too weak — use at least 8 characters.";
+    return "That password is too weak. Use at least 8 characters.";
   }
   if (code === "over_request_rate_limit" || status === 429) {
-    return "Too many attempts — wait a minute and try again.";
+    return "Too many attempts. Wait a minute and try again.";
   }
   if (status >= 500) return "The server hiccuped. Try again in a moment.";
   return "Something went wrong. Try again.";

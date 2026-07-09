@@ -45,8 +45,10 @@ you.
 
 ## Retention and deletion
 
-Your backup is kept until you overwrite it with a newer one or delete
-your account. **Delete account** (Settings → Account) permanently
+While you are signed in, the app backs your data up automatically
+shortly after you make changes; each backup overwrites the previous
+one. Your backup is kept until you overwrite it with a newer one or
+delete your account. **Delete account** (Settings → Account) permanently
 removes your account and your backup from the server in the same
 operation — there is no grace period, no soft-delete, and no copy kept.
 Data on your phone is never touched by account deletion.

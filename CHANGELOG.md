@@ -10,6 +10,20 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.6-beta.6 — code 34 — 2026-07-09 (beta channel)
+
+Less reading, same app.
+
+- The account panel's privacy explanations (what's stored, where,
+  encryption, deletion behavior) moved out of the app and into the
+  privacy policy, where that detail belongs. The panel is back to
+  buttons and one-line pitches.
+- Em dashes removed from account copy; "I have an account" is now
+  just "Log in", and the verify screen's button reads "Verified?
+  Log in".
+- "Keep your tally safe" reads "Keep your data safe".
+- docs/PRIVACY.md gains the automatic-backup detail.
+
 ## 2.6-beta.5 — code 33 — 2026-07-09 (beta channel)
 
 Lost verification emails are no longer a dead end.

@@ -208,7 +208,7 @@ export default function SettingsSheet({
         return;
       }
       if (result.payload === null) {
-        setSyncNote("No backup on the server yet — back up first.");
+        setSyncNote("No backup on the server yet. Back up first.");
         return;
       }
       const backup = parseBackup(JSON.stringify(result.payload));
@@ -389,16 +389,12 @@ export default function SettingsSheet({
               phone.
             </p>
           )}
-          <p className="acct-note">
-            Changes back up by themselves about a minute after you make
-            them. Backups live encrypted at rest on our server (Supabase,
-            Sydney) and are deleted the moment you delete your account.
-          </p>
+
         </>
       ) : awaitingVerify && form === "none" ? (
         <>
           <p className="sheet-sub">
-            Almost there — we sent a verification link to{" "}
+            We sent a verification link to{" "}
             <strong>{awaitingVerify}</strong>. Tap it, then come back and
             log in.
           </p>
@@ -408,7 +404,7 @@ export default function SettingsSheet({
               className="add-submit"
               onClick={() => openForm("login")}
             >
-              I verified — log in
+              Verified? Log in
             </button>
             <button
               type="button"
@@ -451,7 +447,7 @@ export default function SettingsSheet({
       ) : form === "none" ? (
         <>
           <p className="sheet-sub">
-            Keep your tally safe beyond this phone. Back up to your
+            Keep your data safe beyond this phone. Back up to your
             account, restore on any device.
           </p>
           <div className="sheet-actions">
@@ -467,14 +463,9 @@ export default function SettingsSheet({
               className="sheet-secondary quiet"
               onClick={() => openForm("login")}
             >
-              I have an account — log in
+              Log in
             </button>
           </div>
-          <p className="acct-note">
-            <span className="beta-chip">Beta</span> Only your email and
-            your backup are stored, encrypted at rest, deleted with your
-            account. Without an account nothing ever leaves this phone.
-          </p>
         </>
       ) : (
         <>
@@ -610,7 +601,7 @@ export default function SettingsSheet({
                       .then((result) =>
                         setFormError(
                           result.ok
-                            ? "Reset email sent — set a new password there, then log in here."
+                            ? "Reset email sent. Set a new password there, then log in here."
                             : result.problem,
                         ),
                       )
@@ -629,13 +620,7 @@ export default function SettingsSheet({
               </button>
             </div>
           </form>
-          {form === "create" && (
-            <p className="acct-note">
-              <span className="beta-chip">Beta</span> We'll send one
-              verification email, nothing else. Your address and your
-              backup are the only things the server ever stores.
-            </p>
-          )}
+
         </>
       )}
     </div>
