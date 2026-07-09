@@ -73,11 +73,11 @@ jobs:
       # Beta channel: the account side branch publishes to its own tag so
       # the beta can be tested without ever touching the stable release.
       - name: Update rolling 'beta' release
-        if: github.ref == 'refs/heads/claude/tally-account'
+        if: github.ref == 'refs/heads/claude/tally-sync'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: beta
-          name: Tally — account beta
+          name: Tally — sync beta
           prerelease: true
           body: |
             Beta build from the account side branch: optional email and

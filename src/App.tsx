@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { haptic } from "./lib/fly";
+import { buildBackup } from "./lib/backup";
+import { loadSettings } from "./lib/settings";
 import SettingsSheet from "./components/SettingsSheet";
 import { useEntries } from "./hooks/useEntries";
+import { useAutoBackup } from "./hooks/useAutoBackup";
 import TodayScreen from "./components/TodayScreen";
 import MenuScreen from "./components/MenuScreen";
 import HistoryScreen from "./components/HistoryScreen";
@@ -90,6 +93,12 @@ export default function App() {
     deleteMenuItem,
     togglePinned,
   } = useEntries();
+
+  // Invisible sync: signed-in users' changes back themselves up.
+  useAutoBackup(
+    () => buildBackup(entries, menu, loadSettings()),
+    [entries, menu, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget],
+  );
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [gearSpin, setGearSpin] = useState(false);
@@ -191,6 +200,8 @@ export default function App() {
         onSetProteinTarget={setProteinTarget}
         fatTarget={fatTarget}
         onSetFatTarget={setFatTarget}
+        getBackup={() => buildBackup(entries, menu, loadSettings())}
+        onRestore={(b) => importBackup(b, { applySettings: true })}
         onClose={() => setSettingsOpen(false)}
       />
 

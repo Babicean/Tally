@@ -10,6 +10,91 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.6-beta.6 — code 34 — 2026-07-09 (beta channel)
+
+Less reading, same app.
+
+- The account panel's privacy explanations (what's stored, where,
+  encryption, deletion behavior) moved out of the app and into the
+  privacy policy, where that detail belongs. The panel is back to
+  buttons and one-line pitches.
+- Em dashes removed from account copy; "I have an account" is now
+  just "Log in", and the verify screen's button reads "Verified?
+  Log in".
+- "Keep your tally safe" reads "Keep your data safe".
+- docs/PRIVACY.md gains the automatic-backup detail.
+
+## 2.6-beta.5 — code 33 — 2026-07-09 (beta channel)
+
+Lost verification emails are no longer a dead end.
+
+- Logging in with an unverified account now routes straight back to
+  the verify-email screen — with its Resend button — instead of just
+  refusing. Deleted the email? Restarted the app? Try to log in and
+  tap Resend.
+
+## 2.6-beta.4 — code 32 — 2026-07-08 (beta channel)
+
+Forgot password + invisible sync.
+
+- **Forgot password?** on the log-in form sends a reset email; the
+  link opens a Tally-styled page (docs/reset.html on GitHub Pages)
+  where you set a new password against the one-hour recovery token.
+  Expired or reused links get a clear dead-end page.
+- **Auto-backup.** Signed in, your changes back themselves up: edits
+  mark the data dirty, a quiet minute later it pushes — and leaving
+  the app flushes immediately (with keepalive, so backgrounding
+  mid-push doesn't lose it). Failures stay silent and retry on the
+  next change; Back up now remains for the impatient.
+
+## 2.6-beta.3 — code 31 — 2026-07-08 (beta channel)
+
+Restore brings your whole setup back.
+
+- Restoring from your account now applies the backup's settings too —
+  theme, accent, calorie goal, macro tracking and targets — not just
+  entries and menu. Your dark theme follows you to the new phone.
+- File imports in the History tab stay conservative on settings (the
+  file might be someone else's); only your account restore assumes
+  the backup is *your* setup.
+
+## 2.6-beta.2 — code 30 — 2026-07-08 (beta channel)
+
+First real-server field test fixes.
+
+- The waiting-for-verification screen gains "Wrong address? Start
+  over" — a typo'd email no longer traps you; you can go back and
+  create the account again or log in with another one.
+- docs/verified.html: a Tally-styled landing page for the email
+  verification link, replacing Supabase's default redirect to
+  localhost:3000 (served via GitHub Pages; set as the Site URL in
+  Supabase's auth settings).
+
+## 2.6-beta.1 — code 29 — 2026-07-08 (beta channel)
+
+Account sync, for real. First release on the `beta` channel from the
+`claude/tally-sync` branch; docs/SYNC.md has the architecture.
+
+- Accounts now live on the server (Supabase, Sydney): sign-up sends a
+  real verification email, sign-in gets a real session, and the
+  `verified` flag finally means something. The v2.3 local-only
+  account record is retired and cleaned up on first sign-in.
+- **Back up now** pushes the export-format backup to your account;
+  "Last backed up" shows the real server timestamp. **Restore from
+  backup** pulls, merges (union by id, local always wins), reports
+  what was added, and pushes the union back.
+- **Delete account** now truly deletes: a server-side function
+  removes the account and the backup cascades away in the same
+  transaction. On-device data is never touched.
+- Honest copy everywhere: Settings footer and the History data card
+  now say data stays on-device *unless you turn on sync*; the
+  account panel states exactly what the server stores and where.
+  docs/PRIVACY.md is the policy.
+- Security: no SQL from the client (parameterized REST only), Row
+  Level Security scopes every request to the signed-in user, the
+  embedded key is the public project key (the privileged key never
+  leaves the Supabase dashboard).
+
 ## 2.5.2 — code 28 — 2026-07-08
 
 Graphite dark mode, inherited from Reps.

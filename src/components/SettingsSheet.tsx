@@ -2,17 +2,28 @@ import { FormEvent, useEffect, useState } from "react";
 import Sheet from "./Sheet";
 import type { AccentPref, ThemePref } from "../lib/theme";
 import { parseProtein } from "../lib/menu";
+import { emailProblem, passwordProblem, suggestEmailFix } from "../lib/account";
 import {
-  createAccount,
+  clearLastBackup,
   deleteAccount,
-  emailProblem,
-  loadAccountState,
-  passwordProblem,
+  lastBackupAt,
+  loadSession,
+  pullBackup,
+  pushBackup,
+  rememberLastBackup,
+  requestPasswordReset,
+  resendConfirmation,
   signIn,
   signOut,
-  suggestEmailFix,
-  type AccountState,
-} from "../lib/account";
+  signUp,
+  type SyncSession,
+} from "../lib/sync";
+import {
+  buildBackup,
+  parseBackup,
+  type BackupPayload,
+  type MergeResult,
+} from "../lib/backup";
 
 interface Props {
   open: boolean;
@@ -26,6 +37,10 @@ interface Props {
   onSetProteinTarget: (grams: number | null) => void;
   fatTarget: number | null;
   onSetFatTarget: (grams: number | null) => void;
+  /** Snapshot of everything worth backing up, in export format. */
+  getBackup: () => BackupPayload;
+  /** Merge a pulled backup into local data; reports what was added. */
+  onRestore: (backup: BackupPayload) => MergeResult;
   onClose: () => void;
 }
 
@@ -55,12 +70,21 @@ export default function SettingsSheet({
   onSetProteinTarget,
   fatTarget,
   onSetFatTarget,
+  getBackup,
+  onRestore,
   onClose,
 }: Props) {
   const [target, setTarget] = useState("");
   const [fatT, setFatT] = useState("");
   const [view, setView] = useState<View>("settings");
-  const [acct, setAcct] = useState<AccountState>(() => loadAccountState());
+  const [session, setSession] = useState<SyncSession | null>(() =>
+    loadSession(),
+  );
+  const [awaitingVerify, setAwaitingVerify] = useState<string | null>(null);
+  const [lastBackup, setLastBackup] = useState<string | null>(() =>
+    lastBackupAt(),
+  );
+  const [syncNote, setSyncNote] = useState<string | null>(null);
   const [form, setForm] = useState<AccountForm>("none");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -78,7 +102,9 @@ export default function SettingsSheet({
       setTarget(proteinTarget !== null ? String(proteinTarget) : "");
       setFatT(fatTarget !== null ? String(fatTarget) : "");
       setView("settings");
-      setAcct(loadAccountState());
+      setSession(loadSession());
+      setLastBackup(lastBackupAt());
+      setSyncNote(null);
       setForm("none");
       setEmail("");
       setPassword("");
@@ -122,16 +148,93 @@ export default function SettingsSheet({
     setBusy(true);
     try {
       if (form === "create") {
-        setAcct(await createAccount(emailValue, password));
-        setForm("none");
+        const result = await signUp(emailValue, password);
+        if (!result.ok) {
+          setFormError(result.problem);
+        } else if (result.needsConfirmation) {
+          setAwaitingVerify(emailValue);
+          setForm("none");
+        } else {
+          setSession(loadSession());
+          setForm("none");
+        }
       } else {
-        const result = await signIn(acct, emailValue, password);
+        const result = await signIn(emailValue, password);
         if (result.ok) {
-          setAcct(result.state);
+          setSession(result.session);
+          setAwaitingVerify(null);
+          setForm("none");
+        } else if (result.unverified) {
+          // Their account exists but the inbox link never got clicked
+          // (or the email is long gone) — the verify pane has Resend.
+          setAwaitingVerify(emailValue);
+          setSyncNote(null);
           setForm("none");
         } else {
           setFormError(result.problem);
         }
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const backUpNow = async () => {
+    if (busy) return;
+    setBusy(true);
+    setSyncNote(null);
+    try {
+      const result = await pushBackup(getBackup());
+      if (result.ok) {
+        rememberLastBackup(result.updatedAt);
+        setLastBackup(result.updatedAt);
+        setSyncNote("Backed up.");
+      } else {
+        setSyncNote(result.problem);
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const restoreNow = async () => {
+    if (busy) return;
+    setBusy(true);
+    setSyncNote(null);
+    try {
+      const result = await pullBackup();
+      if (!result.ok) {
+        setSyncNote(result.problem);
+        return;
+      }
+      if (result.payload === null) {
+        setSyncNote("No backup on the server yet. Back up first.");
+        return;
+      }
+      const backup = parseBackup(JSON.stringify(result.payload));
+      if (!backup) {
+        setSyncNote("The server backup looks damaged. Nothing was changed.");
+        return;
+      }
+      const merged = onRestore(backup);
+      setSyncNote(
+        merged.addedEntries === 0 && merged.addedItems === 0
+          ? "Already up to date — nothing new in the backup."
+          : `Restored ${merged.addedEntries} entr${
+              merged.addedEntries === 1 ? "y" : "ies"
+            } and ${merged.addedItems} menu item${
+              merged.addedItems === 1 ? "" : "s"
+            }.`,
+      );
+      // Push the merged whole back so the server copy is the union too.
+      // Settings come from the backup we just applied (React hasn't
+      // flushed the state yet, so loadSettings() would race it).
+      const push = await pushBackup(
+        buildBackup(merged.entries, merged.menu, backup.settings),
+      );
+      if (push.ok) {
+        rememberLastBackup(push.updatedAt);
+        setLastBackup(push.updatedAt);
       }
     } finally {
       setBusy(false);
@@ -163,7 +266,7 @@ export default function SettingsSheet({
     await finishSubmit(email);
   };
 
-  const signedIn = acct.signedIn && acct.account !== null;
+  const signedIn = session !== null;
 
   const accountPane = (
     <div className="pane pane-enter" key="account">
@@ -180,20 +283,21 @@ export default function SettingsSheet({
         <span aria-hidden="true">‹</span> Settings
       </button>
 
-      {signedIn && acct.account ? (
+      {signedIn && session ? (
         <>
           <div className="acct-card">
             <div className="acct-avatar" aria-hidden="true">
-              {acct.account.email[0].toUpperCase()}
+              {session.user.email[0].toUpperCase()}
             </div>
             <div className="acct-id">
-              <span className="acct-email">{acct.account.email}</span>
+              <span className="acct-email">{session.user.email}</span>
               <span className="acct-since">
                 Since{" "}
-                {new Date(acct.account.createdAt).toLocaleDateString(
+                {new Date(session.user.createdAt).toLocaleDateString(
                   undefined,
                   { month: "long", day: "numeric", year: "numeric" },
                 )}
+                {session.user.verified ? " · verified" : " · unverified"}
               </span>
             </div>
           </div>
@@ -201,7 +305,14 @@ export default function SettingsSheet({
             <div className="settings-row-text">
               <span className="settings-row-title">Last backed up</span>
               <span className="settings-row-sub">
-                Not yet — syncing arrives with the server update.
+                {lastBackup
+                  ? new Date(lastBackup).toLocaleString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })
+                  : "Not yet."}
               </span>
             </div>
             <span className="beta-chip">Beta</span>
@@ -209,21 +320,61 @@ export default function SettingsSheet({
           <div className="sheet-actions">
             <button
               type="button"
+              className="add-submit"
+              onClick={() => void backUpNow()}
+              disabled={busy}
+            >
+              Back up now
+            </button>
+            <button
+              type="button"
               className="sheet-secondary quiet"
-              onClick={() => setAcct(signOut(acct))}
+              onClick={() => void restoreNow()}
+              disabled={busy}
+            >
+              Restore from backup
+            </button>
+          </div>
+          {syncNote && (
+            <p className="acct-note" role="status">
+              {syncNote}
+            </p>
+          )}
+          <div className="sheet-actions">
+            <button
+              type="button"
+              className="sheet-secondary quiet"
+              onClick={() => {
+                void signOut();
+                setSession(null);
+                setSyncNote(null);
+              }}
             >
               Log out
             </button>
             <button
               type="button"
               className="sheet-secondary"
+              disabled={busy}
               onClick={() => {
                 if (!confirmDelete) {
                   setConfirmDelete(true);
                   return;
                 }
-                setAcct(deleteAccount());
                 setConfirmDelete(false);
+                setBusy(true);
+                void deleteAccount()
+                  .then((result) => {
+                    if (result.ok) {
+                      clearLastBackup();
+                      setLastBackup(null);
+                      setSession(null);
+                      setSyncNote(null);
+                    } else {
+                      setSyncNote(result.problem);
+                    }
+                  })
+                  .finally(() => setBusy(false));
               }}
             >
               {confirmDelete
@@ -233,40 +384,88 @@ export default function SettingsSheet({
           </div>
           {confirmDelete && (
             <p className="acct-note" role="alert">
-              Deleting removes the account only. Your entries, menu, and
-              settings stay on this phone.
+              Deletes your account and your server backup, permanently and
+              immediately. Your entries, menu, and settings stay on this
+              phone.
+            </p>
+          )}
+
+        </>
+      ) : awaitingVerify && form === "none" ? (
+        <>
+          <p className="sheet-sub">
+            We sent a verification link to{" "}
+            <strong>{awaitingVerify}</strong>. Tap it, then come back and
+            log in.
+          </p>
+          <div className="sheet-actions">
+            <button
+              type="button"
+              className="add-submit"
+              onClick={() => openForm("login")}
+            >
+              Verified? Log in
+            </button>
+            <button
+              type="button"
+              className="sheet-secondary quiet"
+              disabled={busy}
+              onClick={() => {
+                setBusy(true);
+                void resendConfirmation(awaitingVerify)
+                  .then((result) =>
+                    setSyncNote(
+                      result.ok
+                        ? "Verification email sent again."
+                        : result.problem,
+                    ),
+                  )
+                  .finally(() => setBusy(false));
+              }}
+            >
+              Resend the email
+            </button>
+            <button
+              type="button"
+              className="sheet-secondary quiet"
+              onClick={() => {
+                // Escape hatch: typo'd address, or changed your mind.
+                setAwaitingVerify(null);
+                setSyncNote(null);
+                setForm("none");
+              }}
+            >
+              Wrong address? Start over
+            </button>
+          </div>
+          {syncNote && (
+            <p className="acct-note" role="status">
+              {syncNote}
             </p>
           )}
         </>
       ) : form === "none" ? (
         <>
           <p className="sheet-sub">
-            Keep your tally safe beyond this phone. One account, your data
-            backed up — syncing arrives with the server update.
+            Keep your data safe beyond this phone. Back up to your
+            account, restore on any device.
           </p>
           <div className="sheet-actions">
-            {acct.account ? (
-              <button
-                type="button"
-                className="add-submit"
-                onClick={() => openForm("login")}
-              >
-                Log in
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="add-submit"
-                onClick={() => openForm("create")}
-              >
-                Create account
-              </button>
-            )}
+            <button
+              type="button"
+              className="add-submit"
+              onClick={() => openForm("create")}
+            >
+              Create account
+            </button>
+            <button
+              type="button"
+              className="sheet-secondary quiet"
+              onClick={() => openForm("login")}
+            >
+              Log in
+            </button>
           </div>
-          <p className="acct-note">
-            <span className="beta-chip">Beta</span> Accounts live only on
-            this device for now. Nothing is sent anywhere.
-          </p>
         </>
       ) : (
         <>
@@ -384,6 +583,34 @@ export default function SettingsSheet({
               <button type="submit" className="add-submit" disabled={busy}>
                 {form === "create" ? "Create account" : "Log in"}
               </button>
+              {form === "login" && (
+                <button
+                  type="button"
+                  className="sheet-secondary quiet"
+                  disabled={busy}
+                  onClick={() => {
+                    const problem = emailProblem(email);
+                    if (problem) {
+                      setFormError(
+                        "Enter your email above first, then tap this.",
+                      );
+                      return;
+                    }
+                    setBusy(true);
+                    void requestPasswordReset(email)
+                      .then((result) =>
+                        setFormError(
+                          result.ok
+                            ? "Reset email sent. Set a new password there, then log in here."
+                            : result.problem,
+                        ),
+                      )
+                      .finally(() => setBusy(false));
+                  }}
+                >
+                  Forgot password?
+                </button>
+              )}
               <button
                 type="button"
                 className="sheet-secondary quiet"
@@ -393,12 +620,7 @@ export default function SettingsSheet({
               </button>
             </div>
           </form>
-          {form === "create" && (
-            <p className="acct-note">
-              <span className="beta-chip">Beta</span> Stored only on this
-              device for now. No email is sent.
-            </p>
-          )}
+
         </>
       )}
     </div>
@@ -509,17 +731,19 @@ export default function SettingsSheet({
       >
         <div className="settings-row-text">
           <span className="settings-row-title">
-            {signedIn && acct.account ? acct.account.email : "Account"}
+            {signedIn && session ? session.user.email : "Account"}
           </span>
           <span className="settings-row-sub">
-            {signedIn
-              ? "Signed in · local beta"
-              : "Optional. Keep your data safe beyond this phone."}
+            {signedIn && session
+              ? session.user.verified
+                ? "Signed in · sync beta"
+                : "Signed in · verify your email"
+              : "Optional. Back up your data beyond this phone."}
           </span>
         </div>
-        {signedIn && acct.account ? (
+        {signedIn && session ? (
           <span className="settings-icon avatar" aria-hidden="true">
-            {acct.account.email[0].toUpperCase()}
+            {session.user.email[0].toUpperCase()}
           </span>
         ) : (
           <span className="settings-icon" aria-hidden="true">
@@ -546,9 +770,10 @@ export default function SettingsSheet({
       </button>
 
       <p className="settings-foot">
-        Tally v{__APP_VERSION__} · your data never leaves this device.
+        Tally v{__APP_VERSION__} · your data stays on this device unless
+        you turn on account sync.
         <br />
-        Back up or restore from the History tab.
+        File backups live in the History tab.
       </p>
     </div>
   );

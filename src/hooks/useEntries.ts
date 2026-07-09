@@ -209,13 +209,23 @@ export function useEntries() {
     );
   }, []);
 
-  /** Merge an imported backup (union by id) and report what was added. */
+  /**
+   * Merge an imported backup (union by id) and report what was added.
+   * File imports stay conservative with settings (the file might be
+   * someone else's); an account restore passes applySettings, because
+   * that backup IS your setup — theme, accent, goals, all of it.
+   */
   const importBackup = useCallback(
-    (backup: BackupPayload) => {
+    (backup: BackupPayload, opts: { applySettings?: boolean } = {}) => {
       const result = mergeBackup(entries, menu, backup);
       setEntries(result.entries);
       setMenu(result.menu);
-      if (settings.dailyGoal === null && backup.settings.dailyGoal !== null) {
+      if (opts.applySettings) {
+        updateSettings(backup.settings);
+      } else if (
+        settings.dailyGoal === null &&
+        backup.settings.dailyGoal !== null
+      ) {
         updateSettings({ dailyGoal: backup.settings.dailyGoal });
       }
       return result;
