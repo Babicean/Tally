@@ -10,6 +10,17 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.7.2 — code 38 — 2026-07-09
+
+Two anticipated iOS fixes ahead of TestFlight testing.
+
+- Locked viewport zoom so iPhones no longer zoom the whole layout when
+  focusing a text field (our scaled type sits under the 16px threshold
+  that triggers it). No change on Android, which never zoomed.
+- Added the Capacitor keyboard plugin with the webview-resize mode on
+  iOS, so bottom sheets ride above the keyboard the way they already
+  do on Android instead of being covered by it.
+
 ## 2.7.1 — code 37 — 2026-07-09
 
 Weight moves fully into History.
