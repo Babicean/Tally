@@ -185,7 +185,9 @@ export async function signUp(
 export async function signIn(
   email: string,
   password: string,
-): Promise<SyncResult<{ session: SyncSession }> | SyncProblem> {
+): Promise<
+  SyncResult<{ session: SyncSession }> | (SyncProblem & { unverified?: boolean })
+> {
   try {
     const res = await fetch(
       `${SYNC_URL}/auth/v1/token?grant_type=password`,
@@ -197,7 +199,17 @@ export async function signIn(
     );
     const body = await bodyOf(res);
     if (!res.ok || !body?.access_token) {
-      return { ok: false, problem: friendlyAuthProblem(res.status, body) };
+      const code = String(body?.error_code ?? "");
+      const msg = String(body?.msg ?? "").toLowerCase();
+      return {
+        ok: false,
+        problem: friendlyAuthProblem(res.status, body),
+        // Callers route unverified accounts back to the verify pane,
+        // where the resend button lives — a lost email is never a
+        // dead end.
+        unverified:
+          code === "email_not_confirmed" || msg.includes("not confirmed"),
+      };
     }
     const session = toSession(body as Parameters<typeof toSession>[0]);
     saveSession(session);

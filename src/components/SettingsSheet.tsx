@@ -164,6 +164,12 @@ export default function SettingsSheet({
           setSession(result.session);
           setAwaitingVerify(null);
           setForm("none");
+        } else if (result.unverified) {
+          // Their account exists but the inbox link never got clicked
+          // (or the email is long gone) — the verify pane has Resend.
+          setAwaitingVerify(emailValue);
+          setSyncNote(null);
+          setForm("none");
         } else {
           setFormError(result.problem);
         }

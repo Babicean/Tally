@@ -10,6 +10,15 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.6-beta.5 — code 33 — 2026-07-09 (beta channel)
+
+Lost verification emails are no longer a dead end.
+
+- Logging in with an unverified account now routes straight back to
+  the verify-email screen — with its Resend button — instead of just
+  refusing. Deleted the email? Restarted the app? Try to log in and
+  tap Resend.
+
 ## 2.6-beta.4 — code 32 — 2026-07-08 (beta channel)
 
 Forgot password + invisible sync.
