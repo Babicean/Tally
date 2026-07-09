@@ -20,6 +20,15 @@ import {
   sortMenu,
 } from "../lib/menu";
 import { mergeBackup, type BackupPayload } from "../lib/backup";
+import {
+  loadWeights,
+  removeWeight,
+  saveWeights,
+  upsertWeight,
+  weightOn,
+  latestWeight,
+  type WeightEntry,
+} from "../lib/weight";
 import { computeStreak } from "../lib/streak";
 import { applyAccent, applyTheme, type AccentPref, type ThemePref } from "../lib/theme";
 
@@ -33,6 +42,11 @@ export function useEntries() {
   const [today, setToday] = useState<DayKey>(() => trackingDayFor(new Date()));
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
   const [menu, setMenu] = useState<MenuItem[]>(() => loadMenu());
+  const [weights, setWeights] = useState<WeightEntry[]>(() => loadWeights());
+
+  useEffect(() => {
+    saveWeights(weights);
+  }, [weights]);
 
   useEffect(() => {
     saveMenu(menu);
@@ -95,6 +109,10 @@ export function useEntries() {
   );
   const setFatTarget = useCallback(
     (fatTarget: number | null) => updateSettings({ fatTarget }),
+    [updateSettings],
+  );
+  const setTrackWeight = useCallback(
+    (trackWeight: boolean) => updateSettings({ trackWeight }),
     [updateSettings],
   );
   const setAccent = useCallback(
@@ -179,6 +197,58 @@ export function useEntries() {
     [],
   );
 
+  /** Sum a meal's components from the live menu. */
+  const mealTotals = useCallback(
+    (componentIds: string[]) => {
+      let calories = 0;
+      let protein = 0;
+      let fat = 0;
+      for (const id of componentIds) {
+        const f = menu.find((m) => m.id === id);
+        if (!f) continue;
+        calories += f.calories;
+        protein += f.protein ?? 0;
+        fat += f.fat ?? 0;
+      }
+      return { calories, protein: protein || null, fat: fat || null };
+    },
+    [menu],
+  );
+
+  const addMeal = useCallback(
+    (name: string, componentIds: string[]) => {
+      const t = mealTotals(componentIds);
+      const item = {
+        ...createMenuItem(name, t.calories, t.protein, t.fat, null),
+        componentIds,
+      };
+      setMenu((prev) => [...prev, item]);
+      return item;
+    },
+    [mealTotals],
+  );
+
+  const updateMeal = useCallback(
+    (id: string, name: string, componentIds: string[]) => {
+      const t = mealTotals(componentIds);
+      setMenu((prev) =>
+        prev.map((m) =>
+          m.id === id
+            ? {
+                ...m,
+                name: name.trim(),
+                calories: t.calories,
+                protein: t.protein,
+                fat: t.fat,
+                componentIds,
+              }
+            : m,
+        ),
+      );
+    },
+    [mealTotals],
+  );
+
   const updateMenuItem = useCallback(
     (
       id: string,
@@ -217,9 +287,10 @@ export function useEntries() {
    */
   const importBackup = useCallback(
     (backup: BackupPayload, opts: { applySettings?: boolean } = {}) => {
-      const result = mergeBackup(entries, menu, backup);
+      const result = mergeBackup(entries, menu, backup, weights);
       setEntries(result.entries);
       setMenu(result.menu);
+      setWeights(result.weights);
       if (opts.applySettings) {
         updateSettings(backup.settings);
       } else if (
@@ -230,7 +301,17 @@ export function useEntries() {
       }
       return result;
     },
-    [entries, menu, settings.dailyGoal, updateSettings],
+    [entries, menu, weights, settings.dailyGoal, updateSettings],
+  );
+
+  /** Log (or correct) today's weigh-in. */
+  const logWeight = useCallback(
+    (kg: number) => setWeights((prev) => upsertWeight(prev, today, kg)),
+    [today],
+  );
+  const removeTodayWeight = useCallback(
+    () => setWeights((prev) => removeWeight(prev, today)),
+    [today],
   );
 
   const todayEntries = useMemo(
@@ -292,5 +373,14 @@ export function useEntries() {
     updateMenuItem,
     deleteMenuItem,
     togglePinned,
+    addMeal,
+    updateMeal,
+    weights,
+    todayWeight: weightOn(weights, today),
+    lastWeight: latestWeight(weights, today),
+    trackWeight: settings.trackWeight,
+    setTrackWeight,
+    logWeight,
+    removeTodayWeight,
   };
 }

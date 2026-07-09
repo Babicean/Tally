@@ -10,6 +10,23 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.7 — code 36 — 2026-07-09
+
+Weight tracking and Meals.
+
+- **Track weight** (Settings, opt-in): a quiet pill under the hero —
+  "Log weight" until you do, then today's number. One field, one
+  number a day, prefilled with your last weigh-in. History gains a
+  weight card: a line of your last ~60 weigh-ins with the current
+  number and the change, no colors for up or down. Weigh-ins are
+  mirrored, in file backups, and sync with your account.
+- **Meals** (Menu → "+ New meal"): bundle saved foods into one row —
+  "Usual breakfast" logs one entry with the summed calories and
+  macros. Editing a meal recomputes its totals; pin one and it's a
+  chip on Today like anything else.
+- Branded verification/reset email templates in docs/emails/ (paste
+  into Supabase → Authentication → Email Templates).
+
 ## 2.6 — code 35 — 2026-07-09
 
 **Account sync, stable.** Six beta rounds (beta.1-beta.6 below)

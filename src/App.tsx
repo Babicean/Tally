@@ -92,12 +92,21 @@ export default function App() {
     updateMenuItem,
     deleteMenuItem,
     togglePinned,
+    addMeal,
+    updateMeal,
+    weights,
+    todayWeight,
+    lastWeight,
+    trackWeight,
+    setTrackWeight,
+    logWeight,
+    removeTodayWeight,
   } = useEntries();
 
   // Invisible sync: signed-in users' changes back themselves up.
   useAutoBackup(
-    () => buildBackup(entries, menu, loadSettings()),
-    [entries, menu, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget],
+    () => buildBackup(entries, menu, loadSettings(), weights),
+    [entries, menu, weights, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget, trackWeight],
   );
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -157,6 +166,11 @@ export default function App() {
           menu={menu}
           dailyGoal={dailyGoal}
           onSetGoal={setDailyGoal}
+          trackWeight={trackWeight}
+          todayWeight={todayWeight}
+          lastWeight={lastWeight}
+          onLogWeight={logWeight}
+          onRemoveWeight={removeTodayWeight}
           onAdd={addEntry}
           onUpdate={updateEntry}
           onDelete={deleteEntry}
@@ -172,6 +186,8 @@ export default function App() {
           onUpdate={updateMenuItem}
           onDelete={deleteMenuItem}
           onTogglePinned={togglePinned}
+          onAddMeal={addMeal}
+          onUpdateMeal={updateMeal}
         />
       )}
       {tab === "history" && (
@@ -181,6 +197,8 @@ export default function App() {
           entries={entries}
           menu={menu}
           trackProtein={trackProtein}
+          trackWeight={trackWeight}
+          weights={weights}
           onImport={importBackup}
           onAddBackdated={(cal, desc, prot, fatG, when) => {
             addEntry(cal, desc, prot, fatG, when);
@@ -200,7 +218,9 @@ export default function App() {
         onSetProteinTarget={setProteinTarget}
         fatTarget={fatTarget}
         onSetFatTarget={setFatTarget}
-        getBackup={() => buildBackup(entries, menu, loadSettings())}
+        trackWeight={trackWeight}
+        onSetTrackWeight={setTrackWeight}
+        getBackup={() => buildBackup(entries, menu, loadSettings(), weights)}
         onRestore={(b) => importBackup(b, { applySettings: true })}
         onClose={() => setSettingsOpen(false)}
       />

@@ -37,6 +37,8 @@ interface Props {
   onSetProteinTarget: (grams: number | null) => void;
   fatTarget: number | null;
   onSetFatTarget: (grams: number | null) => void;
+  trackWeight: boolean;
+  onSetTrackWeight: (on: boolean) => void;
   /** Snapshot of everything worth backing up, in export format. */
   getBackup: () => BackupPayload;
   /** Merge a pulled backup into local data; reports what was added. */
@@ -70,6 +72,8 @@ export default function SettingsSheet({
   onSetProteinTarget,
   fatTarget,
   onSetFatTarget,
+  trackWeight,
+  onSetTrackWeight,
   getBackup,
   onRestore,
   onClose,
@@ -722,6 +726,25 @@ export default function SettingsSheet({
           </div>
         </div>
       )}
+
+      <p className="settings-label">Weight</p>
+      <div className="settings-row">
+        <div className="settings-row-text">
+          <span className="settings-row-title">Track weight</span>
+          <span className="settings-row-sub">
+            A quiet daily weigh-in; the trend lives in History.
+          </span>
+        </div>
+        <button
+          className={`switch${trackWeight ? " on" : ""}`}
+          role="switch"
+          aria-checked={trackWeight}
+          aria-label="Track weight"
+          onClick={() => onSetTrackWeight(!trackWeight)}
+        >
+          <span className="switch-knob" />
+        </button>
+      </div>
 
       <p className="settings-label">Account</p>
       <button

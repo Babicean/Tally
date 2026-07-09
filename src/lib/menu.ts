@@ -25,6 +25,7 @@ export function isMenuItem(value: unknown): value is MenuItem {
     Number.isFinite(m.calories) &&
     (m.protein === null || typeof m.protein === "number") &&
     (m.fat === undefined || m.fat === null || typeof m.fat === "number") &&
+    (m.componentIds === undefined || Array.isArray(m.componentIds)) &&
     typeof m.pinned === "boolean"
   );
 }

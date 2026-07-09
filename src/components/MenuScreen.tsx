@@ -4,6 +4,7 @@ import { formatCalories } from "../lib/format";
 import { flyCalories, haptic } from "../lib/fly";
 import { useToast } from "../hooks/useToast";
 import MenuItemSheet from "./MenuItemSheet";
+import MealSheet from "./MealSheet";
 import CategoryIcon, { CategoryId } from "./CategoryIcon";
 import Toast from "./Toast";
 
@@ -28,6 +29,8 @@ interface Props {
   ) => void;
   onDelete: (id: string) => void;
   onTogglePinned: (id: string) => void;
+  onAddMeal: (name: string, componentIds: string[]) => void;
+  onUpdateMeal: (id: string, name: string, componentIds: string[]) => void;
 }
 
 /**
@@ -42,9 +45,13 @@ export default function MenuScreen({
   onUpdate,
   onDelete,
   onTogglePinned,
+  onAddMeal,
+  onUpdateMeal,
 }: Props) {
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [mealOpen, setMealOpen] = useState(false);
   const [editing, setEditing] = useState<MenuItem | null>(null);
+  const foods = menu.filter((i) => !i.componentIds);
   const { toast, showConfirmation } = useToast();
 
   const log = (item: MenuItem, el: HTMLElement) => {
@@ -58,15 +65,26 @@ export default function MenuScreen({
     <div className="screen">
       <div className="menu-head">
         <h1 className="history-title">Menu</h1>
-        <button
-          className="menu-add"
-          onClick={() => {
-            setEditing(null);
-            setSheetOpen(true);
-          }}
-        >
-          + New item
-        </button>
+        <div className="menu-head-actions">
+          <button
+            className="menu-add quiet"
+            onClick={() => {
+              setEditing(null);
+              setMealOpen(true);
+            }}
+          >
+            + New meal
+          </button>
+          <button
+            className="menu-add"
+            onClick={() => {
+              setEditing(null);
+              setSheetOpen(true);
+            }}
+          >
+            + New item
+          </button>
+        </div>
       </div>
 
       {menu.length === 0 ? (
@@ -105,7 +123,8 @@ export default function MenuScreen({
                 className="menu-main"
                 onClick={() => {
                   setEditing(item);
-                  setSheetOpen(true);
+                  if (item.componentIds) setMealOpen(true);
+                  else setSheetOpen(true);
                 }}
                 aria-label={`Edit ${item.name}`}
               >
@@ -115,6 +134,8 @@ export default function MenuScreen({
                 <span className="menu-text">
                   <span className="menu-name">{item.name}</span>
                   <span className="menu-detail">
+                    {item.componentIds &&
+                      `${item.componentIds.length} items · `}
                     {formatCalories(item.calories)} cal
                     {trackProtein &&
                       item.protein != null &&
@@ -177,6 +198,20 @@ export default function MenuScreen({
         }}
         onDelete={editing ? () => onDelete(editing.id) : undefined}
         onClose={() => setSheetOpen(false)}
+      />
+      <MealSheet
+        open={mealOpen}
+        meal={editing?.componentIds ? editing : null}
+        foods={foods}
+        trackProtein={trackProtein}
+        onSave={(name, ids) => {
+          if (editing?.componentIds) onUpdateMeal(editing.id, name, ids);
+          else onAddMeal(name, ids);
+        }}
+        onDelete={
+          editing?.componentIds ? () => onDelete(editing.id) : undefined
+        }
+        onClose={() => setMealOpen(false)}
       />
       <Toast toast={toast} />
     </div>

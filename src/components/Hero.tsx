@@ -17,6 +17,10 @@ interface Props {
   streak: Streak;
   goal: number | null;
   onEditGoal: () => void;
+  /** Weight pill (opt-in): today's kg or a quiet invite to log it. */
+  trackWeight: boolean;
+  todayWeight: number | null;
+  onEditWeight: () => void;
 }
 
 // Ring geometry (SVG user units).
@@ -66,7 +70,18 @@ export default function Hero({
   streak,
   goal,
   onEditGoal,
+  trackWeight,
+  todayWeight,
+  onEditWeight,
 }: Props) {
+  const weightPill = trackWeight ? (
+    <button
+      className={`weight-pill${todayWeight === null ? " ghost" : ""}`}
+      onClick={onEditWeight}
+    >
+      {todayWeight === null ? "Log weight" : `${todayWeight} kg`}
+    </button>
+  ) : null;
   const [pulsing, setPulsing] = useState(false);
   const prevTotal = useRef(total);
   useEffect(() => {
@@ -163,6 +178,7 @@ export default function Hero({
         <button className="goal-pill ghost" onClick={onEditGoal}>
           Set a calorie target
         </button>
+        {weightPill}
       </header>
     );
   }
@@ -260,6 +276,7 @@ export default function Hero({
           />
         </svg>
       </button>
+      {weightPill}
     </header>
   );
 }

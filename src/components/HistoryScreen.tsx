@@ -4,6 +4,8 @@ import { addDays } from "../lib/day";
 import { formatCalories, formatDayLabel, formatTime } from "../lib/format";
 import type { BackupPayload, MergeResult } from "../lib/backup";
 import { weeklyStats } from "../lib/stats";
+import type { WeightEntry } from "../lib/weight";
+import WeightCard from "./WeightCard";
 import TrendChart, { TrendPoint } from "./TrendChart";
 import DataCard from "./DataCard";
 import BackdateSheet from "./BackdateSheet";
@@ -16,6 +18,8 @@ interface Props {
   entries: Entry[];
   menu: MenuItem[];
   trackProtein: boolean;
+  trackWeight: boolean;
+  weights: WeightEntry[];
   onImport: (backup: BackupPayload) => MergeResult;
   onAddBackdated: (
     calories: number,
@@ -32,6 +36,8 @@ export default function HistoryScreen({
   entries,
   menu,
   trackProtein,
+  trackWeight,
+  weights,
   onImport,
   onAddBackdated,
 }: Props) {
@@ -103,6 +109,8 @@ export default function HistoryScreen({
           )}
         </section>
       )}
+
+      {trackWeight && weights.length > 0 && <WeightCard weights={weights} />}
 
       {history.length > 0 && <h2 className="section-label">All days</h2>}
       {history.length === 0 ? (
@@ -217,7 +225,12 @@ export default function HistoryScreen({
         </div>
       )}
 
-      <DataCard entries={entries} menu={menu} onImport={onImport} />
+      <DataCard
+        entries={entries}
+        menu={menu}
+        weights={weights}
+        onImport={onImport}
+      />
 
       <BackdateSheet
         day={backdating}

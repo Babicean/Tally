@@ -37,6 +37,12 @@ export interface MenuItem {
   /** Optional preset category (see CategoryIcon), or null for none. */
   category: string | null;
   createdAt: number;
+  /**
+   * Present on Meals: ids of the component foods. The stored
+   * calories/protein/fat are the sums, recomputed whenever the meal
+   * is saved. Logging a meal writes ONE entry with these totals.
+   */
+  componentIds?: string[];
 }
 
 /** Aggregated view of one tracking day, used by the History screen. */

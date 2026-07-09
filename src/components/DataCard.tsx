@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import type { Entry, MenuItem } from "../types";
+import type { WeightEntry } from "../lib/weight";
 import {
   backupFilename,
   buildBackup,
@@ -15,11 +16,15 @@ import Toast from "./Toast";
 interface Props {
   entries: Entry[];
   menu: MenuItem[];
+  weights: WeightEntry[];
   onImport: (backup: BackupPayload) => MergeResult;
 }
 
 /** Quiet backup controls at the foot of the History screen. */
-export default function DataCard({ entries, menu, onImport }: Props) {
+export default function DataCard({
+  entries,
+  menu,
+  weights, onImport }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const { toast, showToast } = useToast();
 
@@ -27,7 +32,7 @@ export default function DataCard({ entries, menu, onImport }: Props) {
     showToast({ kind: "undo", message }, 2600);
 
   const exportBackup = async () => {
-    const payload = buildBackup(entries, menu, loadSettings());
+    const payload = buildBackup(entries, menu, loadSettings(), weights);
     try {
       await shareBackupFile(
         backupFilename(),

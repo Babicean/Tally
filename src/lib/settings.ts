@@ -24,6 +24,8 @@ export interface Settings {
   proteinTarget: number | null;
   /** Optional daily fat target in grams; only meaningful when tracking. */
   fatTarget: number | null;
+  /** Daily weigh-ins are opt-in; off, the app is pure calories. */
+  trackWeight: boolean;
   /** Accent color family. */
   accent: "azure" | "emerald";
 }
@@ -34,6 +36,7 @@ const DEFAULTS: Settings = {
   trackProtein: false,
   proteinTarget: null,
   fatTarget: null,
+  trackWeight: false,
   accent: "azure",
 };
 
@@ -62,6 +65,7 @@ export function loadSettings(): Settings {
         typeof s.trackProtein === "boolean" ? s.trackProtein : true,
       proteinTarget: asTarget(s.proteinTarget),
       fatTarget: asTarget(s.fatTarget),
+      trackWeight: s.trackWeight === true,
       accent: s.accent === "emerald" ? "emerald" : "azure",
     };
   } catch {
