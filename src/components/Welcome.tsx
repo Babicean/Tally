@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { haptic } from "../lib/fly";
 
 interface Props {
   /** Dismiss for good; the caller records the flag. */
@@ -7,29 +8,51 @@ interface Props {
   onLogIn: () => void;
 }
 
+/** When each stroke lands, in ms from the Start tap; the CSS mirrors this. */
+const STROKE_TICKS = [240, 360, 480, 600];
+const SLASH_TICK = 810;
+
 /**
  * One-time landing page, rendered on a fresh install only (lib/welcome.ts
  * decides). One screen, no carousel: the name, the pitch, three facts,
  * one button. "Log in" is for people setting up a new phone.
+ *
+ * Tapping Start plays the delighter: the page clears and the app icon's
+ * tally is drawn stroke by stroke, a haptic tick per stroke, then the
+ * whole page fades into Today. Your first tally.
  */
 export default function Welcome({ onStart, onLogIn }: Props) {
-  const [leaving, setLeaving] = useState(false);
+  const [striking, setStriking] = useState(false);
+  const timers = useRef<number[]>([]);
+
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const start = () => {
+    if (striking) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       onStart();
-    } else {
-      setLeaving(true);
+      return;
     }
+    setStriking(true);
+    for (const at of STROKE_TICKS) {
+      timers.current.push(window.setTimeout(() => haptic(6), at));
+    }
+    timers.current.push(window.setTimeout(() => haptic(14), SLASH_TICK));
   };
 
   return (
     <div
-      className={`welcome${leaving ? " welcome-leaving" : ""}`}
+      className={`welcome${striking ? " striking" : ""}`}
       role="dialog"
       aria-label="Welcome to Tally"
       onAnimationEnd={(e) => {
-        if (leaving && e.target === e.currentTarget) onStart();
+        if (
+          striking &&
+          e.target === e.currentTarget &&
+          e.animationName === "welcome-out"
+        ) {
+          onStart();
+        }
       }}
     >
       <div className="welcome-top">
@@ -55,13 +78,35 @@ export default function Welcome({ onStart, onLogIn }: Props) {
         </p>
       </div>
       <div className="sheet-actions welcome-actions">
-        <button type="button" className="add-submit" onClick={start}>
+        <button
+          type="button"
+          className="add-submit"
+          disabled={striking}
+          onClick={start}
+        >
           Start tallying
         </button>
-        <button type="button" className="sheet-secondary quiet" onClick={onLogIn}>
+        <button
+          type="button"
+          className="sheet-secondary quiet"
+          disabled={striking}
+          onClick={onLogIn}
+        >
           Already have an account? Log in
         </button>
       </div>
+
+      {striking && (
+        <div className="welcome-strokes" aria-hidden="true">
+          <div className="stroke-group">
+            <span className="stroke s1" />
+            <span className="stroke s2" />
+            <span className="stroke s3" />
+            <span className="stroke s4" />
+            <span className="stroke-slash" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

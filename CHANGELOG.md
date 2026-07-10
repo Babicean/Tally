@@ -10,6 +10,15 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.8.2 — code 41 — 2026-07-10
+
+Your first tally.
+
+- Tapping "Start tallying" now draws the icon's tally in the middle of
+  the screen, stroke by stroke with a haptic tick for each and a firmer
+  one for the slash, then fades into Today. Optically centered, both
+  themes, skipped under reduced motion.
+
 ## 2.8.1 — code 40 — 2026-07-10
 
 Landing page polish.
