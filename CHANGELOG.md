@@ -10,6 +10,16 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.8.1 — code 40 — 2026-07-10
+
+Landing page polish.
+
+- The app icon now sits centered in the top quarter, with the wordmark
+  beneath it.
+- Reworded the pitch: "A simple way to track calories." with three
+  shorter lines about logging, the menu and History, and optional
+  weight and macro tracking.
+
 ## 2.8 — code 39 — 2026-07-10
 
 A front door. Fresh installs get a one-time landing page.

@@ -32,17 +32,26 @@ export default function Welcome({ onStart, onLogIn }: Props) {
         if (leaving && e.target === e.currentTarget) onStart();
       }}
     >
-      <div className="welcome-body">
+      <div className="welcome-top">
+        <img
+          className="welcome-logo"
+          src="/icons/icon-192.png"
+          alt=""
+          width="192"
+          height="192"
+        />
         <span className="welcome-mark">Tally</span>
-        <h1 className="welcome-title">A calm way to count calories.</h1>
+      </div>
+      <div className="welcome-body">
+        <h1 className="welcome-title">A simple way to track calories.</h1>
+        <p className="welcome-line">Log them in just a couple of taps.</p>
         <p className="welcome-line">
-          Set a daily target, then log what you eat in a couple of taps.
+          Add meals and foods you frequently eat to the menu. Your eating
+          history lives in the History tab.
         </p>
         <p className="welcome-line">
-          Save your usual foods once and logging them takes seconds.
-        </p>
-        <p className="welcome-line">
-          Your data stays on your phone. An account is optional, for backup.
+          Optionally track your weight and macros for a more complete
+          picture.
         </p>
       </div>
       <div className="sheet-actions welcome-actions">
