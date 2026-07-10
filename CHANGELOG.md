@@ -10,6 +10,15 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.8.3 — code 42 — 2026-07-10
+
+Landing page copy, verbatim this time.
+
+- Headline and lines now read exactly as written: "A simple way to
+  track calories - log them in just a couple taps." with the menu and
+  history line and the weight and macros line as dictated.
+- The logo lockup sits slightly lower.
+
 ## 2.8.2 — code 41 — 2026-07-10
 
 Your first tally.
