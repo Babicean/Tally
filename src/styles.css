@@ -2471,6 +2471,7 @@ input {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  text-align: center;
 }
 
 .welcome-mark {
@@ -2484,7 +2485,9 @@ input {
 
 .welcome-title {
   margin: 0.875rem 0 0;
-  font-size: 1.875rem;
+  /* Sized so the headline holds one line on the reference width; the
+     proportional root font keeps that true on every phone. */
+  font-size: 1.5625rem;
   line-height: 1.2;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -2492,7 +2495,7 @@ input {
 }
 
 .welcome-line {
-  margin: 1rem 0 0;
+  margin: 1rem auto 0;
   max-width: 34ch;
   font-size: 0.9375rem;
   line-height: 1.55;

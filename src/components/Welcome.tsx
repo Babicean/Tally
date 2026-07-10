@@ -66,9 +66,8 @@ export default function Welcome({ onStart, onLogIn }: Props) {
         <span className="welcome-mark">Tally</span>
       </div>
       <div className="welcome-body">
-        <h1 className="welcome-title">
-          A simple way to track calories - log them in just a couple taps.
-        </h1>
+        <h1 className="welcome-title">A simple way to track calories</h1>
+        <p className="welcome-line">Log calories in just a couple taps.</p>
         <p className="welcome-line">
           Add meals and foods you frequently eat to the menu. Additionally
           view your eating history in the history tab.

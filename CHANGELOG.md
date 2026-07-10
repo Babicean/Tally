@@ -10,6 +10,15 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.8.4 — code 43 — 2026-07-10
+
+Landing page type hierarchy.
+
+- Only "A simple way to track calories" is the bold headline, sized to
+  hold a single line; "Log calories in just a couple taps." follows as
+  a regular line.
+- All landing text is centered.
+
 ## 2.8.3 — code 42 — 2026-07-10
 
 Landing page copy, verbatim this time.
