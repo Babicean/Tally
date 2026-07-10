@@ -20,6 +20,7 @@ export const MIRRORED_KEYS = [
   "tally.settings",
   "tally.session",
   "tally.weights",
+  "tally.welcomed",
 ] as const;
 
 /** Fire-and-forget mirror write; storage failures must never break the UI. */

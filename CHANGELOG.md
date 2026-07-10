@@ -10,6 +10,18 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.8 — code 39 — 2026-07-10
+
+A front door. Fresh installs get a one-time landing page.
+
+- One quiet screen on the very first open: the name, the pitch, three
+  short facts, and a Start button. Dismiss it and it never comes back.
+- "Already have an account? Log in" on the same screen jumps straight
+  to the account login form, so a new phone can pull its backup before
+  any tallying starts.
+- Updating the app never shows the page; anyone with existing data is
+  marked as welcomed silently.
+
 ## 2.7.2 — code 38 — 2026-07-09
 
 Two anticipated iOS fixes ahead of TestFlight testing.

@@ -3,6 +3,8 @@ import { haptic } from "./lib/fly";
 import { buildBackup } from "./lib/backup";
 import { loadSettings } from "./lib/settings";
 import SettingsSheet from "./components/SettingsSheet";
+import Welcome from "./components/Welcome";
+import { markWelcomed, shouldShowWelcome } from "./lib/welcome";
 import { useEntries } from "./hooks/useEntries";
 import { useAutoBackup } from "./hooks/useAutoBackup";
 import TodayScreen from "./components/TodayScreen";
@@ -112,6 +114,10 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [gearSpin, setGearSpin] = useState(false);
   const [wordmarkSpin, setWordmarkSpin] = useState(false);
+  // Decided during the first render, before any effect writes storage —
+  // that's what keeps the landing page a fresh-install-only event.
+  const [welcome, setWelcome] = useState(() => shouldShowWelcome());
+  const [settingsAtLogin, setSettingsAtLogin] = useState(false);
 
   return (
     <div className="app">
@@ -221,8 +227,27 @@ export default function App() {
         onSetTrackWeight={setTrackWeight}
         getBackup={() => buildBackup(entries, menu, loadSettings(), weights)}
         onRestore={(b) => importBackup(b, { applySettings: true })}
-        onClose={() => setSettingsOpen(false)}
+        startAtLogin={settingsAtLogin}
+        onClose={() => {
+          setSettingsOpen(false);
+          setSettingsAtLogin(false);
+        }}
       />
+
+      {welcome && (
+        <Welcome
+          onStart={() => {
+            markWelcomed();
+            setWelcome(false);
+          }}
+          onLogIn={() => {
+            markWelcomed();
+            setWelcome(false);
+            setSettingsAtLogin(true);
+            setSettingsOpen(true);
+          }}
+        />
+      )}
 
       <div className="bottom-scrim" aria-hidden="true" />
       <nav className="tabbar-wrap" aria-label="Screens">

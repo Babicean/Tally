@@ -43,6 +43,8 @@ interface Props {
   getBackup: () => BackupPayload;
   /** Merge a pulled backup into local data; reports what was added. */
   onRestore: (backup: BackupPayload) => MergeResult;
+  /** Open straight on the account login form (the welcome page's path). */
+  startAtLogin?: boolean;
   onClose: () => void;
 }
 
@@ -76,6 +78,7 @@ export default function SettingsSheet({
   onSetTrackWeight,
   getBackup,
   onRestore,
+  startAtLogin = false,
   onClose,
 }: Props) {
   const [target, setTarget] = useState("");
@@ -105,18 +108,18 @@ export default function SettingsSheet({
     if (open) {
       setTarget(proteinTarget !== null ? String(proteinTarget) : "");
       setFatT(fatTarget !== null ? String(fatTarget) : "");
-      setView("settings");
+      setView(startAtLogin ? "account" : "settings");
       setSession(loadSession());
       setLastBackup(lastBackupAt());
       setSyncNote(null);
-      setForm("none");
+      setForm(startAtLogin ? "login" : "none");
       setEmail("");
       setPassword("");
       setFormError(null);
       setConfirmDelete(false);
       setBackAnim(false);
     }
-  }, [open, proteinTarget, fatTarget]);
+  }, [open, proteinTarget, fatTarget, startAtLogin]);
 
   const commitTarget = () => {
     const parsed = parseProtein(target);
