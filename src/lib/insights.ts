@@ -40,14 +40,13 @@ export interface Insights {
   goalDays: number | null;
   /** Average grams of protein per logged day, or null when none tracked. */
   proteinAvg: number | null;
-  topFoods: TopFood[];
-  /** Distinct named foods beyond the ones listed. */
-  moreFoods: number;
+  /** Average grams of fat per logged day, or null when none tracked. */
+  fatAvg: number | null;
+  /** Every named food in the range, most-logged first. */
+  foods: TopFood[];
   split: [TimeSplit, TimeSplit, TimeSplit];
   totalCalories: number;
 }
-
-const TOP_LIMIT = 5;
 
 /** Which third of the eating day a timestamp falls in, 2 AM boundary aware:
     the evening runs past midnight until the day flips at 2 AM. */
@@ -82,12 +81,14 @@ export function insightsFor(
   const bucketCalories: [number, number, number] = [0, 0, 0];
   let totalCalories = 0;
   let protein = 0;
+  let fat = 0;
 
   for (const e of entries) {
     if (!inRange(e.day)) continue;
     totalCalories += e.calories;
     byDay.set(e.day, (byDay.get(e.day) ?? 0) + e.calories);
     if (typeof e.protein === "number") protein += e.protein;
+    if (typeof e.fat === "number") fat += e.fat;
     bucketCalories[bucketOf(e.timestamp)] += e.calories;
 
     const name = e.description.trim();
@@ -121,12 +122,12 @@ export function insightsFor(
       : null;
   const proteinAvg =
     daysLogged > 0 && protein > 0 ? Math.round(protein / daysLogged) : null;
+  const fatAvg =
+    daysLogged > 0 && fat > 0 ? Math.round(fat / daysLogged) : null;
 
   const ranked = [...foods.values()]
     .sort((a, b) => b.count - a.count || b.calories - a.calories)
     .map(({ name, count, calories }) => ({ name, count, calories }));
-  const topFoods = ranked.slice(0, TOP_LIMIT);
-  const moreFoods = Math.max(0, ranked.length - TOP_LIMIT);
 
   const split = (
     [
@@ -147,8 +148,8 @@ export function insightsFor(
     avgCalories,
     goalDays,
     proteinAvg,
-    topFoods,
-    moreFoods,
+    fatAvg,
+    foods: ranked,
     split,
     totalCalories,
   };

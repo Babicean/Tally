@@ -12,6 +12,8 @@ export interface WeeklyStats {
   deltaPct: number | null;
   /** Average grams of protein per logged day, or null when none tracked. */
   proteinAvg: number | null;
+  /** Average grams of fat per logged day, or null when none tracked. */
+  fatAvg: number | null;
 }
 
 /** Recap of the rolling week ending `today`, compared with the week before. */
@@ -26,6 +28,7 @@ export function weeklyStats(entries: Entry[], today: DayKey): WeeklyStats {
 
   let calories = 0;
   let protein = 0;
+  let fat = 0;
   let prevCalories = 0;
   const loggedDays = new Set<DayKey>();
   const prevLoggedDays = new Set<DayKey>();
@@ -34,6 +37,7 @@ export function weeklyStats(entries: Entry[], today: DayKey): WeeklyStats {
     if (thisWeek.has(e.day)) {
       calories += e.calories;
       if (typeof e.protein === "number") protein += e.protein;
+      if (typeof e.fat === "number") fat += e.fat;
       loggedDays.add(e.day);
     } else if (lastWeek.has(e.day)) {
       prevCalories += e.calories;
@@ -53,6 +57,8 @@ export function weeklyStats(entries: Entry[], today: DayKey): WeeklyStats {
       : null;
   const proteinAvg =
     daysLogged > 0 && protein > 0 ? Math.round(protein / daysLogged) : null;
+  const fatAvg =
+    daysLogged > 0 && fat > 0 ? Math.round(fat / daysLogged) : null;
 
-  return { daysLogged, avg, prevAvg, deltaPct, proteinAvg };
+  return { daysLogged, avg, prevAvg, deltaPct, proteinAvg, fatAvg };
 }

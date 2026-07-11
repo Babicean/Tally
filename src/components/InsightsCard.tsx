@@ -2,6 +2,11 @@ import { useMemo, useState } from "react";
 import type { DayKey, Entry } from "../types";
 import { formatCalories } from "../lib/format";
 import { insightsFor, InsightsRange } from "../lib/insights";
+import MacroStat from "./MacroStat";
+
+/** Collapsed list length, and the cap once "and N more" is expanded. */
+const TOP_LIMIT = 5;
+const EXPANDED_LIMIT = 25;
 
 interface Props {
   entries: Entry[];
@@ -21,6 +26,7 @@ export default function InsightsCard({
   trackProtein,
 }: Props) {
   const [range, setRange] = useState<InsightsRange>("week");
+  const [expanded, setExpanded] = useState(false);
   const insights = useMemo(
     () => insightsFor(entries, today, range, dailyGoal),
     [entries, today, range, dailyGoal],
@@ -48,7 +54,10 @@ export default function InsightsCard({
             role="tab"
             aria-selected={range === id}
             className={`seg-btn${range === id ? " active" : ""}`}
-            onClick={() => setRange(id)}
+            onClick={() => {
+              setRange(id);
+              setExpanded(false);
+            }}
           >
             {label}
           </button>
@@ -84,42 +93,62 @@ export default function InsightsCard({
                 <span className="tstat-l">on target</span>
               </div>
             )}
-            {trackProtein && insights.proteinAvg !== null && (
-              <div className="tstat">
-                <span className="tstat-v">
-                  {insights.proteinAvg}
-                  <span className="u"> g</span>
-                </span>
-                <span className="tstat-l">protein / day</span>
-              </div>
+            {trackProtein && (
+              <MacroStat
+                proteinAvg={insights.proteinAvg}
+                fatAvg={insights.fatAvg}
+              />
             )}
           </div>
 
           <h3 className="insights-sub">Top foods</h3>
-          {insights.topFoods.length === 0 ? (
+          {insights.foods.length === 0 ? (
             <p className="insights-note">
               Name your entries, or log from the Menu, and your most eaten
               foods appear here.
             </p>
           ) : (
             <ul className="insights-foods">
-              {insights.topFoods.map((food) => (
-                <li key={food.name.toLowerCase()} className="ifood">
-                  <span className="ifood-name">{food.name}</span>
-                  <span className="ifood-count">&times;{food.count}</span>
-                  <span className="ifood-cal">
-                    {formatCalories(food.calories)}
-                    <span className="u"> cal</span>
-                  </span>
-                </li>
-              ))}
+              {insights.foods
+                .slice(0, expanded ? EXPANDED_LIMIT : TOP_LIMIT)
+                .map((food) => (
+                  <li key={food.name.toLowerCase()} className="ifood">
+                    <span className="ifood-name">{food.name}</span>
+                    <span className="ifood-count">&times;{food.count}</span>
+                    <span className="ifood-cal">
+                      {formatCalories(food.calories)}
+                      <span className="u"> cal</span>
+                    </span>
+                  </li>
+                ))}
             </ul>
           )}
-          {insights.moreFoods > 0 && (
-            <p className="insights-note">
-              and {insights.moreFoods} more this{" "}
+          {!expanded && insights.foods.length > TOP_LIMIT && (
+            <button
+              type="button"
+              className="insights-more"
+              onClick={() => setExpanded(true)}
+            >
+              and {insights.foods.length - TOP_LIMIT} more this{" "}
               {range === "week" ? "week" : "month"}
-            </p>
+            </button>
+          )}
+          {expanded && (
+            <>
+              {insights.foods.length > EXPANDED_LIMIT && (
+                <p className="insights-note">
+                  and {insights.foods.length - EXPANDED_LIMIT} more beyond
+                  these
+                </p>
+              )}
+              <button
+                type="button"
+                className="insights-more"
+                onClick={() => setExpanded(false)}
+              >
+                show less
+              </button>
+            </>
           )}
 
           <h3 className="insights-sub">When you eat</h3>

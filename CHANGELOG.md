@@ -10,6 +10,18 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.9.1 — code 45 — 2026-07-11
+
+Insights follow-ups from field testing.
+
+- Tap the protein/day stat and it flips over, scoreboard-style, to
+  fat/day; tap again to flip back. Works on the trend recap and the
+  Insights card, only when macros are tracked and fat has been logged.
+  A small haptic tick per flip; reduced motion swaps instantly.
+- "and N more this week" is now tappable: the top foods list expands
+  in place, capped at 25 rows so a heavy month stays tidy, with a
+  quiet "show less" to fold it back.
+
 ## 2.9 — code 44 — 2026-07-10
 
 Insights. History answers "what have I actually been eating?"

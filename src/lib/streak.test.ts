@@ -81,6 +81,7 @@ describe("weeklyStats", () => {
       prevAvg: null,
       deltaPct: null,
       proteinAvg: null,
+      fatAvg: null,
     });
   });
 

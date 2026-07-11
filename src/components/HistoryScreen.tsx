@@ -8,6 +8,7 @@ import type { WeightEntry } from "../lib/weight";
 import WeightCard from "./WeightCard";
 import WeightSheet from "./WeightSheet";
 import TrendChart, { TrendPoint } from "./TrendChart";
+import MacroStat from "./MacroStat";
 import InsightsCard from "./InsightsCard";
 import DataCard from "./DataCard";
 import BackdateSheet from "./BackdateSheet";
@@ -109,14 +110,11 @@ export default function HistoryScreen({
                   <span className="tstat-l">vs last week</span>
                 </div>
               )}
-              {trackProtein && stats.proteinAvg !== null && (
-                <div className="tstat">
-                  <span className="tstat-v">
-                    {stats.proteinAvg}
-                    <span className="u"> g</span>
-                  </span>
-                  <span className="tstat-l">protein / day</span>
-                </div>
+              {trackProtein && (
+                <MacroStat
+                  proteinAvg={stats.proteinAvg}
+                  fatAvg={stats.fatAvg}
+                />
               )}
             </div>
           )}

@@ -61,16 +61,16 @@ describe("insightsFor foods", () => {
       mk("2026-07-10", 9, 90, "banana"),
     ];
     const r = insightsFor(entries, TODAY, "week", null);
-    expect(r.topFoods[0]).toEqual({
+    expect(r.foods[0]).toEqual({
       name: "Chicken and Rice",
       count: 3,
       calories: 1830,
     });
-    expect(r.topFoods[1].name).toBe("banana");
-    expect(r.moreFoods).toBe(0);
+    expect(r.foods[1].name).toBe("banana");
+    expect(r.foods).toHaveLength(2);
   });
 
-  it("skips unnamed entries and counts the overflow", () => {
+  it("skips unnamed entries and ranks every named one", () => {
     const entries = [
       mk("2026-07-10", 12, 100, ""),
       ...["a", "b", "c", "d", "e", "f", "g"].map((n, i) =>
@@ -78,8 +78,7 @@ describe("insightsFor foods", () => {
       ),
     ];
     const r = insightsFor(entries, TODAY, "week", null);
-    expect(r.topFoods).toHaveLength(5);
-    expect(r.moreFoods).toBe(2);
+    expect(r.foods).toHaveLength(7);
   });
 });
 
@@ -111,6 +110,16 @@ describe("insightsFor numbers", () => {
     expect(withGoal.proteinAvg).toBe(40);
     const noGoal = insightsFor(entries, TODAY, "week", null);
     expect(noGoal.goalDays).toBeNull();
+  });
+
+  it("averages fat per logged day when entries carry it", () => {
+    const withFat = [
+      { ...mk("2026-07-09", 12, 1800, "day one"), fat: 60 },
+      { ...mk("2026-07-10", 12, 2400, "day two"), fat: 90 },
+    ];
+    expect(insightsFor(withFat, TODAY, "week", null).fatAvg).toBe(75);
+    const noFat = [mk("2026-07-10", 12, 500, "plain")];
+    expect(insightsFor(noFat, TODAY, "week", null).fatAvg).toBeNull();
   });
 
   it("returns nulls on an empty range", () => {

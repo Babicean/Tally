@@ -2767,3 +2767,52 @@ input {
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;
 }
+
+/* ---- Macro stat flip (protein <-> fat) ----------------------------------- */
+
+.tstat-flippable {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tstat.flip-out {
+  animation: stat-flip-out 150ms ease-in both;
+}
+
+.tstat.flip-in {
+  animation: stat-flip-in 190ms cubic-bezier(0.2, 1.1, 0.4, 1) both;
+}
+
+@keyframes stat-flip-out {
+  from {
+    transform: perspective(16rem) rotateX(0deg);
+  }
+  to {
+    transform: perspective(16rem) rotateX(88deg);
+  }
+}
+
+@keyframes stat-flip-in {
+  from {
+    transform: perspective(16rem) rotateX(-88deg);
+  }
+  to {
+    transform: perspective(16rem) rotateX(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tstat.flip-out,
+  .tstat.flip-in {
+    animation: none;
+  }
+}
+
+.insights-more {
+  display: block;
+  margin: 0.5rem 0 0;
+  padding: 0.25rem 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  -webkit-tap-highlight-color: transparent;
+}
