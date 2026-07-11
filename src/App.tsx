@@ -198,6 +198,7 @@ export default function App() {
           entries={entries}
           menu={menu}
           trackProtein={trackProtein}
+          dailyGoal={dailyGoal}
           trackWeight={trackWeight}
           weights={weights}
           todayWeight={todayWeight}

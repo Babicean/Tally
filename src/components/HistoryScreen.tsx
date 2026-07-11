@@ -8,6 +8,7 @@ import type { WeightEntry } from "../lib/weight";
 import WeightCard from "./WeightCard";
 import WeightSheet from "./WeightSheet";
 import TrendChart, { TrendPoint } from "./TrendChart";
+import InsightsCard from "./InsightsCard";
 import DataCard from "./DataCard";
 import BackdateSheet from "./BackdateSheet";
 import Toast from "./Toast";
@@ -19,6 +20,7 @@ interface Props {
   entries: Entry[];
   menu: MenuItem[];
   trackProtein: boolean;
+  dailyGoal: number | null;
   trackWeight: boolean;
   weights: WeightEntry[];
   todayWeight: number | null;
@@ -41,6 +43,7 @@ export default function HistoryScreen({
   entries,
   menu,
   trackProtein,
+  dailyGoal,
   trackWeight,
   weights,
   todayWeight,
@@ -118,6 +121,15 @@ export default function HistoryScreen({
             </div>
           )}
         </section>
+      )}
+
+      {history.length > 0 && (
+        <InsightsCard
+          entries={entries}
+          today={today}
+          dailyGoal={dailyGoal}
+          trackProtein={trackProtein}
+        />
       )}
 
       {trackWeight && (

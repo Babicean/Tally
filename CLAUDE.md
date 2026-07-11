@@ -216,7 +216,7 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
-- v2.8.4, code 43. TestFlight live (first builds July 11); owner tests
+- v2.9, code 44 (insights card in History). TestFlight live (first builds July 11); owner tests
   Android personally; a friend field-tests via TestFlight.
 - Owner-side config still pending: enable GitHub Pages (branch
   `claude/tally-delighters`, `/docs`) and set Supabase Site URL /
@@ -228,8 +228,8 @@ library, no backend SDK — the biggest JS dependency is React itself.
   await real-iPhone confirmation; External TestFlight group (public
   link) not yet set up — needs Beta App Review, privacy policy URL is
   ready once Pages is on.
-- Agreed next candidates: insights (weekly averages, streak stats,
-  calories-vs-weight overlay), meal polish. Shelved by owner: browser
+- Agreed next candidates: meal polish, calories-vs-weight overlay on
+  the insights card. Shelved by owner: browser
   hosting on his own site, copy-yesterday (rejected), Reps Notion
   import, Reps sync (needs per-app schema change first — one row per
   user per app, or Tally/Reps would overwrite each other).

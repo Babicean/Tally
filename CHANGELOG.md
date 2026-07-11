@@ -10,6 +10,22 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.9 — code 44 — 2026-07-10
+
+Insights. History answers "what have I actually been eating?"
+
+- A new Insights card sits under the trend chart with a Week | Month
+  toggle (rolling 7 tracking days, or the calendar month so far).
+- Quiet numbers up top: days logged, calories per logged day, days on
+  target when a goal is set, protein per day when tracking.
+- **Top foods**: your most-logged items grouped by name, with times
+  eaten and total calories. Same meal every day shows up as exactly
+  that.
+- **When you eat**: morning, afternoon and evening bars splitting the
+  period's calories by time of day, 2 AM boundary respected (a 1 am
+  snack counts as evening).
+- Observations only; nothing scolds, nothing turns red.
+
 ## 2.8.4 — code 43 — 2026-07-10
 
 Landing page type hierarchy.

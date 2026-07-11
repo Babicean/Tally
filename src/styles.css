@@ -2635,3 +2635,135 @@ input {
     transform: translate(0.75rem, 1rem) scale(1);
   }
 }
+
+/* ---- Insights card (History) -------------------------------------------- */
+
+.insights-card {
+  margin-top: 1.25rem;
+  padding: 1.25rem 1.25rem 1.125rem;
+}
+
+.seg.two {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.insights-empty {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.insights-stats {
+  margin-top: 1rem;
+}
+
+.insights-sub {
+  margin: 1.25rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.insights-foods {
+  list-style: none;
+  margin: 0.375rem 0 0;
+}
+
+.ifood {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 0.9375rem;
+}
+
+.ifood:last-child {
+  border-bottom: 0;
+}
+
+.ifood-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.ifood-count {
+  font-weight: 600;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.ifood-cal {
+  min-width: 4.5rem;
+  text-align: right;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.ifood-cal .u,
+.tstat-v .u {
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.insights-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.insights-split {
+  margin-top: 0.625rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5625rem;
+}
+
+.isplit {
+  display: grid;
+  grid-template-columns: auto 1fr 2.5rem;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+}
+
+.isplit-label {
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.isplit-hours {
+  font-size: 0.6875rem;
+  color: var(--ink-3);
+}
+
+.isplit-bar {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  overflow: hidden;
+}
+
+.isplit-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 300ms cubic-bezier(0.25, 0.8, 0.35, 1);
+}
+
+.isplit-cal {
+  text-align: right;
+  font-weight: 600;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
