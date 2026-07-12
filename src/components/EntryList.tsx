@@ -40,21 +40,37 @@ export default function EntryList({
     for (const g of groups) seen.add(g.key);
   }, [groups, seen]);
 
+  const pendingDelete = useRef(new Set<string>());
+  const leaveTimers = useRef<number[]>([]);
+  useEffect(
+    () => () => {
+      leaveTimers.current.forEach((t) => window.clearTimeout(t));
+    },
+    [],
+  );
+
   const remove = (groupKey: string, items: Entry[]) => {
     if (items.length > 1) {
       // Just decrement: drop the newest instance, row stays put.
       onDelete(items[0].id);
       return;
     }
+    // A second tap during the leave animation must not schedule a second
+    // delete (it would surface a phantom undo toast).
+    if (pendingDelete.current.has(groupKey)) return;
+    pendingDelete.current.add(groupKey);
     setLeaving((prev) => new Set(prev).add(groupKey));
-    window.setTimeout(() => {
-      onDelete(items[0].id);
-      setLeaving((prev) => {
-        const next = new Set(prev);
-        next.delete(groupKey);
-        return next;
-      });
-    }, LEAVE_MS);
+    leaveTimers.current.push(
+      window.setTimeout(() => {
+        pendingDelete.current.delete(groupKey);
+        onDelete(items[0].id);
+        setLeaving((prev) => {
+          const next = new Set(prev);
+          next.delete(groupKey);
+          return next;
+        });
+      }, LEAVE_MS),
+    );
   };
 
   if (entries.length === 0) {

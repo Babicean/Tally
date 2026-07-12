@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createEntry,
+  isEntry,
   entriesForDay,
   frequentEntries,
   parseCalories,
@@ -111,5 +112,28 @@ describe("createEntry", () => {
     expect(e.day).toBe("2026-07-04");
     expect(e.calories).toBe(250);
     expect(e.id).toBeTruthy();
+  });
+});
+
+describe("isEntry hardening", () => {
+  const base = {
+    id: "a",
+    calories: 500,
+    description: "x",
+    timestamp: 1e12,
+    day: "2026-07-12",
+  };
+  it("rejects non-finite and out-of-range numbers", () => {
+    expect(isEntry(base)).toBe(true);
+    expect(isEntry({ ...base, timestamp: NaN })).toBe(false);
+    expect(isEntry({ ...base, calories: 0 })).toBe(false);
+    expect(isEntry({ ...base, calories: -100 })).toBe(false);
+    expect(isEntry({ ...base, calories: 20001 })).toBe(false);
+    expect(isEntry({ ...base, protein: NaN })).toBe(false);
+    expect(isEntry({ ...base, fat: Infinity })).toBe(false);
+  });
+  it("still accepts absent or null macros", () => {
+    expect(isEntry({ ...base, protein: null, fat: null })).toBe(true);
+    expect(isEntry({ ...base, protein: 30 })).toBe(true);
   });
 });

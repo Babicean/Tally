@@ -746,6 +746,13 @@ input {
   animation: backdrop-in 220ms ease both;
 }
 
+.sheet-backdrop.closing,
+.sheet.closing {
+  /* The close animation runs 200ms; a second tap must not reach the
+     still-mounted form and double-submit. */
+  pointer-events: none;
+}
+
 .sheet-backdrop.closing {
   animation: backdrop-out 200ms ease both;
 }

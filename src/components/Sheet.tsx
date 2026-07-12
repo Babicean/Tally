@@ -57,10 +57,18 @@ export default function Sheet({ open, title, onClose, children }: Props) {
     }
   }, [open, render]);
 
+  // Latest onClose without retriggering the effect: parents pass inline
+  // arrows, and a dep on their identity made this refire on unrelated
+  // re-renders, yanking focus mid-typing.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
-    if (!open) return;
+    // Wait for `render` too: on the opening pass the panel isn't mounted
+    // yet, so focusing here used to be a silent no-op.
+    if (!open || !render) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     };
     window.addEventListener("keydown", onKey);
     // Move focus into the sheet so keyboard users land in the right place.
@@ -69,7 +77,7 @@ export default function Sheet({ open, title, onClose, children }: Props) {
     );
     first?.focus();
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, render]);
 
   const onHandleDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!e.isPrimary || closing) return;

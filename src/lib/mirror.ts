@@ -32,18 +32,33 @@ export function mirrorRemove(key: string): void {
   Preferences.remove({ key }).catch(() => {});
 }
 
+/** A stored value is usable when it's empty or parses as JSON. */
+function usable(value: string): boolean {
+  if (value === "") return true;
+  try {
+    JSON.parse(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Called once before the app renders. For any key missing from localStorage
- * but present in the native mirror, copy the mirror back — this is the
- * "WebView data was wiped" recovery path.
+ * (or present but corrupt) whose mirror copy is intact, copy the mirror
+ * back — this is the "WebView data was wiped" recovery path.
  */
 export async function restoreFromMirror(): Promise<void> {
   try {
     await Promise.all(
       MIRRORED_KEYS.map(async (key) => {
-        if (localStorage.getItem(key) !== null) return;
+        // A present-but-corrupt value (interrupted write) must not block
+        // recovery, or the boot save would overwrite the good mirror copy
+        // with the empty state the corrupt load produced.
+        const current = localStorage.getItem(key);
+        if (current !== null && usable(current)) return;
         const { value } = await Preferences.get({ key });
-        if (value !== null) {
+        if (value !== null && usable(value)) {
           localStorage.setItem(key, value);
         }
       }),

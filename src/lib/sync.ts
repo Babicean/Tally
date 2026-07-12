@@ -297,11 +297,28 @@ export async function signOut(): Promise<void> {
   }
 }
 
+/** The one in-flight refresh, so concurrent callers can't race each
+    other: Supabase rotates refresh tokens, and a second refresh landing
+    late gets invalid-grant and would wipe the session the first just
+    saved. */
+let refreshInFlight: Promise<SyncSession | null> | null = null;
+
 /** Refresh when the token is inside its final minute. */
 async function freshSession(): Promise<SyncSession | null> {
   const session = loadSession();
   if (!session) return null;
   if (session.expiresAt - Date.now() / 1000 > 60) return session;
+  if (!refreshInFlight) {
+    refreshInFlight = refreshSession(session).finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
+
+async function refreshSession(
+  session: SyncSession,
+): Promise<SyncSession | null> {
   try {
     const res = await fetch(
       `${SYNC_URL}/auth/v1/token?grant_type=refresh_token`,
@@ -312,14 +329,19 @@ async function freshSession(): Promise<SyncSession | null> {
       },
     );
     const body = await bodyOf(res);
-    if (!res.ok || !body?.access_token) {
+    if (res.ok && body?.access_token) {
+      const next = toSession(body as Parameters<typeof toSession>[0]);
+      saveSession(next);
+      return next;
+    }
+    if (res.status === 400 || res.status === 401 || res.status === 403) {
       // Refresh token dead: the session is over.
       saveSession(null);
       return null;
     }
-    const next = toSession(body as Parameters<typeof toSession>[0]);
-    saveSession(next);
-    return next;
+    // Server trouble (5xx, 429): keep the session and let the caller's
+    // request fail transiently rather than silently logging the user out.
+    return session;
   } catch {
     // Offline: hand back the stale session; the caller's request will
     // fail with a network problem, which is the honest outcome.
@@ -336,6 +358,13 @@ export async function pushBackup(
 ): Promise<SyncResult<{ updatedAt: string }> | SyncProblem> {
   const session = await freshSession();
   if (!session) return { ok: false, problem: SIGNED_OUT_PROBLEM };
+  const body = JSON.stringify([
+    {
+      user_id: session.user.id,
+      payload,
+      updated_at: new Date().toISOString(),
+    },
+  ]);
   try {
     const res = await fetch(
       `${SYNC_URL}/rest/v1/backups?on_conflict=user_id`,
@@ -347,16 +376,11 @@ export async function pushBackup(
           Authorization: `Bearer ${session.accessToken}`,
           Prefer: "resolution=merge-duplicates,return=representation",
         },
-        body: JSON.stringify([
-          {
-            user_id: session.user.id,
-            payload,
-            updated_at: new Date().toISOString(),
-          },
-        ]),
+        body,
         // Let an auto-backup finish even if the app is backgrounded
-        // mid-request.
-        keepalive: true,
+        // mid-request. Browsers cap keepalive bodies at 64 KB and reject
+        // larger ones outright, so big backups send as a normal request.
+        keepalive: body.length < 60_000,
       },
     );
     if (!res.ok) {

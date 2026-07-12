@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DayKey, Entry, MenuItem } from "../types";
 import { msUntilNextBoundary, trackingDayFor } from "../lib/day";
 import {
@@ -44,15 +44,32 @@ export function useEntries() {
   const [menu, setMenu] = useState<MenuItem[]>(() => loadMenu());
   const [weights, setWeights] = useState<WeightEntry[]>(() => loadWeights());
 
+  // Persist only after a real change: the mount runs would write the
+  // just-loaded state straight back, and if that load was lossy (corrupt
+  // payload, filtered rows) it would overwrite the mirror's good copy.
+  const booted = useRef({ weights: false, menu: false, entries: false });
+
   useEffect(() => {
+    if (!booted.current.weights) {
+      booted.current.weights = true;
+      return;
+    }
     saveWeights(weights);
   }, [weights]);
 
   useEffect(() => {
+    if (!booted.current.menu) {
+      booted.current.menu = true;
+      return;
+    }
     saveMenu(menu);
   }, [menu]);
 
   useEffect(() => {
+    if (!booted.current.entries) {
+      booted.current.entries = true;
+      return;
+    }
     saveEntries(entries);
   }, [entries]);
 
@@ -76,6 +93,7 @@ export function useEntries() {
         applyAccent(next.accent);
       }
       if (event.key === "tally.menu") setMenu(loadMenu());
+      if (event.key === "tally.weights") setWeights(loadWeights());
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -129,6 +147,10 @@ export function useEntries() {
       when: Date = new Date(),
     ) => {
       const entry = createEntry(calories, description, when, protein, fat);
+      // If the 2 AM boundary passed but the rollover timer hasn't fired
+      // yet, roll now so the new entry is visible on the screen it
+      // belongs to.
+      setToday(trackingDayFor(new Date()));
       setEntries((prev) => [...prev, entry]);
       return entry;
     },
@@ -155,8 +177,13 @@ export function useEntries() {
             protein,
             fat,
             timestamp: ts,
-            // Moving an entry in time moves it to the right tracking day.
-            day: trackingDayFor(new Date(ts)),
+            // Moving an entry in time moves it to the right tracking day;
+            // an unmoved entry keeps the day stamped when it was logged
+            // (re-deriving would shift it in a new timezone).
+            day:
+              timestamp !== undefined
+                ? trackingDayFor(new Date(ts))
+                : e.day,
           };
         }),
       );
@@ -164,15 +191,19 @@ export function useEntries() {
     [],
   );
 
+  // Latest entries for callbacks that must read at call time (a delete
+  // fired from a timer would otherwise see a stale copy and report a
+  // second delete of the same entry as successful).
+  const entriesRef = useRef(entries);
+  entriesRef.current = entries;
+
   /** Delete an entry, returning it so the caller can offer undo. */
-  const deleteEntry = useCallback(
-    (id: string): Entry | null => {
-      const entry = entries.find((e) => e.id === id) ?? null;
-      setEntries((prev) => prev.filter((e) => e.id !== id));
-      return entry;
-    },
-    [entries],
-  );
+  const deleteEntry = useCallback((id: string): Entry | null => {
+    const entry = entriesRef.current.find((e) => e.id === id) ?? null;
+    if (!entry) return null;
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+    return entry;
+  }, []);
 
   /** Put a previously deleted entry back exactly as it was. */
   const restoreEntry = useCallback((entry: Entry) => {
@@ -249,6 +280,39 @@ export function useEntries() {
     [mealTotals],
   );
 
+  /** Refresh meal snapshots after their component foods changed: drop
+      ids that no longer exist, re-sum totals, and remove meals with no
+      foods left. */
+  const reconcileMeals = (items: MenuItem[]): MenuItem[] => {
+    const byId = new Map(items.map((m) => [m.id, m]));
+    const out: MenuItem[] = [];
+    for (const m of items) {
+      if (!m.componentIds) {
+        out.push(m);
+        continue;
+      }
+      const ids = m.componentIds.filter((cid) => byId.has(cid));
+      if (ids.length === 0) continue; // every food in the meal is gone
+      let calories = 0;
+      let protein = 0;
+      let fat = 0;
+      for (const cid of ids) {
+        const f = byId.get(cid)!;
+        calories += f.calories;
+        protein += f.protein ?? 0;
+        fat += f.fat ?? 0;
+      }
+      out.push({
+        ...m,
+        componentIds: ids,
+        calories,
+        protein: protein || null,
+        fat: fat || null,
+      });
+    }
+    return out;
+  };
+
   const updateMenuItem = useCallback(
     (
       id: string,
@@ -259,10 +323,12 @@ export function useEntries() {
       category: string | null,
     ) => {
       setMenu((prev) =>
-        prev.map((m) =>
-          m.id === id
-            ? { ...m, name: name.trim(), calories, protein, fat, category }
-            : m,
+        reconcileMeals(
+          prev.map((m) =>
+            m.id === id
+              ? { ...m, name: name.trim(), calories, protein, fat, category }
+              : m,
+          ),
         ),
       );
     },
@@ -270,7 +336,7 @@ export function useEntries() {
   );
 
   const deleteMenuItem = useCallback((id: string) => {
-    setMenu((prev) => prev.filter((m) => m.id !== id));
+    setMenu((prev) => reconcileMeals(prev.filter((m) => m.id !== id)));
   }, []);
 
   const togglePinned = useCallback((id: string) => {

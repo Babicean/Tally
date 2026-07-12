@@ -114,3 +114,12 @@ describe("protein day totals", () => {
     expect(proteinForDay(entries, "2026-07-04")).toBe(56);
   });
 });
+
+describe("buildQuickAdds duplicate pins", () => {
+  it("keeps one chip when two pinned items share name and calories", () => {
+    const a = { ...createMenuItem("Coffee", 50, null, null, null), pinned: true };
+    const b = { ...createMenuItem("Coffee", 50, null, null, null), pinned: true };
+    const chips = buildQuickAdds([a, b], []);
+    expect(chips.filter((c) => c.description === "Coffee")).toHaveLength(1);
+  });
+});

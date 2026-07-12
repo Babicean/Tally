@@ -44,7 +44,11 @@ export function addDays(key: DayKey, delta: number): DayKey {
  * UI over to the new day without a reload.
  */
 export function msUntilNextBoundary(now: Date): number {
-  const next = new Date(
+  // Construct each candidate fresh from calendar fields instead of
+  // mutating with setDate: on the DST spring-forward day 2:00 doesn't
+  // exist and normalizes to 3:00, and setDate would carry that 3:00
+  // into every later day, firing the rollover an hour late.
+  let next = new Date(
     now.getFullYear(),
     now.getMonth(),
     now.getDate(),
@@ -54,7 +58,15 @@ export function msUntilNextBoundary(now: Date): number {
     0,
   );
   if (next.getTime() <= now.getTime()) {
-    next.setDate(next.getDate() + 1);
+    next = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      DAY_BOUNDARY_HOUR,
+      0,
+      0,
+      0,
+    );
   }
   return next.getTime() - now.getTime();
 }

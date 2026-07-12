@@ -74,7 +74,9 @@ export function parseBackup(json: string): BackupPayload | null {
             ? Math.round(goal)
             : null,
         theme: theme === "light" || theme === "dark" ? theme : "system",
-        trackProtein: typeof trackProtein === "boolean" ? trackProtein : false,
+        // Grandfather rule, matching loadSettings: backups from before
+        // this switch existed were made by installs that had protein on.
+        trackProtein: typeof trackProtein === "boolean" ? trackProtein : true,
         proteinTarget:
           typeof proteinTarget === "number" &&
           Number.isFinite(proteinTarget) &&
@@ -118,11 +120,24 @@ export function mergeBackup(
   backup: BackupPayload,
   currentWeights: WeightEntry[] = [],
 ): MergeResult {
+  // The seen-sets grow as we take rows so duplicate ids *inside* the
+  // backup file import once, not twice (delete removes every copy of an
+  // id but undo restores only one).
   const haveEntry = new Set(currentEntries.map((e) => e.id));
-  const newEntries = backup.entries.filter((e) => !haveEntry.has(e.id));
+  const newEntries: Entry[] = [];
+  for (const e of backup.entries) {
+    if (haveEntry.has(e.id)) continue;
+    haveEntry.add(e.id);
+    newEntries.push(e);
+  }
 
   const haveItem = new Set(currentMenu.map((m) => m.id));
-  const newItems = backup.menu.filter((m) => !haveItem.has(m.id));
+  const newItems: MenuItem[] = [];
+  for (const m of backup.menu) {
+    if (haveItem.has(m.id)) continue;
+    haveItem.add(m.id);
+    newItems.push(m);
+  }
 
   return {
     entries: [...currentEntries, ...newEntries],

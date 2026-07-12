@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { haptic } from "../lib/fly";
 
 interface Props {
@@ -16,10 +16,21 @@ export default function MacroStat({ proteinAvg, fatAvg }: Props) {
   const [phase, setPhase] = useState<"idle" | "out" | "in">("idle");
   const canFlip = proteinAvg !== null && fatAvg !== null;
 
+  // Props can change under the flip (range toggles, data edits): a side
+  // losing its average must not leave a blank stat or a stuck phase.
+  useEffect(() => {
+    if (!canFlip && phase !== "idle") setPhase("idle");
+  }, [canFlip, phase]);
+  useEffect(() => {
+    if (fatAvg === null && showFat) setShowFat(false);
+  }, [fatAvg, showFat]);
+
   if (proteinAvg === null && fatAvg === null) return null;
 
-  const value = showFat ? fatAvg : proteinAvg;
-  const label = showFat ? "fat / day" : "protein / day";
+  // Show whichever side has a value; the flip only exists when both do.
+  const showingFat = fatAvg !== null && (showFat || proteinAvg === null);
+  const value = showingFat ? fatAvg : proteinAvg;
+  const label = showingFat ? "fat / day" : "protein / day";
 
   const flip = () => {
     if (!canFlip || phase !== "idle") return;

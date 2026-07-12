@@ -238,7 +238,7 @@ export default function SettingsSheet({
       // Settings come from the backup we just applied (React hasn't
       // flushed the state yet, so loadSettings() would race it).
       const push = await pushBackup(
-        buildBackup(merged.entries, merged.menu, backup.settings),
+        buildBackup(merged.entries, merged.menu, backup.settings, merged.weights),
       );
       if (push.ok) {
         rememberLastBackup(push.updatedAt);
@@ -356,6 +356,10 @@ export default function SettingsSheet({
                 void signOut();
                 setSession(null);
                 setSyncNote(null);
+                // The timestamp belongs to the account that made it, not
+                // to whoever logs in next on this phone.
+                clearLastBackup();
+                setLastBackup(null);
               }}
             >
               Log out
@@ -560,7 +564,9 @@ export default function SettingsSheet({
                   <button
                     type="button"
                     className="suggest-use"
+                    disabled={busy}
                     onClick={() => {
+                      if (busy) return;
                       setEmail(suggestion);
                       setSuggestion(null);
                       void finishSubmit(suggestion);
@@ -571,7 +577,9 @@ export default function SettingsSheet({
                   <button
                     type="button"
                     className="suggest-keep"
+                    disabled={busy}
                     onClick={() => {
+                      if (busy) return;
                       setSuggestion(null);
                       void finishSubmit(email);
                     }}

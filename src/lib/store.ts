@@ -15,6 +15,15 @@ interface StoreShape {
   entries: Entry[];
 }
 
+/** Optional gram fields must be absent, null, or a real number. */
+function isOptionalGrams(value: unknown): boolean {
+  return (
+    value === undefined ||
+    value === null ||
+    (typeof value === "number" && Number.isFinite(value))
+  );
+}
+
 export function isEntry(value: unknown): value is Entry {
   if (typeof value !== "object" || value === null) return false;
   const e = value as Record<string, unknown>;
@@ -22,9 +31,14 @@ export function isEntry(value: unknown): value is Entry {
     typeof e.id === "string" &&
     typeof e.calories === "number" &&
     Number.isFinite(e.calories) &&
+    e.calories > 0 &&
+    e.calories <= MAX_CALORIES &&
     typeof e.description === "string" &&
     typeof e.timestamp === "number" &&
-    typeof e.day === "string"
+    Number.isFinite(e.timestamp) &&
+    typeof e.day === "string" &&
+    isOptionalGrams(e.protein) &&
+    isOptionalGrams(e.fat)
   );
 }
 

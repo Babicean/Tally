@@ -10,6 +10,32 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.11.1 — code 51 — 2026-07-12
+
+The hardening pass: 21 bugs found by systematic review, all fixed.
+Nothing new to see; everything is sturdier.
+
+- Data safety: a corrupt storage payload can no longer cascade into
+  wiping the native mirror and the cloud backup; the app never
+  persists a just-loaded state back over storage at boot; weights now
+  sync between open tabs; duplicate ids inside a backup import once;
+  restores from pre-2.4 backups keep protein tracking on.
+- Backups: large backups no longer hit the browser's 64 KB keepalive
+  cap (backups were failing permanently after roughly 500 entries); a
+  server hiccup during token refresh no longer logs you out; two
+  simultaneous refreshes can't cancel each other; restoring on a new
+  phone no longer wipes cloud weight history; logging out clears the
+  last-backed-up timestamp.
+- Time: the day rollover fires at 2 AM sharp even on daylight-saving
+  nights; editing an entry without touching its time keeps its exact
+  timestamp and day; logging right at 2 AM shows up immediately.
+- Interface: meals recompute when a contained food is edited or
+  deleted; closing sheets ignore taps (no more double-submits);
+  keyboard focus lands in sheets when they open and stays put while
+  you type; the macro stat can't show a blank number; a double-tapped
+  delete can't spawn a phantom undo; duplicate pinned foods render one
+  chip.
+
 ## 2.11 — code 50 — 2026-07-12
 
 iPhones can feel the app now.

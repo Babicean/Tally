@@ -80,3 +80,29 @@ describe("mergeBackup", () => {
     expect(twice.entries).toHaveLength(2);
   });
 });
+
+describe("hardening regressions", () => {
+  it("imports a duplicated id inside one backup only once", () => {
+    const entry = {
+      id: "dup",
+      calories: 300,
+      description: "twice",
+      timestamp: 1e12,
+      day: "2026-07-01",
+    };
+    const backup = parseBackup(
+      JSON.stringify({ app: "tally", version: 1, entries: [entry, entry], menu: [] }),
+    );
+    expect(backup).not.toBeNull();
+    const merged = mergeBackup([], [], backup!);
+    expect(merged.entries).toHaveLength(1);
+    expect(merged.addedEntries).toBe(1);
+  });
+
+  it("grandfathers missing trackProtein to on, matching loadSettings", () => {
+    const backup = parseBackup(
+      JSON.stringify({ app: "tally", version: 1, entries: [], menu: [], settings: {} }),
+    );
+    expect(backup!.settings.trackProtein).toBe(true);
+  });
+});

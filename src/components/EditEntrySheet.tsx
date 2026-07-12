@@ -13,7 +13,8 @@ interface Props {
     description: string,
     protein: number | null,
     fat: number | null,
-    timestamp: number,
+    /** Omitted when the time field was left untouched. */
+    timestamp?: number,
   ) => void;
   onClose: () => void;
 }
@@ -61,7 +62,12 @@ export default function EditEntrySheet({
       setError("Calories must be 1–20,000; grams 0–1,000 or blank.");
       return;
     }
-    const ts = when ? new Date(when).getTime() : entry.timestamp;
+    // Only a changed time field rewrites the timestamp: the input holds
+    // minutes, so parsing an untouched value would truncate seconds and
+    // reorder same-minute entries (and re-derive the tracking day).
+    const timeChanged =
+      when !== "" && when !== toLocalInputValue(entry.timestamp);
+    const ts = timeChanged ? new Date(when).getTime() : entry.timestamp;
     if (!Number.isFinite(ts)) {
       setError("That date doesn’t look right.");
       return;
@@ -70,7 +76,14 @@ export default function EditEntrySheet({
       setError("Can’t log into the future.");
       return;
     }
-    onSave(entry.id, parsed, description, parsedProtein, parsedFat, ts);
+    onSave(
+      entry.id,
+      parsed,
+      description,
+      parsedProtein,
+      parsedFat,
+      timeChanged ? ts : undefined,
+    );
     onClose();
   };
 

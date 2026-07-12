@@ -23,8 +23,11 @@ export function isMenuItem(value: unknown): value is MenuItem {
     typeof m.name === "string" &&
     typeof m.calories === "number" &&
     Number.isFinite(m.calories) &&
-    (m.protein === null || typeof m.protein === "number") &&
-    (m.fat === undefined || m.fat === null || typeof m.fat === "number") &&
+    (m.protein === null ||
+      (typeof m.protein === "number" && Number.isFinite(m.protein))) &&
+    (m.fat === undefined ||
+      m.fat === null ||
+      (typeof m.fat === "number" && Number.isFinite(m.fat))) &&
     (m.componentIds === undefined || Array.isArray(m.componentIds)) &&
     typeof m.pinned === "boolean"
   );
@@ -117,18 +120,22 @@ export function buildQuickAdds(
   entries: Entry[],
   limit = 6,
 ): FrequentItem[] {
-  const pinned: FrequentItem[] = sortMenu(menu)
-    .filter((m) => m.pinned)
-    .map((m) => ({
+  const pinned: FrequentItem[] = [];
+  const taken = new Set<string>();
+  for (const m of sortMenu(menu)) {
+    if (!m.pinned) continue;
+    // Two pinned items can share a name and calories; one chip is enough
+    // (they'd also collide as React keys).
+    const key = `${m.name.toLowerCase()}|${m.calories}`;
+    if (taken.has(key)) continue;
+    taken.add(key);
+    pinned.push({
       description: m.name,
       calories: m.calories,
       protein: m.protein,
       fat: m.fat,
-    }));
-
-  const taken = new Set(
-    pinned.map((p) => `${p.description.toLowerCase()}|${p.calories}`),
-  );
+    });
+  }
   const learned = frequentEntries(entries, limit).filter(
     (f) => !taken.has(`${f.description.toLowerCase()}|${f.calories}`),
   );
