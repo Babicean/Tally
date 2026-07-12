@@ -100,7 +100,8 @@ snack belongs to the evening before. Single source of truth
   iPhones work). Fixed/bottom UI must include them.
 - **Feel**: bottom sheets (`Sheet.tsx`) with swipe-to-dismiss, 200–400ms
   cubic-bezier motion, `prefers-reduced-motion` respected everywhere,
-  haptics via `haptic()` in `src/lib/fly.ts` (no-op on iOS for now),
+  haptics via `haptic()` in `src/lib/fly.ts` (navigator.vibrate on
+  Android, @capacitor/haptics impacts on iOS),
   delighters small and rare (wordmark spin easter egg, streak burst,
   protein fire, tally strokes). Calm > flashy; nothing shouts.
 
@@ -230,8 +231,7 @@ library, no backend SDK — the biggest JS dependency is React itself.
   The privacy policy is now public at
   https://babicean.github.io/Tally/PRIVACY.html (Beta App Review
   needs it).
-- Known gaps: no iOS haptics (`navigator.vibrate` is a no-op there —
-  `@capacitor/haptics` is the parity fix); keyboard/zoom fixes (2.7.2)
+- Known gaps: keyboard/zoom fixes (2.7.2) and iOS haptics (2.11)
   await real-iPhone confirmation; External TestFlight group (public
   link) not yet set up — needs Beta App Review, privacy policy URL is
   ready once Pages is on.

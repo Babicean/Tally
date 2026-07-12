@@ -10,6 +10,16 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.11 — code 50 — 2026-07-12
+
+iPhones can feel the app now.
+
+- Every haptic in Tally reaches iOS through the native Taptic engine:
+  logging ticks, quick-add chips, the macro flip, the wordmark spin,
+  celebrations, and the landing page's tally strokes stroke by stroke.
+- Android is untouched; it keeps the vibration timings it always had.
+  The tuned durations map onto light, medium and heavy impacts on iOS.
+
 ## 2.10.2 — code 49 — 2026-07-12
 
 Honey retires; three accents is the palette.

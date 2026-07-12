@@ -3,6 +3,7 @@
  * and arcs up into the running total — a lob, not a slide. Pure DOM so any
  * component can trigger it.
  */
+import { Capacitor } from "@capacitor/core";
 
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -67,7 +68,35 @@ export function flyCalories(text: string, fromEl: HTMLElement | null): void {
   animation.onfinish = () => chip.remove();
 }
 
-/** A tiny haptic tick on devices that support it. */
+/** Buckets a vibration length into the iOS impact weights. Exported for
+    tests; the durations were tuned on Android and map by feel. */
+export function hapticStyleFor(ms: number): "LIGHT" | "MEDIUM" | "HEAVY" {
+  if (ms <= 7) return "LIGHT";
+  if (ms <= 15) return "MEDIUM";
+  return "HEAVY";
+}
+
+/**
+ * A tiny haptic tick on devices that support it. Android and the web
+ * keep the tuned navigator.vibrate durations; iOS WebViews have no
+ * vibrate at all, so the native Haptics plugin supplies the Taptic
+ * impact of matching weight.
+ */
 export function haptic(ms = 10): void {
+  if (Capacitor.getPlatform() === "ios") {
+    void import("@capacitor/haptics")
+      .then(({ Haptics, ImpactStyle }) => {
+        const style = {
+          LIGHT: ImpactStyle.Light,
+          MEDIUM: ImpactStyle.Medium,
+          HEAVY: ImpactStyle.Heavy,
+        }[hapticStyleFor(ms)];
+        return Haptics.impact({ style });
+      })
+      .catch(() => {
+        // No haptics is fine; never let a tick break a tap.
+      });
+    return;
+  }
   navigator.vibrate?.(ms);
 }
