@@ -10,6 +10,16 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.10.2 — code 49 — 2026-07-12
+
+Honey retires; three accents is the palette.
+
+- The yellow theme never found a shade that was both yellow and
+  legible, so it's gone. Azure, Emerald and Blush remain, one row of
+  three in Settings.
+- Anyone who had Honey selected falls back to Azure automatically.
+- The --accent-text token stays; Blush uses it for small text.
+
 ## 2.10.1 — code 48 — 2026-07-12
 
 Lighter Blush, true butter Honey.

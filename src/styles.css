@@ -152,40 +152,6 @@
   --focus-ring: rgba(244, 114, 182, 0.45);
 }
 
-/* Honey: pale yellow page, amber accent. Yellow accents fail contrast,
-   so the accent cheats toward amber with a deeper shade on buttons. */
-
-:root[data-accent="honey"] {
-  --bg: #fffbeb;
-  --accent: #fde047;
-  --accent-strong: #fde047;
-  --accent-ink: #1d1d1f;
-  --accent-text: #a16207;
-  --accent-soft: rgba(253, 224, 71, 0.24);
-  --focus-ring: rgba(250, 204, 21, 0.45);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root[data-accent="honey"]:not([data-theme="light"]) {
-    --bg: #0c0d10;
-    --accent: #fde047;
-    --accent-strong: #fde047;
-    --accent-ink: #1f1403;
-    --accent-text: #fde047;
-    --accent-soft: rgba(253, 224, 71, 0.16);
-    --focus-ring: rgba(253, 224, 71, 0.45);
-  }
-}
-
-:root[data-theme="dark"][data-accent="honey"] {
-  --bg: #0c0d10;
-  --accent: #fde047;
-  --accent-strong: #fde047;
-  --accent-ink: #1f1403;
-  --accent-text: #fde047;
-  --accent-soft: rgba(253, 224, 71, 0.16);
-  --focus-ring: rgba(253, 224, 71, 0.45);
-}
 
 * {
   box-sizing: border-box;
@@ -1079,7 +1045,7 @@ input {
 
 .accent-row {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.25rem;
   margin-top: 0.625rem;
   padding: 0.25rem;
@@ -1129,9 +1095,6 @@ input {
   background: #f472b6;
 }
 
-.accent-dot.honey {
-  background: #facc15;
-}
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .accent-dot.azure {
@@ -1146,9 +1109,6 @@ input {
     background: #f472b6;
   }
 
-  :root:not([data-theme="light"]) .accent-dot.honey {
-    background: #fde047;
-  }
 }
 
 :root[data-theme="dark"] .accent-dot.azure {
@@ -1163,9 +1123,6 @@ input {
   background: #f472b6;
 }
 
-:root[data-theme="dark"] .accent-dot.honey {
-  background: #fde047;
-}
 
 /* ---- Settings drill-in (Account) ---------------------------------------- */
 

@@ -27,7 +27,7 @@ export interface Settings {
   /** Daily weigh-ins are opt-in; off, the app is pure calories. */
   trackWeight: boolean;
   /** Accent color family. */
-  accent: "azure" | "emerald" | "blush" | "honey";
+  accent: "azure" | "emerald" | "blush";
 }
 
 const DEFAULTS: Settings = {
@@ -67,9 +67,7 @@ export function loadSettings(): Settings {
       fatTarget: asTarget(s.fatTarget),
       trackWeight: s.trackWeight === true,
       accent:
-        s.accent === "emerald" || s.accent === "blush" || s.accent === "honey"
-          ? s.accent
-          : "azure",
+        s.accent === "emerald" || s.accent === "blush" ? s.accent : "azure",
     };
   } catch {
     return { ...DEFAULTS };

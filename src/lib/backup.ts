@@ -89,9 +89,7 @@ export function parseBackup(json: string): BackupPayload | null {
             : null,
         trackWeight: trackWeight === true,
         accent:
-          accent === "emerald" || accent === "blush" || accent === "honey"
-            ? accent
-            : "azure",
+          accent === "emerald" || accent === "blush" ? accent : "azure",
       },
       weights: Array.isArray(raw.weights)
         ? raw.weights.filter(isWeightEntry)
