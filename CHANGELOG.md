@@ -10,6 +10,14 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.9.2 — code 46 — 2026-07-12
+
+First tester feedback: the tally's slash sat wrong.
+
+- The landing delighter's fifth stroke now cuts through the middle of
+  the bars at the icon's angle and stays inside their span, instead of
+  escaping high to the right. The whole mark re-centered to the pixel.
+
 ## 2.9.1 — code 45 — 2026-07-11
 
 Insights follow-ups from field testing.

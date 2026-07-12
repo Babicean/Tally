@@ -2544,9 +2544,10 @@ input {
   position: relative;
   width: 11.875rem;
   height: 9.375rem;
-  /* The slash rises to the right, so the shape's visual mass sits high
-     and left of the box; nudge to optically center it. */
-  transform: translate(0.75rem, 1rem);
+  /* Optical nudge: the slash overhangs the bars asymmetrically, so the
+     box is shifted until the drawn shape's bbox centers on screen. */
+  --nudge: translate(0.375rem, 0.125rem);
+  transform: var(--nudge);
 }
 
 .welcome.striking .stroke-group {
@@ -2591,13 +2592,13 @@ input {
 
 .stroke-slash {
   position: absolute;
-  left: 0.1875rem;
-  top: 4.25rem;
-  width: 11.375rem;
+  left: 0.5rem;
+  top: 6.375rem;
+  width: 11rem;
   height: 1.0625rem;
   border-radius: 0.5625rem;
   background: var(--accent);
-  transform: rotate(-28deg) scaleX(0);
+  transform: rotate(-22deg) scaleX(0);
   transform-origin: 0 50%;
 }
 
@@ -2617,22 +2618,22 @@ input {
 
 @keyframes slash-in {
   from {
-    transform: rotate(-28deg) scaleX(0);
+    transform: rotate(-22deg) scaleX(0);
   }
   to {
-    transform: rotate(-28deg) scaleX(1);
+    transform: rotate(-22deg) scaleX(1);
   }
 }
 
 @keyframes strokes-pop {
   0% {
-    transform: translate(0.75rem, 1rem) scale(1);
+    transform: var(--nudge) scale(1);
   }
   45% {
-    transform: translate(0.75rem, 1rem) scale(1.05);
+    transform: var(--nudge) scale(1.05);
   }
   100% {
-    transform: translate(0.75rem, 1rem) scale(1);
+    transform: var(--nudge) scale(1);
   }
 }
 
