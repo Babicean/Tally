@@ -10,6 +10,18 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.10.1 — code 48 — 2026-07-12
+
+Lighter Blush, true butter Honey.
+
+- Blush fills lighten to soft pink; buttons keep the deeper pink so
+  white text stays readable.
+- Honey is now butter yellow on the ring, bars and buttons (buttons
+  switch to dark text), with a dark golden yellow reserved for links
+  and small accents so nothing becomes unreadable.
+- New token: --accent-text, the text-sized accent every theme inherits
+  and only Honey overrides.
+
 ## 2.10 — code 47 — 2026-07-12
 
 Two new accents, by tester request: Blush and Honey.
