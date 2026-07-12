@@ -2,7 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import { loadSettings } from "./settings";
 
 export type ThemePref = "system" | "light" | "dark";
-export type AccentPref = "azure" | "emerald";
+export type AccentPref = "azure" | "emerald" | "blush" | "honey";
 
 /** Stamp the accent family on <html>; CSS tokens key off it. */
 export function applyAccent(accent: AccentPref): void {
@@ -12,6 +12,9 @@ export function applyAccent(accent: AccentPref): void {
   } else {
     root.dataset.accent = accent;
   }
+  // Blush and Honey tint the page background, so the native bars need a
+  // re-sync whenever the accent changes, not just the theme.
+  void syncNativeBars(loadSettings().theme);
 }
 
 export function isThemePref(value: unknown): value is ThemePref {
@@ -44,10 +47,13 @@ async function syncNativeBars(pref: ThemePref): Promise<void> {
   try {
     const { StatusBar, Style } = await import("@capacitor/status-bar");
     const dark = effectiveDark(pref);
+    // Read the live token so tinted accents (Blush, Honey) reach the bar.
+    const bg =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--bg")
+        .trim() || (dark ? "#0c0d10" : "#f5f6f8");
     await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light });
-    await StatusBar.setBackgroundColor({
-      color: dark ? "#0c0d10" : "#f5f6f8",
-    });
+    await StatusBar.setBackgroundColor({ color: bg });
   } catch {
     // Web build or plugin unavailable — CSS alone is fine.
   }

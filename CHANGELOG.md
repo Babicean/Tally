@@ -10,6 +10,20 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.10 — code 47 — 2026-07-12
+
+Two new accents, by tester request: Blush and Honey.
+
+- **Blush**: rose-tinted page with a pink accent. **Honey**: pale
+  yellow page with an amber accent (yellow itself fails contrast, so
+  the accent leans amber with a deeper shade on buttons).
+- The pastel lives on the page background only; cards stay white and
+  text stays dark. In dark mode both keep Graphite surfaces and only
+  the accent changes.
+- The accent picker in Settings is now a two by two grid of four:
+  Azure, Emerald, Blush, Honey.
+- The Android status bar follows the tinted background.
+
 ## 2.9.2 — code 46 — 2026-07-12
 
 First tester feedback: the tally's slash sat wrong.

@@ -54,7 +54,8 @@ Opt-in extras (Settings gear): **protein/fat tracking** ("Track
 macros"), **daily protein target** with its own bar and a fire-emoji
 celebration on hitting it, **weight tracking** (one weigh-in a day,
 logged from the History weight card, ~60-point SVG trend, 30-day
-change), theme System/Light/Dark, accent Azure/Emerald.
+change), theme System/Light/Dark, accent Azure/Emerald/Blush/Honey
+(the last two tint the light background; dark stays Graphite).
 
 **Accounts (optional)**: email+password via Supabase; verified email
 required; backup = the export JSON pushed to one row per user;
@@ -86,8 +87,8 @@ snack belongs to the evening before. Single source of truth
 - **Themes**: light (porcelain #f5f6f8) and **Graphite dark** (bg
   #0c0d10, card #1e2126, hairline at 0.09 alpha, inset top light-catch
   shadows) via `prefers-color-scheme` plus `data-theme` override on
-  `<html>`. Accent families: Azure (default) and Emerald via
-  `data-accent`. Never hardcode colors in components; use the tokens.
+  `<html>`. Accent families: Azure (default), Emerald, Blush and
+  Honey via `data-accent`; Blush/Honey also tint `--bg` in light. Never hardcode colors in components; use the tokens.
 - **Proportional scaling**: root font is
   `clamp(13.5px, 3.8835vw, 16.7px)` — 16px at the 412px reference
   width. EVERYTHING is in rem, so one design scales to every phone.

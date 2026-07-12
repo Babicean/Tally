@@ -57,6 +57,8 @@ const THEME_OPTIONS: { id: ThemePref; label: string }[] = [
 const ACCENT_OPTIONS: { id: AccentPref; label: string }[] = [
   { id: "azure", label: "Azure" },
   { id: "emerald", label: "Emerald" },
+  { id: "blush", label: "Blush" },
+  { id: "honey", label: "Honey" },
 ];
 
 type View = "settings" | "account";
