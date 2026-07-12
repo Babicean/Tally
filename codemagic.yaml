@@ -42,19 +42,29 @@ workflows:
           set -e
           python3 - <<'PY'
           import json, subprocess
+          # List everything and filter by type here; passing --type twice
+          # only kept the last one, which is how strays piled up to the cap.
           out = subprocess.run(
-              ["app-store-connect", "certificates", "list",
-               "--type", "DISTRIBUTION", "--type", "IOS_DISTRIBUTION", "--json"],
+              ["app-store-connect", "certificates", "list", "--json"],
               capture_output=True, text=True)
+          if out.returncode != 0:
+              print(out.stdout)
+              print(out.stderr)
           try:
               certs = json.loads(out.stdout) if out.returncode == 0 else []
           except ValueError:
+              print("could not parse the certificate list")
               certs = []
+          revoked = 0
           for cert in certs:
-              if cert.get("id"):
-                  subprocess.run(["app-store-connect", "certificates", "delete",
-                                  cert["id"], "--ignore-not-found"])
-          print("Revoked %d stranded distribution certificate(s)" % len(certs))
+              ctype = (cert.get("attributes") or {}).get("certificateType")
+              if ctype in ("DISTRIBUTION", "IOS_DISTRIBUTION") and cert.get("id"):
+                  r = subprocess.run(
+                      ["app-store-connect", "certificates", "delete",
+                       cert["id"], "--ignore-not-found"])
+                  if r.returncode == 0:
+                      revoked += 1
+          print("Revoked %d stranded distribution certificate(s)" % revoked)
           PY
           ssh-keygen -t rsa -b 2048 -m PEM -f "$HOME/tally_cert_key" -q -N ""
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
