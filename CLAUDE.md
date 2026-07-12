@@ -218,11 +218,15 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 - v2.9, code 44 (insights card in History). TestFlight live (first builds July 11); owner tests
   Android personally; a friend field-tests via TestFlight.
-- Owner-side config still pending: enable GitHub Pages (branch
-  `claude/tally-delighters`, `/docs`) and set Supabase Site URL /
-  Redirect URLs to the hosted `verified.html` / `reset.html`, paste
-  `docs/emails/*` into Supabase templates. Until then verification
-  links land on localhost:3000 (verification itself still works).
+- Auth email flow LIVE and field-tested (July 12): GitHub Pages serves
+  docs/ from the release branch; Supabase Site URL / Redirect URLs
+  point at the hosted `verified.html` / `reset.html`; verify, reset
+  and delete-account all confirmed on device. Shelved: branded email
+  templates (`docs/emails/*`) — Supabase now locks template editing
+  behind custom SMTP, so they wait for a Resend + owner-domain setup.
+  The privacy policy is now public at
+  https://babicean.github.io/Tally/PRIVACY.html (Beta App Review
+  needs it).
 - Known gaps: no iOS haptics (`navigator.vibrate` is a no-op there —
   `@capacitor/haptics` is the parity fix); keyboard/zoom fixes (2.7.2)
   await real-iPhone confirmation; External TestFlight group (public
