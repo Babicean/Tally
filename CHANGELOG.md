@@ -10,6 +10,25 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.14.0 — code 54 — 2026-07-13
+
+The audit's last four medium fixes. The findings list is now empty
+except the landing page copy, which waits for the owner's words.
+
+- The undo toast waits for you: touching or hovering it freezes the
+  5-second timer (it restarts when you let go), and its announcement
+  region is always mounted so screen readers reliably hear "Entry
+  deleted".
+- Backups live in Settings: a "Your data" section holds Export backup
+  and Import right above the Account row, so keeping your data safe is
+  one place, not two tabs cross-referencing each other. History is now
+  purely days and trends.
+- The calorie target has a Settings row beside the protein and fat
+  targets. Blank removes it; the pill under the ring still works.
+- Fresh installs see "2,000 remaining · tap to set your own" on the
+  goal pill until they first open the goal sheet — the default number
+  now explains itself. Existing installs never see the hint.
+
 ## 2.13.0 — code 53 — 2026-07-13
 
 The UX audit's five structural fixes, the ones every auditor converged

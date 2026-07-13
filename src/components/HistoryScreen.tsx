@@ -1,15 +1,13 @@
 import { useMemo, useState } from "react";
-import type { DayKey, DaySummary, Entry, MenuItem } from "../types";
+import type { DayKey, DaySummary, Entry } from "../types";
 import { addDays } from "../lib/day";
 import { formatCalories, formatDayLabel, formatTime } from "../lib/format";
-import type { BackupPayload, MergeResult } from "../lib/backup";
 import { weeklyStats } from "../lib/stats";
 import type { WeightEntry } from "../lib/weight";
 import WeightCard from "./WeightCard";
 import WeightSheet from "./WeightSheet";
 import { TrendPoint } from "./TrendChart";
 import InsightsCard from "./InsightsCard";
-import DataCard from "./DataCard";
 import BackdateSheet from "./BackdateSheet";
 import Toast from "./Toast";
 import { useToast } from "../hooks/useToast";
@@ -57,7 +55,6 @@ interface Props {
   today: DayKey;
   history: DaySummary[];
   entries: Entry[];
-  menu: MenuItem[];
   trackProtein: boolean;
   dailyGoal: number | null;
   trackWeight: boolean;
@@ -66,7 +63,6 @@ interface Props {
   lastWeight: number | null;
   onLogWeight: (kg: number) => void;
   onRemoveWeight: () => void;
-  onImport: (backup: BackupPayload) => MergeResult;
   onAddBackdated: (
     calories: number,
     description: string,
@@ -80,7 +76,6 @@ export default function HistoryScreen({
   today,
   history,
   entries,
-  menu,
   trackProtein,
   dailyGoal,
   trackWeight,
@@ -89,13 +84,12 @@ export default function HistoryScreen({
   lastWeight,
   onLogWeight,
   onRemoveWeight,
-  onImport,
   onAddBackdated,
 }: Props) {
   const [openDay, setOpenDay] = useState<DayKey | null>(null);
   const [weightOpen, setWeightOpen] = useState(false);
   const [backdating, setBackdating] = useState<DayKey | null>(null);
-  const { toast, showToast } = useToast();
+  const { toast, showToast, hold, release } = useToast();
 
   const { points, deltaPct } = useMemo(() => {
     const totals = new Map(history.map((s) => [s.day, s.total]));
@@ -276,12 +270,6 @@ export default function HistoryScreen({
         </div>
       )}
 
-      <DataCard
-        entries={entries}
-        menu={menu}
-        weights={weights}
-        onImport={onImport}
-      />
 
       <BackdateSheet
         day={backdating}
@@ -292,7 +280,7 @@ export default function HistoryScreen({
         }}
         onClose={() => setBackdating(null)}
       />
-      <Toast toast={toast} />
+      <Toast toast={toast} onHold={hold} onRelease={release} />
     </div>
   );
 }

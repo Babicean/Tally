@@ -29,6 +29,9 @@ interface Props {
   quickAdds: FrequentItem[];
   menu: MenuItem[];
   dailyGoal: number | null;
+  /** False until the goal sheet is first opened; drives the pill hint. */
+  goalSeen: boolean;
+  onGoalSeen: () => void;
   onSetGoal: (goal: number | null) => void;
   onAdd: (
     calories: number,
@@ -67,6 +70,8 @@ export default function TodayScreen({
   quickAdds,
   menu,
   dailyGoal,
+  goalSeen,
+  onGoalSeen,
   onSetGoal,
   onAdd,
   onUpdate,
@@ -78,7 +83,8 @@ export default function TodayScreen({
   onLogWeight,
   onRemoveWeight,
 }: Props) {
-  const { toast, showToast, showConfirmation, dismiss } = useToast();
+  const { toast, showToast, showConfirmation, dismiss, hold, release } =
+    useToast();
   const [goalOpen, setGoalOpen] = useState(false);
   const [menuPickOpen, setMenuPickOpen] = useState(false);
   const [weightOpen, setWeightOpen] = useState(false);
@@ -175,7 +181,11 @@ export default function TodayScreen({
         fatTarget={fatTarget}
         streak={streak}
         goal={dailyGoal}
-        onEditGoal={() => setGoalOpen(true)}
+        goalHint={!goalSeen}
+        onEditGoal={() => {
+          onGoalSeen();
+          setGoalOpen(true);
+        }}
       />
 
       <QuickAddChips
@@ -259,7 +269,7 @@ export default function TodayScreen({
         onSave={onUpdate}
         onClose={() => setEditing(null)}
       />
-      <Toast toast={toast} />
+      <Toast toast={toast} onHold={hold} onRelease={release} />
     </div>
   );
 }

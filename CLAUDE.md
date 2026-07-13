@@ -222,14 +222,17 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
-- v2.13.0, code 53. TestFlight live (first builds July 11); owner tests
+- v2.14.0, code 54. TestFlight live (first builds July 11); owner tests
   Android personally; a friend field-tests via TestFlight. A five-agent
   UX audit (July 13) produced a ranked findings report; v2.12 shipped
   every quick win plus three mediums (styled edit date field, sheet
   close buttons, 44px-class hit areas); v2.13 shipped the five
   convergent findings (chip/add-form macros, gap-day backdating, Today
   weigh-in chip, entry-row spacing + honest decrement toast, trend card
-  merged into Insights).
+  merged into Insights); v2.14 shipped the last four mediums (undo
+  toast hold-to-pause + always-mounted live region, backups moved into a
+  Settings "Your data" section, a Daily goal row in Settings, first-run
+  goal-pill hint via `goalSeen` in settings).
 - Auth email flow LIVE and field-tested (July 12): GitHub Pages serves
   docs/ from the release branch; Supabase Site URL / Redirect URLs
   point at the hosted `verified.html` / `reset.html`; verify, reset
@@ -245,10 +248,9 @@ library, no backend SDK — the biggest JS dependency is React itself.
   ready once Pages is on.
 - Agreed next: meal polish (reactive to tester feedback),
   calories-vs-weight overlay on the insights card (wait for a few weeks
-  of weigh-in data). Audit leftovers if ever wanted: undo-toast timer
-  pause + live region, backup controls united in Settings, a Daily goal
-  row in Settings, first-run goal hint, landing copy loop-closing
-  (owner's verbatim wording required). Shelved by owner: browser
+  of weigh-in data). Last audit leftover: landing copy loop-closing —
+  owner is mulling the wording (his verbatim words required, do not
+  draft-and-ship). Shelved by owner: browser
   hosting on his own site, copy-yesterday (rejected), Reps Notion
   import, Reps sync (needs per-app schema change first — one row per
   user per app, or Tally/Reps would overwrite each other).

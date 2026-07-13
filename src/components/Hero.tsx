@@ -16,6 +16,8 @@ interface Props {
   fatTarget: number | null;
   streak: Streak;
   goal: number | null;
+  /** First run: the default goal appeared unasked, so the pill says so. */
+  goalHint: boolean;
   onEditGoal: () => void;
 }
 
@@ -65,6 +67,7 @@ export default function Hero({
   fatTarget,
   streak,
   goal,
+  goalHint,
   onEditGoal,
 }: Props) {
   const [pulsing, setPulsing] = useState(false);
@@ -250,6 +253,7 @@ export default function Hero({
       >
         <AnimatedNumber value={over ? total - goal : goal - total} />
         {over ? " over goal" : " remaining"}
+        {goalHint && !over && " · tap to set your own"}
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
           <path
             d="M3.5 2l3 3-3 3"

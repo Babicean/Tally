@@ -76,6 +76,8 @@ export default function App() {
     importBackup,
     dailyGoal,
     setDailyGoal,
+    goalSeen,
+    markGoalSeen,
     theme,
     setTheme,
     accent,
@@ -171,6 +173,8 @@ export default function App() {
           quickAdds={quickAdds}
           menu={menu}
           dailyGoal={dailyGoal}
+          goalSeen={goalSeen}
+          onGoalSeen={markGoalSeen}
           onSetGoal={setDailyGoal}
           onAdd={addEntry}
           onUpdate={updateEntry}
@@ -201,7 +205,6 @@ export default function App() {
           today={today}
           history={history}
           entries={entries}
-          menu={menu}
           trackProtein={trackProtein}
           dailyGoal={dailyGoal}
           trackWeight={trackWeight}
@@ -210,7 +213,6 @@ export default function App() {
           lastWeight={lastWeight}
           onLogWeight={logWeight}
           onRemoveWeight={removeTodayWeight}
-          onImport={importBackup}
           onAddBackdated={(cal, desc, prot, fatG, when) => {
             addEntry(cal, desc, prot, fatG, when);
           }}
@@ -223,6 +225,8 @@ export default function App() {
         onSetTheme={setTheme}
         accent={accent}
         onSetAccent={setAccent}
+        dailyGoal={dailyGoal}
+        onSetDailyGoal={setDailyGoal}
         trackProtein={trackProtein}
         onSetTrackProtein={setTrackProtein}
         proteinTarget={proteinTarget}
@@ -233,6 +237,7 @@ export default function App() {
         onSetTrackWeight={setTrackWeight}
         getBackup={() => buildBackup(entries, menu, loadSettings(), weights)}
         onRestore={(b) => importBackup(b, { applySettings: true })}
+        onImportFile={(b) => importBackup(b)}
         startAtLogin={settingsAtLogin}
         onClose={() => {
           setSettingsOpen(false);

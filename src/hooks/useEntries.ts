@@ -113,6 +113,15 @@ export function useEntries() {
     (goal: number | null) => updateSettings({ dailyGoal: goal }),
     [updateSettings],
   );
+  /** First open of the goal sheet retires the "set your own" hint. */
+  const markGoalSeen = useCallback(() => {
+    setSettings((prev) => {
+      if (prev.goalSeen) return prev;
+      const next = { ...prev, goalSeen: true };
+      saveSettings(next);
+      return next;
+    });
+  }, []);
   const setTheme = useCallback(
     (theme: ThemePref) => updateSettings({ theme }),
     [updateSettings],
@@ -421,6 +430,8 @@ export function useEntries() {
     importBackup,
     dailyGoal: settings.dailyGoal,
     setDailyGoal,
+    goalSeen: settings.goalSeen,
+    markGoalSeen,
     theme: settings.theme,
     setTheme,
     trackProtein: settings.trackProtein,

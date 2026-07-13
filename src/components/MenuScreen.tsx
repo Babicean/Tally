@@ -52,7 +52,7 @@ export default function MenuScreen({
   const [mealOpen, setMealOpen] = useState(false);
   const [editing, setEditing] = useState<MenuItem | null>(null);
   const foods = menu.filter((i) => !i.componentIds);
-  const { toast, showConfirmation } = useToast();
+  const { toast, showConfirmation, hold, release } = useToast();
 
   const log = (item: MenuItem, el: HTMLElement) => {
     onLog(item);
@@ -213,7 +213,7 @@ export default function MenuScreen({
         }
         onClose={() => setMealOpen(false)}
       />
-      <Toast toast={toast} />
+      <Toast toast={toast} onHold={hold} onRelease={release} />
     </div>
   );
 }

@@ -92,6 +92,11 @@ export function parseBackup(json: string): BackupPayload | null {
         trackWeight: trackWeight === true,
         accent:
           accent === "emerald" || accent === "blush" ? accent : "azure",
+        // A restored install is not a first run: default to seen.
+        goalSeen:
+          typeof raw.settings?.goalSeen === "boolean"
+            ? raw.settings.goalSeen
+            : true,
       },
       weights: Array.isArray(raw.weights)
         ? raw.weights.filter(isWeightEntry)

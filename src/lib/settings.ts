@@ -28,6 +28,12 @@ export interface Settings {
   trackWeight: boolean;
   /** Accent color family. */
   accent: "azure" | "emerald" | "blush";
+  /**
+   * Whether the goal sheet has ever been opened. Until then the goal
+   * pill hints that the default 2,000 is theirs to change. Installs
+   * predating this key count as seen — no hint for existing users.
+   */
+  goalSeen: boolean;
 }
 
 const DEFAULTS: Settings = {
@@ -38,6 +44,7 @@ const DEFAULTS: Settings = {
   fatTarget: null,
   trackWeight: false,
   accent: "azure",
+  goalSeen: false,
 };
 
 interface SettingsShape {
@@ -68,6 +75,8 @@ export function loadSettings(): Settings {
       trackWeight: s.trackWeight === true,
       accent:
         s.accent === "emerald" || s.accent === "blush" ? s.accent : "azure",
+      // Grandfather rule: any settings payload predates first-run hints.
+      goalSeen: typeof s.goalSeen === "boolean" ? s.goalSeen : true,
     };
   } catch {
     return { ...DEFAULTS };

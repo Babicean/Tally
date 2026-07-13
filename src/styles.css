@@ -1101,6 +1101,22 @@ input {
   width: 6.25rem;
 }
 
+/* The calorie target holds four digits plus its unit. */
+.settings-goal {
+  width: 7.5rem;
+}
+
+/* "Your data" block inside Settings. */
+.pane .data-sub {
+  margin-top: 0.625rem;
+}
+
+.data-note {
+  margin-top: 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
 .accent-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

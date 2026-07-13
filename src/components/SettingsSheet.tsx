@@ -1,7 +1,9 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Sheet from "./Sheet";
 import type { AccentPref, ThemePref } from "../lib/theme";
 import { parseProtein } from "../lib/menu";
+import { parseCalories } from "../lib/store";
+import { shareBackupFile } from "../lib/exportFile";
 import { emailProblem, passwordProblem, suggestEmailFix } from "../lib/account";
 import {
   clearLastBackup,
@@ -19,6 +21,7 @@ import {
   type SyncSession,
 } from "../lib/sync";
 import {
+  backupFilename,
   buildBackup,
   parseBackup,
   type BackupPayload,
@@ -31,6 +34,8 @@ interface Props {
   onSetTheme: (theme: ThemePref) => void;
   accent: AccentPref;
   onSetAccent: (accent: AccentPref) => void;
+  dailyGoal: number | null;
+  onSetDailyGoal: (goal: number | null) => void;
   trackProtein: boolean;
   onSetTrackProtein: (on: boolean) => void;
   proteinTarget: number | null;
@@ -43,6 +48,8 @@ interface Props {
   getBackup: () => BackupPayload;
   /** Merge a pulled backup into local data; reports what was added. */
   onRestore: (backup: BackupPayload) => MergeResult;
+  /** Merge a backup file WITHOUT applying its settings (file import). */
+  onImportFile: (backup: BackupPayload) => MergeResult;
   /** Open straight on the account login form (the welcome page's path). */
   startAtLogin?: boolean;
   onClose: () => void;
@@ -69,6 +76,8 @@ export default function SettingsSheet({
   onSetTheme,
   accent,
   onSetAccent,
+  dailyGoal,
+  onSetDailyGoal,
   trackProtein,
   onSetTrackProtein,
   proteinTarget,
@@ -79,11 +88,15 @@ export default function SettingsSheet({
   onSetTrackWeight,
   getBackup,
   onRestore,
+  onImportFile,
   startAtLogin = false,
   onClose,
 }: Props) {
   const [target, setTarget] = useState("");
   const [fatT, setFatT] = useState("");
+  const [goalT, setGoalT] = useState("");
+  const [dataNote, setDataNote] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [view, setView] = useState<View>("settings");
   const [session, setSession] = useState<SyncSession | null>(() =>
     loadSession(),
@@ -109,6 +122,8 @@ export default function SettingsSheet({
     if (open) {
       setTarget(proteinTarget !== null ? String(proteinTarget) : "");
       setFatT(fatTarget !== null ? String(fatTarget) : "");
+      setGoalT(dailyGoal !== null ? String(dailyGoal) : "");
+      setDataNote(null);
       setView(startAtLogin ? "account" : "settings");
       setSession(loadSession());
       setLastBackup(lastBackupAt());
@@ -120,7 +135,55 @@ export default function SettingsSheet({
       setConfirmDelete(false);
       setBackAnim(false);
     }
-  }, [open, proteinTarget, fatTarget, startAtLogin]);
+  }, [open, proteinTarget, fatTarget, dailyGoal, startAtLogin]);
+
+  const commitGoal = () => {
+    const cleaned = goalT.trim();
+    if (cleaned === "") {
+      // Blank means no goal — same grammar as the macro targets.
+      onSetDailyGoal(null);
+      return;
+    }
+    const parsed = parseCalories(cleaned);
+    if (parsed === null) {
+      // Invalid input: fall back to what's stored.
+      setGoalT(dailyGoal !== null ? String(dailyGoal) : "");
+      return;
+    }
+    onSetDailyGoal(parsed);
+  };
+
+  const exportBackup = async () => {
+    try {
+      await shareBackupFile(
+        backupFilename(),
+        JSON.stringify(getBackup(), null, 2),
+      );
+      setDataNote("Backup exported.");
+    } catch {
+      // Share sheet dismissed — not an error worth reporting.
+    }
+  };
+
+  const importFile = async (file: File) => {
+    const backup = parseBackup(await file.text());
+    if (!backup) {
+      setDataNote("That file isn't a Tally backup. Nothing was changed.");
+      return;
+    }
+    const result = onImportFile(backup);
+    if (result.addedEntries === 0 && result.addedItems === 0) {
+      setDataNote("Already up to date. Nothing new in that file.");
+    } else {
+      setDataNote(
+        `Restored ${result.addedEntries} ${
+          result.addedEntries === 1 ? "entry" : "entries"
+        } and ${result.addedItems} menu ${
+          result.addedItems === 1 ? "item" : "items"
+        }.`,
+      );
+    }
+  };
 
   const commitTarget = () => {
     const parsed = parseProtein(target);
@@ -684,6 +747,29 @@ export default function SettingsSheet({
         ))}
       </div>
 
+      <p className="settings-label">Daily goal</p>
+      <div className="settings-row">
+        <div className="settings-row-text">
+          <span className="settings-row-title">Calorie target</span>
+          <span className="settings-row-sub">
+            Blank for no target. The pill under the ring works too.
+          </span>
+        </div>
+        <div className="field field-cal settings-target settings-goal">
+          <input
+            value={goalT}
+            onChange={(e) => setGoalT(e.target.value)}
+            onBlur={commitGoal}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+            }}
+            inputMode="numeric"
+            aria-label="Daily calorie target"
+          />
+          <span className="unit">cal</span>
+        </div>
+      </div>
+
       <p className="settings-label">Advanced tracking</p>
       <div className="settings-row">
         <div className="settings-row-text">
@@ -765,6 +851,33 @@ export default function SettingsSheet({
         </button>
       </div>
 
+      <p className="settings-label">Your data</p>
+      <p className="data-sub">
+        Everything stays on this device unless you sign in below and back
+        up. Export a file backup now and then, especially before switching
+        phones.
+      </p>
+      <div className="data-actions">
+        <button className="data-btn primary" onClick={() => void exportBackup()}>
+          Export backup
+        </button>
+        <button className="data-btn" onClick={() => fileRef.current?.click()}>
+          Import
+        </button>
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept=".json,application/json"
+        hidden
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void importFile(file);
+          e.target.value = "";
+        }}
+      />
+      {dataNote && <p className="data-note">{dataNote}</p>}
+
       <p className="settings-label">Account</p>
       <button
         type="button"
@@ -814,8 +927,6 @@ export default function SettingsSheet({
       <p className="settings-foot">
         Tally v{__APP_VERSION__} · your data stays on this device unless
         you turn on account sync.
-        <br />
-        File backups live in the History tab.
       </p>
     </div>
   );
