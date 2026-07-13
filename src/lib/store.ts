@@ -107,9 +107,9 @@ export function createEntry(
 export interface FrequentItem {
   description: string;
   calories: number;
-  /** Grams of protein carried along when logging (Menu items only). */
+  /** Grams of protein carried along when logging. */
   protein?: number | null;
-  /** Grams of fat carried along when logging (Menu items only). */
+  /** Grams of fat carried along when logging. */
   fat?: number | null;
 }
 
@@ -119,27 +119,72 @@ export interface FrequentItem {
  * the most-used (then most recent) items win. Only one calorie variant per
  * description makes the cut — near-duplicates ("Chicken and rice" at 650
  * and 780) would crowd out other habits with identical-looking chips.
+ *
+ * Chips carry the macros their source entries carried (the most common
+ * protein/fat pair, ties to the most recent) — a habit chip logging the
+ * same food with no protein would quietly read the day low.
  */
 export function frequentEntries(entries: Entry[], limit = 4): FrequentItem[] {
+  interface MacroCombo {
+    protein: number | null;
+    fat: number | null;
+    count: number;
+    lastUsed: number;
+  }
   const stats = new Map<
     string,
-    { item: FrequentItem; count: number; lastUsed: number }
+    {
+      item: FrequentItem;
+      count: number;
+      lastUsed: number;
+      combos: Map<string, MacroCombo>;
+    }
   >();
   for (const e of entries) {
     const description = e.description.trim();
     if (!description) continue;
     const key = `${description.toLowerCase()}|${e.calories}`;
-    const existing = stats.get(key);
-    if (existing) {
-      existing.count += 1;
-      existing.lastUsed = Math.max(existing.lastUsed, e.timestamp);
-    } else {
-      stats.set(key, {
+    const protein = typeof e.protein === "number" ? e.protein : null;
+    const fat = typeof e.fat === "number" ? e.fat : null;
+    const comboKey = `${protein}|${fat}`;
+    let record = stats.get(key);
+    if (!record) {
+      record = {
         item: { description, calories: e.calories },
+        count: 0,
+        lastUsed: 0,
+        combos: new Map(),
+      };
+      stats.set(key, record);
+    }
+    record.count += 1;
+    record.lastUsed = Math.max(record.lastUsed, e.timestamp);
+    const combo = record.combos.get(comboKey);
+    if (combo) {
+      combo.count += 1;
+      combo.lastUsed = Math.max(combo.lastUsed, e.timestamp);
+    } else {
+      record.combos.set(comboKey, {
+        protein,
+        fat,
         count: 1,
         lastUsed: e.timestamp,
       });
     }
+  }
+  for (const record of stats.values()) {
+    let best: MacroCombo | null = null;
+    for (const combo of record.combos.values()) {
+      if (
+        !best ||
+        combo.count > best.count ||
+        (combo.count === best.count && combo.lastUsed > best.lastUsed)
+      ) {
+        best = combo;
+      }
+    }
+    record.item.protein = best?.protein ?? null;
+    record.item.fat = best?.fat ?? null;
   }
   const bestVariant = new Map<
     string,

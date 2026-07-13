@@ -176,6 +176,11 @@ export default function App() {
           onUpdate={updateEntry}
           onDelete={deleteEntry}
           onRestore={restoreEntry}
+          trackWeight={trackWeight}
+          todayWeight={todayWeight}
+          lastWeight={lastWeight}
+          onLogWeight={logWeight}
+          onRemoveWeight={removeTodayWeight}
         />
       )}
       {tab === "menu" && (

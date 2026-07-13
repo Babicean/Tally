@@ -5,6 +5,9 @@ interface Props {
   items: FrequentItem[];
   /** Whether the Menu has anything worth browsing. */
   menuAvailable: boolean;
+  /** Ghost weigh-in chip: on until today has a weigh-in. */
+  showWeightChip: boolean;
+  onLogWeight: () => void;
   onBrowseMenu: () => void;
   onAdd: (item: FrequentItem, sourceEl: HTMLElement) => void;
 }
@@ -17,10 +20,12 @@ interface Props {
 export default function QuickAddChips({
   items,
   menuAvailable,
+  showWeightChip,
+  onLogWeight,
   onBrowseMenu,
   onAdd,
 }: Props) {
-  if (items.length === 0 && !menuAvailable) return null;
+  if (items.length === 0 && !menuAvailable && !showWeightChip) return null;
   // Plain buttons, no list roles: role="listitem" on a <button> would
   // replace its button semantics and screen readers would read the chips
   // as inert text.
@@ -56,6 +61,11 @@ export default function QuickAddChips({
           <span className="chip-cal">{formatCalories(item.calories)}</span>
         </button>
       ))}
+      {showWeightChip && (
+        <button className="chip chip-ghost" onClick={onLogWeight}>
+          log weight
+        </button>
+      )}
     </div>
   );
 }

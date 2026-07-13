@@ -10,6 +10,28 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.13.0 — code 53 — 2026-07-13
+
+The UX audit's five structural fixes, the ones every auditor converged
+on.
+
+- Macros follow the happy path: learned quick-add chips now carry the
+  protein and fat their food is usually logged with, and the add card
+  grows a quiet "+ macros" reveal (when tracking) so new foods get
+  protein in one pass instead of a detour through Edit.
+- Backdating reaches empty days: holes in the log show as dimmed
+  "nothing logged" rows in All days (one tap opens the add sheet), and
+  Yesterday is always there, so day one can log last night's dinner.
+- Weigh-ins live where you act: with weight tracking on, a hollow
+  "log weight" chip sits at the end of the quick-add row until today's
+  weigh-in exists; the chart stays in History.
+- One weekly numbers card: the trend card merged into Insights — Week
+  view carries the daily average, the bar chart, and "cal vs last
+  week"; the same three stats no longer appear twice in one scroll.
+- Entry rows: more room between log-again and delete, and removing one
+  of a ×N row now says "Removed one" instead of claiming the entry was
+  deleted.
+
 ## 2.12.0 — code 52 — 2026-07-13
 
 The UX audit batch: five review agents combed the app for design,

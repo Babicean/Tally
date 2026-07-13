@@ -115,6 +115,40 @@ describe("frequentEntries — quick-add chips", () => {
     expect(frequentEntries(entries).map((i) => i.calories)).toEqual([780]);
   });
 
+  it("carries the most common protein/fat pair onto the chip", () => {
+    const entries = [
+      createEntry(420, "Oats and yoghurt", at(1, 8), 24, 11),
+      createEntry(420, "Oats and yoghurt", at(2, 8), 24, 11),
+      createEntry(420, "Oats and yoghurt", at(3, 8), 30, 9), // one-off macros
+      createEntry(420, "Oats and yoghurt", at(4, 8), 24, 11),
+    ];
+    const [item] = frequentEntries(entries);
+    expect(item.protein).toBe(24);
+    expect(item.fat).toBe(11);
+  });
+
+  it("keeps macro-less habits macro-less", () => {
+    const entries = [
+      createEntry(180, "Flat white", at(1, 8)),
+      createEntry(180, "Flat white", at(2, 8)),
+    ];
+    const [item] = frequentEntries(entries);
+    expect(item.protein).toBeNull();
+    expect(item.fat).toBeNull();
+  });
+
+  it("breaks a macro-pair tie by recency", () => {
+    const entries = [
+      createEntry(420, "Oats", at(1, 8), 20, 10),
+      createEntry(420, "Oats", at(2, 8), 20, 10),
+      createEntry(420, "Oats", at(3, 8), 26, 12),
+      createEntry(420, "Oats", at(4, 8), 26, 12),
+    ];
+    const [item] = frequentEntries(entries);
+    expect(item.protein).toBe(26);
+    expect(item.fat).toBe(12);
+  });
+
   it("ignores entries without descriptions and respects the limit", () => {
     const entries = [
       createEntry(100, "", at(1, 8)),

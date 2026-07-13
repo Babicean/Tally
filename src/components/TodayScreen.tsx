@@ -13,6 +13,7 @@ import MenuPickSheet from "./MenuPickSheet";
 import EntryList from "./EntryList";
 import EditEntrySheet from "./EditEntrySheet";
 import GoalSheet from "./GoalSheet";
+import WeightSheet from "./WeightSheet";
 import Toast from "./Toast";
 
 interface Props {
@@ -45,6 +46,12 @@ interface Props {
   ) => void;
   onDelete: (id: string) => Entry | null;
   onRestore: (entry: Entry) => void;
+  /** Weigh-in chip: shown until today has one, gone once it does. */
+  trackWeight: boolean;
+  todayWeight: number | null;
+  lastWeight: number | null;
+  onLogWeight: (kg: number) => void;
+  onRemoveWeight: () => void;
 }
 
 export default function TodayScreen({
@@ -65,10 +72,16 @@ export default function TodayScreen({
   onUpdate,
   onDelete,
   onRestore,
+  trackWeight,
+  todayWeight,
+  lastWeight,
+  onLogWeight,
+  onRemoveWeight,
 }: Props) {
   const { toast, showToast, showConfirmation, dismiss } = useToast();
   const [goalOpen, setGoalOpen] = useState(false);
   const [menuPickOpen, setMenuPickOpen] = useState(false);
+  const [weightOpen, setWeightOpen] = useState(false);
   const [editing, setEditing] = useState<Entry | null>(null);
 
   const handleAdd = useCallback(
@@ -124,14 +137,16 @@ export default function TodayScreen({
   );
 
   const handleDelete = useCallback(
-    (id: string) => {
+    (id: string, decremented = false) => {
       const deleted = onDelete(id);
       haptic(8);
       if (deleted) {
         showToast(
           {
             kind: "undo",
-            message: "Entry deleted",
+            // A ×N row losing one instance stays on screen — "deleted"
+            // would overclaim.
+            message: decremented ? "Removed one" : "Entry deleted",
             action: {
               label: "Undo",
               onPress: () => {
@@ -166,6 +181,8 @@ export default function TodayScreen({
       <QuickAddChips
         items={quickAdds}
         menuAvailable={menu.length > 0}
+        showWeightChip={trackWeight && todayWeight === null}
+        onLogWeight={() => setWeightOpen(true)}
         onBrowseMenu={() => setMenuPickOpen(true)}
         onAdd={(item, el) =>
           handleAdd(
@@ -178,7 +195,10 @@ export default function TodayScreen({
         }
       />
 
-      <AddEntryForm onAdd={(cal, desc, el) => handleAdd(cal, desc, el)} />
+      <AddEntryForm
+        trackProtein={trackProtein}
+        onAdd={(cal, desc, el, p, f) => handleAdd(cal, desc, el, p, f)}
+      />
 
       <h2 className="section-label">
         Today’s entries
@@ -221,6 +241,17 @@ export default function TodayScreen({
         goal={dailyGoal}
         onSave={onSetGoal}
         onClose={() => setGoalOpen(false)}
+      />
+      <WeightSheet
+        open={weightOpen}
+        today={todayWeight}
+        last={lastWeight}
+        onSave={(kg) => {
+          onLogWeight(kg);
+          haptic(10);
+        }}
+        onRemove={onRemoveWeight}
+        onClose={() => setWeightOpen(false)}
       />
       <EditEntrySheet
         entry={editing}

@@ -6,7 +6,8 @@ import { formatCalories, formatTime } from "../lib/format";
 interface Props {
   entries: Entry[];
   trackProtein: boolean;
-  onDelete: (id: string) => void;
+  /** `decremented` marks a ×N row losing one instance, not vanishing. */
+  onDelete: (id: string, decremented?: boolean) => void;
   onEdit: (entry: Entry) => void;
   /** Log the same thing again — the ⊕ on each row. */
   onRepeat: (entry: Entry, sourceEl: HTMLElement) => void;
@@ -52,7 +53,7 @@ export default function EntryList({
   const remove = (groupKey: string, items: Entry[]) => {
     if (items.length > 1) {
       // Just decrement: drop the newest instance, row stays put.
-      onDelete(items[0].id);
+      onDelete(items[0].id, true);
       return;
     }
     // A second tap during the leave animation must not schedule a second

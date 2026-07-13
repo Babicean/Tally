@@ -7,13 +7,51 @@ import { weeklyStats } from "../lib/stats";
 import type { WeightEntry } from "../lib/weight";
 import WeightCard from "./WeightCard";
 import WeightSheet from "./WeightSheet";
-import TrendChart, { TrendPoint } from "./TrendChart";
-import MacroStat from "./MacroStat";
+import { TrendPoint } from "./TrendChart";
 import InsightsCard from "./InsightsCard";
 import DataCard from "./DataCard";
 import BackdateSheet from "./BackdateSheet";
 import Toast from "./Toast";
 import { useToast } from "../hooks/useToast";
+
+/** The most gap rows one hole in the log may add: backdating much past a
+    week is guesswork, and a long-dormant install must not render a
+    hundred empty rows. */
+const MAX_GAP_ROWS = 7;
+
+interface DayItem {
+  day: DayKey;
+  /** Null marks a gap day: nothing logged, tap to backdate. */
+  summary: DaySummary | null;
+}
+
+/**
+ * The All days list: every logged day, plus dimmed "nothing logged" rows
+ * for the holes between them (and yesterday, so day one can backdate
+ * last night's dinner). Today only appears once something is logged.
+ */
+function buildDayItems(history: DaySummary[], today: DayKey): DayItem[] {
+  if (history.length === 0) return [];
+  const logged = new Map(history.map((s) => [s.day, s]));
+  const yesterday = addDays(today, -1);
+  const newest = history[0].day;
+  const oldest = history[history.length - 1].day;
+  const start = newest > yesterday ? newest : yesterday;
+  const end = oldest < yesterday ? oldest : yesterday;
+  const items: DayItem[] = [];
+  let gapRun = 0;
+  for (let day = start; day >= end; day = addDays(day, -1)) {
+    const summary = logged.get(day) ?? null;
+    if (summary) {
+      items.push({ day, summary });
+      gapRun = 0;
+    } else if (day !== today) {
+      gapRun += 1;
+      if (gapRun <= MAX_GAP_ROWS) items.push({ day, summary: null });
+    }
+  }
+  return items;
+}
 
 interface Props {
   today: DayKey;
@@ -59,67 +97,24 @@ export default function HistoryScreen({
   const [backdating, setBackdating] = useState<DayKey | null>(null);
   const { toast, showToast } = useToast();
 
-  const { points, average, stats } = useMemo(() => {
+  const { points, deltaPct } = useMemo(() => {
     const totals = new Map(history.map((s) => [s.day, s.total]));
     const pts: TrendPoint[] = [];
     for (let i = 6; i >= 0; i--) {
       const day = addDays(today, -i);
       pts.push({ day, total: totals.get(day) ?? 0 });
     }
-    const weekly = weeklyStats(entries, today);
-    return { points: pts, average: weekly.avg, stats: weekly };
+    return { points: pts, deltaPct: weeklyStats(entries, today).deltaPct };
   }, [history, entries, today]);
+
+  const dayItems = useMemo(
+    () => buildDayItems(history, today),
+    [history, today],
+  );
 
   return (
     <div className="screen">
       <h1 className="history-title">History</h1>
-
-      {history.length > 0 && (
-        <section className="card trend-card">
-          <div className="trend-head">
-            <p className="trend-label">Last 7 days</p>
-          </div>
-          {average !== null ? (
-            <>
-              <p className="trend-avg">
-                {formatCalories(average)}
-                <span className="unit">cal</span>
-              </p>
-              <p className="trend-avg-caption">daily average</p>
-            </>
-          ) : (
-            <p className="trend-avg-caption">No entries in the last 7 days.</p>
-          )}
-          <TrendChart points={points} average={average} />
-          {stats.daysLogged > 0 && (
-            <div className="trend-stats">
-              <div className="tstat">
-                <span className="tstat-v">
-                  {stats.daysLogged}
-                  <span className="u">/7</span>
-                </span>
-                <span className="tstat-l">days logged</span>
-              </div>
-              {stats.deltaPct !== null && (
-                <div className="tstat">
-                  <span className="tstat-v">
-                    {stats.deltaPct > 0 ? "+" : ""}
-                    {stats.deltaPct}
-                    <span className="u">%</span>
-                  </span>
-                  <span className="tstat-l">cal vs last week</span>
-                </div>
-              )}
-              {trackProtein && (
-                <MacroStat
-                  proteinAvg={stats.proteinAvg}
-                  fatAvg={stats.fatAvg}
-                />
-              )}
-            </div>
-          )}
-        </section>
-      )}
 
       {history.length > 0 && (
         <InsightsCard
@@ -127,6 +122,8 @@ export default function HistoryScreen({
           today={today}
           dailyGoal={dailyGoal}
           trackProtein={trackProtein}
+          points={points}
+          deltaPct={deltaPct}
         />
       )}
 
@@ -193,7 +190,24 @@ export default function HistoryScreen({
         </div>
       ) : (
         <div className="card history-days">
-          {history.map((summary) => {
+          {dayItems.map(({ day, summary }) => {
+            if (!summary) {
+              // A hole in the log: one tap opens the backdate sheet.
+              return (
+                <div key={day} className="day-group day-gap">
+                  <button
+                    className="day-toggle"
+                    onClick={() => setBackdating(day)}
+                  >
+                    <span className="day-label">{formatDayLabel(day)}</span>
+                    <span className="day-gap-note">nothing logged</span>
+                    <span className="day-gap-add" aria-hidden="true">
+                      +
+                    </span>
+                  </button>
+                </div>
+              );
+            }
             const open = openDay === summary.day;
             return (
               <div

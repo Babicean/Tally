@@ -3,6 +3,7 @@ import type { DayKey, Entry } from "../types";
 import { formatCalories } from "../lib/format";
 import { insightsFor, InsightsRange } from "../lib/insights";
 import MacroStat from "./MacroStat";
+import TrendChart, { TrendPoint } from "./TrendChart";
 
 /** Collapsed list length, and the cap once "and N more" is expanded. */
 const TOP_LIMIT = 5;
@@ -13,17 +14,25 @@ interface Props {
   today: DayKey;
   dailyGoal: number | null;
   trackProtein: boolean;
+  /** The last 7 tracking days, oldest first, for the Week bar chart. */
+  points: TrendPoint[];
+  /** Signed percent change vs the previous week, or null. */
+  deltaPct: number | null;
 }
 
 /**
- * What you ate over the week or month: quiet numbers, your most-logged
- * foods, and when in the day the calories land. Observations only.
+ * The one weekly/monthly numbers card: average and bar chart (Week view),
+ * quiet stats, your most-logged foods, and when in the day the calories
+ * land. Observations only. Absorbed the old trend card in 2.13 — the two
+ * were repeating the same numbers back to back.
  */
 export default function InsightsCard({
   entries,
   today,
   dailyGoal,
   trackProtein,
+  points,
+  deltaPct,
 }: Props) {
   const [range, setRange] = useState<InsightsRange>("week");
   const [expanded, setExpanded] = useState(false);
@@ -68,6 +77,16 @@ export default function InsightsCard({
         <p className="insights-empty">{empty}</p>
       ) : (
         <>
+          {range === "week" && insights.avgCalories !== null && (
+            <>
+              <p className="trend-avg">
+                {formatCalories(insights.avgCalories)}
+                <span className="unit">cal</span>
+              </p>
+              <p className="trend-avg-caption">daily average</p>
+              <TrendChart points={points} average={insights.avgCalories} />
+            </>
+          )}
           <div className="trend-stats insights-stats">
             <div className="tstat">
               <span className="tstat-v">
@@ -76,12 +95,24 @@ export default function InsightsCard({
               </span>
               <span className="tstat-l">days logged</span>
             </div>
-            {insights.avgCalories !== null && (
+            {/* Week shows the average as the hero above; Month keeps it
+                here as a stat. */}
+            {range === "month" && insights.avgCalories !== null && (
               <div className="tstat">
                 <span className="tstat-v">
                   {formatCalories(insights.avgCalories)}
                 </span>
                 <span className="tstat-l">cal / day</span>
+              </div>
+            )}
+            {range === "week" && deltaPct !== null && (
+              <div className="tstat">
+                <span className="tstat-v">
+                  {deltaPct > 0 ? "+" : ""}
+                  {deltaPct}
+                  <span className="u">%</span>
+                </span>
+                <span className="tstat-l">cal vs last week</span>
               </div>
             )}
             {insights.goalDays !== null && (
