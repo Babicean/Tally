@@ -10,6 +10,38 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.12.0 — code 52 — 2026-07-13
+
+The UX audit batch: five review agents combed the app for design,
+usability, and accessibility issues; this release ships every quick win
+plus three medium fixes. The bigger structural findings wait for 2.13.
+
+- Edit entry: the date field now reads "Today · 5:49 PM" in the app's
+  own style instead of raw system formatting (a tap still opens the
+  system picker), and a typo in protein or fat now outlines the field
+  that's actually wrong, with an error naming it.
+- History: weight-chart labels no longer overlap when the peak sits
+  next to the range's edge; day rows show their "cal" unit and
+  note-less entries no longer leave a hole; "days under goal" replaces
+  the ambiguous "on target" fraction and never judges the still-running
+  day; the weekly delta is labeled "cal vs last week"; the "and N more"
+  food expander is accent-colored like every other tappable text; the
+  time-of-day ranges read "before 11 am / after 4 pm" instead of
+  leaking the 2 AM boundary.
+- Today: overlong pinned names no longer swallow the whole chip row;
+  the note field suggests what it's for ("Chicken wrap"); learned chips
+  keep one calorie variant per food instead of two near-identical
+  chips; the protein stat's flip to fat has a visible cue.
+- Sheets: every sheet has a small labeled close button; screen readers
+  now announce chips and menu rows as buttons.
+- Ergonomics: small controls (entry ⊕/✕, chips, tabs, toggles, segment
+  buttons, Undo) gained invisible 44 px-class hit areas; the settings
+  gear is bigger and darker; keyboard focus is a real outline that no
+  card shadow can hide.
+- Settings: the tracking toggles say where their result appears; the
+  landing page's log-in path says "Back" instead of referencing a
+  Settings screen you've never seen.
+
 ## 2.11.1 — code 51 — 2026-07-12
 
 The hardening pass: 21 bugs found by systematic review, all fixed.

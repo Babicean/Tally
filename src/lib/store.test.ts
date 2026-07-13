@@ -80,12 +80,39 @@ describe("frequentEntries — quick-add chips", () => {
     expect(items[0].calories).toBe(180);
   });
 
-  it("treats the same description with different calories as distinct", () => {
+  it("needs the same description+calorie pair twice to qualify", () => {
     const entries = [
       createEntry(180, "Coffee", at(1, 8)),
       createEntry(250, "Coffee", at(2, 8)),
     ];
     expect(frequentEntries(entries)).toEqual([]);
+  });
+
+  it("keeps only the most-used calorie variant per description", () => {
+    const entries = [
+      createEntry(650, "Chicken and rice", at(1, 13)),
+      createEntry(650, "Chicken and rice", at(2, 13)),
+      createEntry(650, "Chicken and rice", at(3, 13)),
+      createEntry(780, "Chicken and rice", at(4, 13)),
+      createEntry(780, "Chicken and rice", at(5, 13)),
+      createEntry(320, "Oatmeal", at(4, 9)),
+      createEntry(320, "Oatmeal", at(5, 9)),
+    ];
+    const items = frequentEntries(entries);
+    expect(items.map((i) => `${i.description}|${i.calories}`)).toEqual([
+      "Chicken and rice|650",
+      "Oatmeal|320",
+    ]);
+  });
+
+  it("breaks a variant tie by recency", () => {
+    const entries = [
+      createEntry(650, "Chicken and rice", at(1, 13)),
+      createEntry(650, "Chicken and rice", at(2, 13)),
+      createEntry(780, "Chicken and rice", at(3, 13)),
+      createEntry(780, "Chicken and rice", at(4, 13)),
+    ];
+    expect(frequentEntries(entries).map((i) => i.calories)).toEqual([780]);
   });
 
   it("ignores entries without descriptions and respects the limit", () => {

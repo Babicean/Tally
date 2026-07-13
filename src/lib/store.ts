@@ -116,7 +116,9 @@ export interface FrequentItem {
 /**
  * The user's habitual entries, for one-tap quick-add chips. An item qualifies
  * once the same description + calorie pair has been logged at least twice;
- * the most-used (then most recent) items win.
+ * the most-used (then most recent) items win. Only one calorie variant per
+ * description makes the cut — near-duplicates ("Chicken and rice" at 650
+ * and 780) would crowd out other habits with identical-looking chips.
  */
 export function frequentEntries(entries: Entry[], limit = 4): FrequentItem[] {
   const stats = new Map<
@@ -139,8 +141,23 @@ export function frequentEntries(entries: Entry[], limit = 4): FrequentItem[] {
       });
     }
   }
-  return [...stats.values()]
-    .filter((s) => s.count >= 2)
+  const bestVariant = new Map<
+    string,
+    { item: FrequentItem; count: number; lastUsed: number }
+  >();
+  for (const s of stats.values()) {
+    if (s.count < 2) continue;
+    const key = s.item.description.toLowerCase();
+    const current = bestVariant.get(key);
+    if (
+      !current ||
+      s.count > current.count ||
+      (s.count === current.count && s.lastUsed > current.lastUsed)
+    ) {
+      bestVariant.set(key, s);
+    }
+  }
+  return [...bestVariant.values()]
     .sort((a, b) => b.count - a.count || b.lastUsed - a.lastUsed)
     .slice(0, limit)
     .map((s) => s.item);

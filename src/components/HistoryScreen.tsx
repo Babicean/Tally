@@ -107,7 +107,7 @@ export default function HistoryScreen({
                     {stats.deltaPct}
                     <span className="u">%</span>
                   </span>
-                  <span className="tstat-l">vs last week</span>
+                  <span className="tstat-l">cal vs last week</span>
                 </div>
               )}
               {trackProtein && (
@@ -233,13 +233,16 @@ export default function HistoryScreen({
                     {summary.entries.map((entry) => (
                       <div key={entry.id} className="day-entry">
                         <span className="day-entry-time">
-                          {formatTime(entry.timestamp)}
+                          {entry.description
+                            ? formatTime(entry.timestamp)
+                            : ""}
                         </span>
                         <span className="day-entry-title">
-                          {entry.description || ""}
+                          {entry.description || formatTime(entry.timestamp)}
                         </span>
                         <span className="day-entry-cal">
                           +{formatCalories(entry.calories)}
+                          <span className="unit">cal</span>
                         </span>
                       </div>
                     ))}

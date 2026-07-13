@@ -220,8 +220,11 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
-- v2.9, code 44 (insights card in History). TestFlight live (first builds July 11); owner tests
-  Android personally; a friend field-tests via TestFlight.
+- v2.12.0, code 52 (UX-audit quick wins). TestFlight live (first builds
+  July 11); owner tests Android personally; a friend field-tests via
+  TestFlight. A five-agent UX audit (July 13) produced a ranked findings
+  report; v2.12 shipped every quick win plus three mediums (styled edit
+  date field, sheet close buttons, 44px-class hit areas).
 - Auth email flow LIVE and field-tested (July 12): GitHub Pages serves
   docs/ from the release branch; Supabase Site URL / Redirect URLs
   point at the hosted `verified.html` / `reset.html`; verify, reset
@@ -235,8 +238,11 @@ library, no backend SDK — the biggest JS dependency is React itself.
   await real-iPhone confirmation; External TestFlight group (public
   link) not yet set up — needs Beta App Review, privacy policy URL is
   ready once Pages is on.
-- Agreed next candidates: meal polish, calories-vs-weight overlay on
-  the insights card. Shelved by owner: browser
+- Agreed next (v2.13, owner-approved): the audit's five convergent
+  findings — macros on learned chips + add-form macro fields, backdating
+  to empty days, a Today weigh-in chip, entry-row ⊕/✕ spacing + decrement
+  toast copy, merging the trend card into Insights. Then: meal polish,
+  calories-vs-weight overlay on the insights card. Shelved by owner: browser
   hosting on his own site, copy-yesterday (rejected), Reps Notion
   import, Reps sync (needs per-app schema change first — one row per
   user per app, or Tally/Reps would overwrite each other).

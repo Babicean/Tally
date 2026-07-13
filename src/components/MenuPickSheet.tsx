@@ -26,11 +26,12 @@ export default function MenuPickSheet({
   return (
     <Sheet open={open} title="From the Menu" onClose={onClose}>
       <p className="sheet-sub">One tap logs it to today.</p>
-      <div className="pick-list" role="list">
+      {/* Plain buttons: list roles on <button> would erase their button
+          semantics for screen readers. */}
+      <div className="pick-list">
         {menu.map((item) => (
           <button
             key={item.id}
-            role="listitem"
             className="pick-row"
             onClick={(e) => onPick(item, e.currentTarget)}
             aria-label={`Log ${item.name} (${item.calories} calories)`}

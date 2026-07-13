@@ -60,7 +60,7 @@ export default function AddEntryForm({ onAdd }: Props) {
             onChange={(e) => setDescription(e.target.value)}
             maxLength={80}
             enterKeyHint="done"
-            placeholder="Note"
+            placeholder="Chicken wrap"
             aria-label="Description"
           />
         </div>

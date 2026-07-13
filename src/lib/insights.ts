@@ -36,7 +36,8 @@ export interface Insights {
   spanDays: number;
   /** Average calories per logged day, or null when nothing was logged. */
   avgCalories: number | null;
-  /** Logged days at or under the goal; null when no goal is set. */
+  /** Completed logged days (today excluded — it isn't over yet) at or
+      under the goal; null when no goal is set or no completed day exists. */
   goalDays: number | null;
   /** Average grams of protein per logged day, or null when none tracked. */
   proteinAvg: number | null;
@@ -116,9 +117,12 @@ export function insightsFor(
   const daysLogged = byDay.size;
   const avgCalories =
     daysLogged > 0 ? Math.round(totalCalories / daysLogged) : null;
+  // Today is still in progress, so it can't be judged against the goal
+  // yet — counting it would congratulate an unfinished day.
+  const completedDays = [...byDay.entries()].filter(([day]) => day !== today);
   const goalDays =
-    dailyGoal !== null && dailyGoal > 0
-      ? [...byDay.values()].filter((total) => total <= dailyGoal).length
+    dailyGoal !== null && dailyGoal > 0 && completedDays.length > 0
+      ? completedDays.filter(([, total]) => total <= dailyGoal).length
       : null;
   const proteinAvg =
     daysLogged > 0 && protein > 0 ? Math.round(protein / daysLogged) : null;
@@ -131,9 +135,9 @@ export function insightsFor(
 
   const split = (
     [
-      ["Morning", "2 am to 11 am"],
+      ["Morning", "before 11 am"],
       ["Afternoon", "11 am to 4 pm"],
-      ["Evening", "4 pm to 2 am"],
+      ["Evening", "after 4 pm"],
     ] as const
   ).map(([label, hours], i) => ({
     label,

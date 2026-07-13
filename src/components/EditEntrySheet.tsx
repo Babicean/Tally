@@ -3,6 +3,8 @@ import type { Entry } from "../types";
 import Sheet from "./Sheet";
 import { parseCalories } from "../lib/store";
 import { parseProtein } from "../lib/menu";
+import { trackingDayFor } from "../lib/day";
+import { formatDayLabel, formatTime } from "../lib/format";
 
 interface Props {
   entry: Entry | null;
@@ -40,6 +42,13 @@ export default function EditEntrySheet({
   const [fat, setFat] = useState("");
   const [when, setWhen] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // Which fields the error is about, so the outline lands on the actual
+  // mistake instead of always blaming calories.
+  const [bad, setBad] = useState<{
+    cal?: boolean;
+    protein?: boolean;
+    fat?: boolean;
+  }>({});
 
   useEffect(() => {
     if (entry) {
@@ -49,8 +58,14 @@ export default function EditEntrySheet({
       setFat(entry.fat != null ? String(entry.fat) : "");
       setWhen(toLocalInputValue(entry.timestamp));
       setError(null);
+      setBad({});
     }
   }, [entry]);
+
+  const clearError = () => {
+    setError(null);
+    setBad({});
+  };
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -59,7 +74,18 @@ export default function EditEntrySheet({
     const parsedProtein = trackProtein ? parseProtein(protein) : entry.protein ?? null;
     const parsedFat = trackProtein ? parseProtein(fat) : entry.fat ?? null;
     if (parsed === null || parsedProtein === undefined || parsedFat === undefined) {
-      setError("Calories must be 1–20,000; grams 0–1,000 or blank.");
+      setBad({
+        cal: parsed === null,
+        protein: parsedProtein === undefined,
+        fat: parsedFat === undefined,
+      });
+      setError(
+        parsed === null
+          ? "Calories must be a positive number up to 20,000."
+          : parsedProtein === undefined
+            ? "Protein must be a number of grams up to 1,000, or blank."
+            : "Fat must be a number of grams up to 1,000, or blank.",
+      );
       return;
     }
     // Only a changed time field rewrites the timestamp: the input holds
@@ -87,6 +113,17 @@ export default function EditEntrySheet({
     onClose();
   };
 
+  // App-formatted stand-in for the raw datetime input: "Today · 5:49 PM".
+  const whenDate = when
+    ? new Date(when)
+    : entry
+      ? new Date(entry.timestamp)
+      : null;
+  const whenLabel =
+    whenDate && Number.isFinite(whenDate.getTime())
+      ? `${formatDayLabel(trackingDayFor(whenDate))} · ${formatTime(whenDate.getTime())}`
+      : "Pick a date";
+
   return (
     <Sheet open={entry !== null} title="Edit entry" onClose={onClose}>
       <p className="sheet-sub">
@@ -104,12 +141,12 @@ export default function EditEntrySheet({
           />
         </div>
         <div className="sheet-fields">
-          <div className={`field field-cal${error ? " invalid" : ""}`}>
+          <div className={`field field-cal${bad.cal ? " invalid" : ""}`}>
             <input
               value={calories}
               onChange={(e) => {
                 setCalories(e.target.value);
-                setError(null);
+                clearError();
               }}
               inputMode="numeric"
               aria-label="Calories"
@@ -117,12 +154,14 @@ export default function EditEntrySheet({
             <span className="unit">cal</span>
           </div>
           {trackProtein && (
-            <div className="field field-cal field-protein">
+            <div
+              className={`field field-cal field-protein${bad.protein ? " invalid" : ""}`}
+            >
               <input
                 value={protein}
                 onChange={(e) => {
                   setProtein(e.target.value);
-                  setError(null);
+                  clearError();
                 }}
                 inputMode="numeric"
                 aria-label="Protein in grams (optional)"
@@ -131,12 +170,14 @@ export default function EditEntrySheet({
             </div>
           )}
           {trackProtein && (
-            <div className="field field-cal field-protein">
+            <div
+              className={`field field-cal field-protein${bad.fat ? " invalid" : ""}`}
+            >
               <input
                 value={fat}
                 onChange={(e) => {
                   setFat(e.target.value);
-                  setError(null);
+                  clearError();
                 }}
                 inputMode="numeric"
                 aria-label="Fat in grams (optional)"
@@ -146,12 +187,19 @@ export default function EditEntrySheet({
           )}
         </div>
         <div className="field sheet-name sheet-when">
+          {/* The styled label is what you see; the real datetime input is
+              an invisible layer on top so a tap still opens the system
+              picker. Its value drives the label, so nothing drifts. */}
+          <span className="when-display" aria-hidden="true">
+            {whenLabel}
+          </span>
           <input
+            className="when-input"
             type="datetime-local"
             value={when}
             onChange={(e) => {
               setWhen(e.target.value);
-              setError(null);
+              clearError();
             }}
             aria-label="Logged at"
           />

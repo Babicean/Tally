@@ -112,6 +112,19 @@ describe("insightsFor numbers", () => {
     expect(noGoal.goalDays).toBeNull();
   });
 
+  it("never judges the in-progress day against the goal", () => {
+    // Today is under goal so far, but the day isn't over — it must not
+    // count as a success yet.
+    const entries = [
+      mk("2026-07-09", 12, 1800, "day one"),
+      mk("2026-07-10", 12, 350, "so far today"),
+    ];
+    expect(insightsFor(entries, TODAY, "week", 2000).goalDays).toBe(1);
+    // Day one of using the app: nothing to judge at all.
+    const dayOne = [mk("2026-07-10", 9, 350, "first entry")];
+    expect(insightsFor(dayOne, TODAY, "week", 2000).goalDays).toBeNull();
+  });
+
   it("averages fat per logged day when entries carry it", () => {
     const withFat = [
       { ...mk("2026-07-09", 12, 1800, "day one"), fat: 60 },

@@ -86,11 +86,8 @@ export default function InsightsCard({
             )}
             {insights.goalDays !== null && (
               <div className="tstat">
-                <span className="tstat-v">
-                  {insights.goalDays}
-                  <span className="u">/{insights.daysLogged}</span>
-                </span>
-                <span className="tstat-l">on target</span>
+                <span className="tstat-v">{insights.goalDays}</span>
+                <span className="tstat-l">days under goal</span>
               </div>
             )}
             {trackProtein && (

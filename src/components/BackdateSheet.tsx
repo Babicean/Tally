@@ -31,7 +31,14 @@ export default function BackdateSheet({
   const [description, setDescription] = useState("");
   const [protein, setProtein] = useState("");
   const [fat, setFat] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Which fields the error is about, so the outline lands on the actual
+  // mistake instead of always blaming calories.
+  const [bad, setBad] = useState<{
+    cal?: boolean;
+    protein?: boolean;
+    fat?: boolean;
+  }>({});
 
   useEffect(() => {
     if (day) {
@@ -39,9 +46,15 @@ export default function BackdateSheet({
       setDescription("");
       setProtein("");
       setFat("");
-      setError(false);
+      setError(null);
+      setBad({});
     }
   }, [day]);
+
+  const clearError = () => {
+    setError(null);
+    setBad({});
+  };
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -50,7 +63,18 @@ export default function BackdateSheet({
     const prot = trackProtein ? parseProtein(protein) : null;
     const fatG = trackProtein ? parseProtein(fat) : null;
     if (cal === null || prot === undefined || fatG === undefined) {
-      setError(true);
+      setBad({
+        cal: cal === null,
+        protein: prot === undefined,
+        fat: fatG === undefined,
+      });
+      setError(
+        cal === null
+          ? "Calories must be a positive number up to 20,000."
+          : prot === undefined
+            ? "Protein must be a number of grams up to 1,000, or blank."
+            : "Fat must be a number of grams up to 1,000, or blank.",
+      );
       return;
     }
     // Noon keeps the entry safely inside the day's 2 AM–2 AM window.
@@ -81,12 +105,12 @@ export default function BackdateSheet({
           />
         </div>
         <div className="sheet-fields">
-          <div className={`field field-cal${error ? " invalid" : ""}`}>
+          <div className={`field field-cal${bad.cal ? " invalid" : ""}`}>
             <input
               value={calories}
               onChange={(e) => {
                 setCalories(e.target.value);
-                setError(false);
+                clearError();
               }}
               inputMode="numeric"
               placeholder="500"
@@ -95,12 +119,14 @@ export default function BackdateSheet({
             <span className="unit">cal</span>
           </div>
           {trackProtein && (
-            <div className="field field-cal field-protein">
+            <div
+              className={`field field-cal field-protein${bad.protein ? " invalid" : ""}`}
+            >
               <input
                 value={protein}
                 onChange={(e) => {
                   setProtein(e.target.value);
-                  setError(false);
+                  clearError();
                 }}
                 inputMode="numeric"
                 aria-label="Protein in grams (optional)"
@@ -109,12 +135,14 @@ export default function BackdateSheet({
             </div>
           )}
           {trackProtein && (
-            <div className="field field-cal field-protein">
+            <div
+              className={`field field-cal field-protein${bad.fat ? " invalid" : ""}`}
+            >
               <input
                 value={fat}
                 onChange={(e) => {
                   setFat(e.target.value);
-                  setError(false);
+                  clearError();
                 }}
                 inputMode="numeric"
                 aria-label="Fat in grams (optional)"
@@ -125,7 +153,7 @@ export default function BackdateSheet({
         </div>
         {error && (
           <p className="add-error" role="alert">
-            Calories must be 1–20,000; protein 0–1,000 grams or blank.
+            {error}
           </p>
         )}
         <div className="sheet-actions">

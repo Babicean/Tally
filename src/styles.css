@@ -21,6 +21,10 @@
   /* Text-sized accent (links, small labels). Same as the accent unless a
      family is too light to read small, like Honey's butter. */
   --accent-text: var(--accent);
+  /* Quiet raised fill for secondary buttons on cards. The page bg works
+     in light; dark needs a lighter-than-card fill or buttons read as
+     recessed wells. */
+  --fill-quiet: var(--bg);
   --danger: #c0453e;
   --warn: #b5822f;
   --hairline: rgba(27, 29, 34, 0.07);
@@ -31,7 +35,7 @@
     0 2px 6px rgba(23, 26, 33, 0.06),
     0 12px 40px rgba(23, 26, 33, 0.14);
   --blur-bg: rgba(255, 255, 255, 0.72);
-  --focus-ring: rgba(46, 107, 230, 0.35);
+  --focus-ring: rgba(46, 107, 230, 0.8);
   /* Safe areas: Capacitor injects --safe-area-inset-* on Android 15's
      edge-to-edge; browsers fall back to env(). */
   --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
@@ -60,7 +64,8 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.06),
       0 14px 44px rgba(0, 0, 0, 0.65);
     --blur-bg: rgba(20, 22, 26, 0.78);
-    --focus-ring: rgba(93, 141, 255, 0.45);
+    --focus-ring: rgba(93, 141, 255, 0.8);
+    --fill-quiet: rgba(255, 255, 255, 0.07);
   }
 }
 
@@ -86,7 +91,8 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.06),
       0 14px 44px rgba(0, 0, 0, 0.65);
     --blur-bg: rgba(20, 22, 26, 0.78);
-    --focus-ring: rgba(93, 141, 255, 0.45);
+    --focus-ring: rgba(93, 141, 255, 0.8);
+    --fill-quiet: rgba(255, 255, 255, 0.07);
 }
 
 /* ---- Emerald accent (Settings → Accent) ----------------------------------
@@ -98,7 +104,7 @@
   --accent: #149e60;
   --accent-strong: #16a563;
   --accent-soft: rgba(20, 158, 96, 0.1);
-  --focus-ring: rgba(20, 158, 96, 0.35);
+  --focus-ring: rgba(20, 158, 96, 0.8);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -107,7 +113,7 @@
     --accent-strong: #27a468;
     --accent-ink: #06130c;
     --accent-soft: rgba(39, 164, 104, 0.16);
-    --focus-ring: rgba(39, 164, 104, 0.45);
+    --focus-ring: rgba(39, 164, 104, 0.8);
   }
 }
 
@@ -129,7 +135,7 @@
   --accent-strong: #ec4899;
   --accent-text: #db2777;
   --accent-soft: rgba(244, 114, 182, 0.12);
-  --focus-ring: rgba(244, 114, 182, 0.35);
+  --focus-ring: rgba(236, 72, 153, 0.8);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -139,7 +145,7 @@
     --accent-strong: #f472b6;
     --accent-ink: #24070f;
     --accent-soft: rgba(244, 114, 182, 0.16);
-    --focus-ring: rgba(244, 114, 182, 0.45);
+    --focus-ring: rgba(244, 114, 182, 0.8);
   }
 }
 
@@ -202,9 +208,12 @@ input {
   color: inherit;
 }
 
+/* Outline, not box-shadow: components set their own card shadows, which
+   would silently override an equal-specificity shadow ring and leave
+   keyboard users with no focus indicator at all. */
 :focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--focus-ring);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* ---- App shell ---------------------------------------------------------- */
@@ -224,16 +233,18 @@ input {
   position: relative;
 }
 
+/* 2.75rem hit area (icon stays small) and secondary ink, not tertiary:
+   the only door to Settings shouldn't be the faintest thing on screen. */
 .settings-btn {
   position: absolute;
-  right: -0.375rem;
-  top: 0.6875rem;
-  width: 2.25rem;
-  height: 2.25rem;
+  right: -0.625rem;
+  top: 0.4375rem;
+  width: 2.75rem;
+  height: 2.75rem;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: var(--ink-3);
+  color: var(--ink-2);
   transition:
     color 140ms ease,
     transform 300ms cubic-bezier(0.3, 0.9, 0.4, 1);
@@ -241,7 +252,7 @@ input {
 }
 
 .settings-btn:hover {
-  color: var(--ink-2);
+  color: var(--ink);
 }
 
 .settings-btn:active {
@@ -520,6 +531,16 @@ input {
 
 .chip:active {
   transform: scale(0.94);
+}
+
+/* Long pinned names must not swallow the whole row — the cal count still
+   identifies the item once the label ellipsizes. */
+.chip-label {
+  display: block;
+  max-width: 9.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chip-plus {
@@ -886,6 +907,27 @@ input {
   font-size: 1.375rem;
   font-weight: 700;
   letter-spacing: -0.01em;
+}
+
+/* Visible dismiss: backdrop taps and swipes stay, but screen-reader and
+   keyboard users need a labeled way out too. */
+.sheet-close {
+  position: absolute;
+  top: 1.125rem;
+  right: 1.125rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--fill-quiet);
+  color: var(--ink-2);
+  transition: transform 140ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sheet-close:active {
+  transform: scale(0.9);
 }
 
 .sheet-sub {
@@ -1350,7 +1392,20 @@ input {
   margin-top: 0.5rem;
 }
 
-.sheet-when input {
+/* The visible, app-formatted date ("Today · 5:49 PM"); the real
+   datetime input sits invisibly on top so a tap still opens the
+   system picker but the system styling never shows. */
+.when-display {
+  padding: 0.8125rem 1rem;
+  font-size: max(1.0625rem, 16px);
+}
+
+.sheet-when .when-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
   color-scheme: inherit;
 }
 
@@ -1521,6 +1576,7 @@ input {
 
 /* The container shows focus; the input inside must not double-ring. */
 .field input:focus-visible {
+  outline: none;
   box-shadow: none;
 }
 
@@ -2041,6 +2097,13 @@ input {
   font-variant-numeric: tabular-nums;
 }
 
+.day-entry-cal .unit {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  margin-left: 0.1875rem;
+}
+
 /* ---- Menu screen ---------------------------------------------------------- */
 
 .menu-head {
@@ -2153,6 +2216,11 @@ input {
   color: var(--ink-2);
   margin-top: 0.0625rem;
   font-variant-numeric: tabular-nums;
+  /* One line, ellipsized: wrapping split numbers from their units.
+     Fat trails, so it's what gets clipped first. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .menu-log {
@@ -2199,7 +2267,7 @@ input {
 .data-btn {
   padding: 0.5625rem 1.125rem;
   border-radius: 999px;
-  background: var(--bg);
+  background: var(--fill-quiet);
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--ink);
@@ -2287,6 +2355,77 @@ input {
 
 .tab svg {
   flex: none;
+}
+
+/* ---- Invisible hit-area padding ------------------------------------------
+   Controls whose visuals sit under the 44px guideline get a transparent
+   pseudo-element extending the tappable box. Nothing changes on screen;
+   thumbs get room. Adjacent pairs (entry ⊕/✕) expand outward only so
+   their hit areas never overlap. */
+
+/* (.sheet-close is already position: absolute — don't list it here.) */
+.chip,
+.seg-btn,
+.toast-action,
+.weight-pill,
+.entry-repeat,
+.entry-delete,
+.insights-more,
+.drill-back,
+.backdate-btn {
+  position: relative;
+}
+
+.chip::after,
+.seg-btn::after,
+.tab::after,
+.switch::after,
+.toast-action::after,
+.weight-pill::after,
+.entry-repeat::after,
+.entry-delete::after,
+.insights-more::after,
+.drill-back::after,
+.backdate-btn::after,
+.sheet-close::after {
+  content: "";
+  position: absolute;
+  inset: -0.3125rem 0;
+}
+
+.chip::after {
+  /* Matches the chip row's vertical padding: any taller and the row
+     (overflow-x: auto) would grow a scrollbar. */
+  inset: -0.25rem 0;
+}
+
+.switch::after {
+  inset: -0.5625rem -0.375rem;
+}
+
+.toast-action::after {
+  inset: -0.625rem -0.375rem;
+}
+
+.weight-pill::after {
+  inset: -0.4375rem 0;
+}
+
+.entry-repeat::after {
+  inset: -0.4375rem 0.0625rem -0.4375rem -0.25rem;
+}
+
+.entry-delete::after {
+  inset: -0.4375rem -0.25rem -0.4375rem 0.0625rem;
+}
+
+.insights-more::after,
+.drill-back::after {
+  inset: -0.375rem 0;
+}
+
+.sheet-close::after {
+  inset: -0.4375rem;
 }
 
 /* ---- Motion preferences -------------------------------------------------- */
@@ -2834,6 +2973,12 @@ input {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The quiet cue that this stat flips (protein ↔ fat) on tap. */
+.tstat-flippable .tstat-l {
+  text-decoration: underline dotted var(--ink-3);
+  text-underline-offset: 0.1875rem;
+}
+
 .tstat.flip-out {
   animation: stat-flip-out 150ms ease-in both;
 }
@@ -2873,6 +3018,7 @@ input {
   padding: 0.25rem 0;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--ink-2);
+  /* Accent, matching every other tappable text — grey read as a footnote. */
+  color: var(--accent-text);
   -webkit-tap-highlight-color: transparent;
 }

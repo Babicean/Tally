@@ -21,11 +21,13 @@ export default function QuickAddChips({
   onAdd,
 }: Props) {
   if (items.length === 0 && !menuAvailable) return null;
+  // Plain buttons, no list roles: role="listitem" on a <button> would
+  // replace its button semantics and screen readers would read the chips
+  // as inert text.
   return (
-    <div className="chips" role="list" aria-label="Quick add">
+    <div className="chips">
       {menuAvailable && (
         <button
-          role="listitem"
           className="chip chip-menu"
           onClick={onBrowseMenu}
           aria-label="Add from Menu"
@@ -44,14 +46,13 @@ export default function QuickAddChips({
       {items.map((item) => (
         <button
           key={`${item.description}|${item.calories}`}
-          role="listitem"
           className="chip"
           onClick={(e) => onAdd(item, e.currentTarget)}
         >
           <span className="chip-plus" aria-hidden="true">
             +
           </span>
-          {item.description}
+          <span className="chip-label">{item.description}</span>
           <span className="chip-cal">{formatCalories(item.calories)}</span>
         </button>
       ))}

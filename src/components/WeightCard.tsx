@@ -67,13 +67,22 @@ export default function WeightCard({ weights, todayWeight, onLog }: Props) {
       ? `${change > 0 ? "+" : ""}${(Math.round(change * 10) / 10).toFixed(1)} kg since ${shortDay(series[monthAgoIdx].day)}`
       : "First weigh-in logged.";
 
-  // Value labels: all while sparse, else first / low / high / last.
+  // Value labels: all while sparse, else first / low / high / last —
+  // but a peak or trough whose label would overlap a neighbour's is
+  // skipped (first and last already anchor the range).
   const peak = values.indexOf(hi);
   const trough = values.indexOf(lo);
-  const labelled =
-    series.length <= 8
-      ? values.map((_, i) => i)
-      : [0, peak, trough, series.length - 1];
+  let labelled: number[];
+  if (series.length <= 8) {
+    labelled = values.map((_, i) => i);
+  } else {
+    labelled = [0, series.length - 1];
+    for (const i of [peak, trough]) {
+      if (labelled.every((j) => Math.abs(px(j) - px(i)) >= 28)) {
+        labelled.push(i);
+      }
+    }
+  }
 
   return (
     <section className="card trend-card weight-card">

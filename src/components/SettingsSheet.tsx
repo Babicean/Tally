@@ -278,17 +278,23 @@ export default function SettingsSheet({
 
   const accountPane = (
     <div className="pane pane-enter" key="account">
+      {/* From the welcome page's Log in path the user has never seen
+          Settings, so the breadcrumb says Back and leaves the sheet. */}
       <button
         type="button"
         className="drill-back"
         onClick={() => {
+          if (startAtLogin) {
+            onClose();
+            return;
+          }
           setBackAnim(true);
           setView("settings");
           setForm("none");
           setConfirmDelete(false);
         }}
       >
-        <span aria-hidden="true">‹</span> Settings
+        <span aria-hidden="true">‹</span> {startAtLogin ? "Back" : "Settings"}
       </button>
 
       {signedIn && session ? (
@@ -683,14 +689,15 @@ export default function SettingsSheet({
         <div className="settings-row-text">
           <span className="settings-row-title">Track macros</span>
           <span className="settings-row-sub">
-            Adds protein and fat to menu items and entries.
+            Protein and fat on entries and menu items. Tap an entry to fill
+            them in.
           </span>
         </div>
         <button
           className={`switch${trackProtein ? " on" : ""}`}
           role="switch"
           aria-checked={trackProtein}
-          aria-label="Advanced tracking"
+          aria-label="Track macros"
           onClick={() => onSetTrackProtein(!trackProtein)}
         >
           <span className="switch-knob" />
@@ -744,7 +751,7 @@ export default function SettingsSheet({
         <div className="settings-row-text">
           <span className="settings-row-title">Track weight</span>
           <span className="settings-row-sub">
-            Track your weight and view trends over time.
+            Adds a weight card to the History tab.
           </span>
         </div>
         <button
