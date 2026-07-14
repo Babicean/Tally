@@ -242,10 +242,13 @@ library, no backend SDK — the biggest JS dependency is React itself.
   The privacy policy is now public at
   https://babicean.github.io/Tally/PRIVACY.html (Beta App Review
   needs it).
-- Known gaps: keyboard/zoom fixes (2.7.2) and iOS haptics (2.11)
-  await real-iPhone confirmation; External TestFlight group (public
-  link) not yet set up — needs Beta App Review, privacy policy URL is
-  ready once Pages is on.
+- iOS field-tested on the owner's iPhone 13 Pro Max (July 14, v2.14):
+  haptics confirmed working, no notable bugs. One open item: a minor
+  keyboard hiccup when first typing a calorie — the view jumps off
+  screen and back (screenshot pending from owner; likely the Keyboard
+  plugin's native resize + scroll-into-view double-step). External
+  TestFlight group (public link) not yet set up — needs Beta App
+  Review; the privacy policy URL it requires is live.
 - Agreed next: meal polish (reactive to tester feedback),
   calories-vs-weight overlay on the insights card (wait for a few weeks
   of weigh-in data). Last audit leftover: landing copy loop-closing —
