@@ -17,7 +17,7 @@ describe("backup round-trip", () => {
     const payload = buildBackup(
       [entryA, entryB],
       [itemA],
-      { dailyGoal: 2200, theme: "dark", trackProtein: true, trackWeight: false, proteinTarget: 140, fatTarget: 70, accent: "emerald", goalSeen: true },
+      { dailyGoal: 2200, theme: "dark", trackProtein: true, trackWeight: false, proteinTarget: 140, fatTarget: 70, accent: "emerald", goalSeen: true, unit: "kcal" as const, unitHintSeen: true },
       [{ day: "2026-07-03", kg: 82.5 }],
       new Date(2026, 6, 4, 10, 0),
     );
@@ -66,7 +66,7 @@ describe("parseBackup validation", () => {
 
 describe("mergeBackup", () => {
   it("unions by id — current data wins, gaps are filled", () => {
-    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, trackWeight: false, proteinTarget: null, fatTarget: null, accent: "azure", goalSeen: true });
+    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, trackWeight: false, proteinTarget: null, fatTarget: null, accent: "azure", goalSeen: true, unit: "kcal" as const, unitHintSeen: true });
     const result = mergeBackup([entryA], [], backup);
     expect(result.entries).toHaveLength(2);
     expect(result.addedEntries).toBe(1);
@@ -74,7 +74,7 @@ describe("mergeBackup", () => {
   });
 
   it("is idempotent — importing the same backup twice adds nothing", () => {
-    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, trackWeight: false, proteinTarget: null, fatTarget: null, accent: "azure", goalSeen: true });
+    const backup = buildBackup([entryA, entryB], [itemA], { dailyGoal: null, theme: "system", trackProtein: false, trackWeight: false, proteinTarget: null, fatTarget: null, accent: "azure", goalSeen: true, unit: "kcal" as const, unitHintSeen: true });
     const once = mergeBackup([], [], backup);
     const twice = mergeBackup(once.entries, once.menu, backup);
     expect(twice.addedEntries).toBe(0);

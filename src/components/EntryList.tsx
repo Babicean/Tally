@@ -1,11 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import type { Entry } from "../types";
 import { groupEntries } from "../lib/store";
-import { formatCalories, formatTime } from "../lib/format";
+import { formatTime } from "../lib/format";
+import {
+  energyNoun,
+  energyUnitLabel,
+  formatEnergy,
+  toDisplayEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 
 interface Props {
   entries: Entry[];
   trackProtein: boolean;
+  unit: EnergyUnit;
   /** `decremented` marks a ×N row losing one instance, not vanishing. */
   onDelete: (id: string, decremented?: boolean) => void;
   onEdit: (entry: Entry) => void;
@@ -23,6 +31,7 @@ const LEAVE_MS = 240;
 export default function EntryList({
   entries,
   trackProtein,
+  unit,
   onDelete,
   onEdit,
   onRepeat,
@@ -120,7 +129,7 @@ export default function EntryList({
                 <button
                   className="entry-main"
                   onClick={() => onEdit(newest)}
-                  aria-label={`Edit ${label} (${group.totalCalories} calories)`}
+                  aria-label={`Edit ${label} (${toDisplayEnergy(group.totalCalories, unit)} ${energyNoun(unit)})`}
                 >
                   <span className="entry-text">
                     <span className="entry-title">
@@ -147,14 +156,14 @@ export default function EntryList({
                     )}
                   </span>
                   <span className="entry-cal">
-                    +{formatCalories(group.totalCalories)}
-                    <span className="unit">cal</span>
+                    +{formatEnergy(group.totalCalories, unit)}
+                    <span className="unit">{energyUnitLabel(unit)}</span>
                   </span>
                 </button>
                 <button
                   className="entry-repeat"
                   onClick={(e) => onRepeat(newest, e.currentTarget)}
-                  aria-label={`Log ${label} again (${newest.calories} calories)`}
+                  aria-label={`Log ${label} again (${toDisplayEnergy(newest.calories, unit)} ${energyNoun(unit)})`}
                 >
                   <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
                     <path
@@ -171,7 +180,7 @@ export default function EntryList({
                   aria-label={
                     count > 1
                       ? `Remove one ${label} (${count} logged)`
-                      : `Delete ${label} (${newest.calories} calories)`
+                      : `Delete ${label} (${toDisplayEnergy(newest.calories, unit)} ${energyNoun(unit)})`
                   }
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

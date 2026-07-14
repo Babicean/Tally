@@ -52,7 +52,9 @@ one summed entry), **History** (day list with tappable
 weekly average + bar chart + recap, logging streak with particle
 celebration, weight card, export/import).
 
-Opt-in extras (Settings gear): **protein/fat tracking** ("Track
+Opt-in extras (Settings gear): **kilojoules** (tap the hero number to
+flip units, or the Settings Units row; input and display convert,
+storage stays kcal), **protein/fat tracking** ("Track
 macros"), **daily protein target** with its own bar and a fire-emoji
 celebration on hitting it, **weight tracking** (one weigh-in a day,
 logged from the History weight card, ~60-point SVG trend, 30-day
@@ -222,7 +224,10 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
-- v2.14.0, code 54. TestFlight live (first builds July 11); owner tests
+- v2.15.0, code 55 (kilojoules: hero tap-flip + Settings Units row;
+  display/input converts everywhere, storage stays kcal — kJ entries
+  keep exact float kcal so typed values round-trip; teach-flip plays
+  once via `unitHintSeen`). TestFlight live (first builds July 11); owner tests
   Android personally; a friend field-tests via TestFlight. A five-agent
   UX audit (July 13) produced a ranked findings report; v2.12 shipped
   every quick win plus three mediums (styled edit date field, sheet
@@ -249,6 +254,10 @@ library, no backend SDK — the biggest JS dependency is React itself.
   plugin's native resize + scroll-into-view double-step). External
   TestFlight group (public link) not yet set up — needs Beta App
   Review; the privacy policy URL it requires is live.
+- Tester requests (July 14): kilojoules (SHIPPED, v2.15) and a
+  recipes section — likely batch-cooking math (ingredients + serves →
+  per-serve menu item); owner is gathering more feedback before we
+  design it. Do not build until he picks a shape.
 - Agreed next: meal polish (reactive to tester feedback),
   calories-vs-weight overlay on the insights card (wait for a few weeks
   of weigh-in data). Last audit leftover: landing copy loop-closing —

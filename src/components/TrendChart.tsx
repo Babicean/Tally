@@ -1,6 +1,12 @@
 import { useState } from "react";
 import type { DayKey } from "../types";
-import { formatCalories, weekdayInitial } from "../lib/format";
+import { weekdayInitial } from "../lib/format";
+import {
+  energyNoun,
+  formatEnergy,
+  toDisplayEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 
 export interface TrendPoint {
   day: DayKey;
@@ -11,6 +17,7 @@ interface Props {
   /** Exactly the last 7 tracking days, oldest first. */
   points: TrendPoint[];
   average: number | null;
+  unit: EnergyUnit;
 }
 
 // Chart geometry (SVG user units).
@@ -42,7 +49,7 @@ function barPath(x: number, y: number, w: number, h: number): string {
  * past days sit at reduced opacity; hovering (or tapping) a day shows its
  * exact value above the bar.
  */
-export default function TrendChart({ points, average }: Props) {
+export default function TrendChart({ points, average, unit }: Props) {
   const [active, setActive] = useState<number | null>(null);
 
   const max = Math.max(...points.map((p) => p.total), average ?? 0, 1);
@@ -57,8 +64,8 @@ export default function TrendChart({ points, average }: Props) {
       className="trend-chart"
       viewBox={`0 0 ${W} ${H}`}
       role="img"
-      aria-label={`Calories over the last 7 days: ${points
-        .map((p) => `${weekdayInitial(p.day)} ${p.total}`)
+      aria-label={`${energyNoun(unit)} over the last 7 days: ${points
+        .map((p) => `${weekdayInitial(p.day)} ${toDisplayEnergy(p.total, unit)}`)
         .join(", ")}`}
       onMouseLeave={() => setActive(null)}
     >
@@ -140,7 +147,7 @@ export default function TrendChart({ points, average }: Props) {
           )}
           y={Math.max(TOP + PLOT_H - scale(label.total) - 8, 12)}
         >
-          {formatCalories(label.total)}
+          {formatEnergy(label.total, unit)}
         </text>
       )}
     </svg>

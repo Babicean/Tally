@@ -1,4 +1,5 @@
 import { mirrorWrite } from "./mirror";
+import type { EnergyUnit } from "./units";
 
 /**
  * User preferences, stored separately from entries so either can evolve
@@ -34,6 +35,13 @@ export interface Settings {
    * predating this key count as seen — no hint for existing users.
    */
   goalSeen: boolean;
+  /**
+   * Display/input unit for energy. Storage stays kcal regardless; this
+   * only converts what's shown and how typed numbers are read.
+   */
+  unit: EnergyUnit;
+  /** Whether the hero's one-time unit teach-flip has played. */
+  unitHintSeen: boolean;
 }
 
 const DEFAULTS: Settings = {
@@ -45,6 +53,8 @@ const DEFAULTS: Settings = {
   trackWeight: false,
   accent: "azure",
   goalSeen: false,
+  unit: "kcal",
+  unitHintSeen: false,
 };
 
 interface SettingsShape {
@@ -58,6 +68,14 @@ function asTarget(value: unknown): number | null {
     : null;
 }
 
+/** Like asTarget but unrounded: a goal typed in kilojoules stores its
+    exact kcal equivalent so it displays back as typed. */
+function asEnergyTarget(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value
+    : null;
+}
+
 export function loadSettings(): Settings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -65,7 +83,7 @@ export function loadSettings(): Settings {
     const parsed = JSON.parse(raw) as SettingsShape;
     const s = parsed?.settings ?? {};
     return {
-      dailyGoal: asTarget(s.dailyGoal),
+      dailyGoal: asEnergyTarget(s.dailyGoal),
       theme: s.theme === "light" || s.theme === "dark" ? s.theme : "system",
       // Grandfather rule: settings saved before this key existed → on.
       trackProtein:
@@ -77,6 +95,10 @@ export function loadSettings(): Settings {
         s.accent === "emerald" || s.accent === "blush" ? s.accent : "azure",
       // Grandfather rule: any settings payload predates first-run hints.
       goalSeen: typeof s.goalSeen === "boolean" ? s.goalSeen : true,
+      unit: s.unit === "kj" ? "kj" : "kcal",
+      // The unit teach-flip plays once for everyone, old installs too —
+      // discovering kilojoules is the whole point of it.
+      unitHintSeen: s.unitHintSeen === true,
     };
   } catch {
     return { ...DEFAULTS };

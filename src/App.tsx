@@ -78,6 +78,10 @@ export default function App() {
     setDailyGoal,
     goalSeen,
     markGoalSeen,
+    unit,
+    setUnit,
+    unitHintSeen,
+    markUnitHintSeen,
     theme,
     setTheme,
     accent,
@@ -110,7 +114,7 @@ export default function App() {
   // Invisible sync: signed-in users' changes back themselves up.
   useAutoBackup(
     () => buildBackup(entries, menu, loadSettings(), weights),
-    [entries, menu, weights, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget, trackWeight],
+    [entries, menu, weights, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget, trackWeight, unit],
   );
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -185,12 +189,17 @@ export default function App() {
           lastWeight={lastWeight}
           onLogWeight={logWeight}
           onRemoveWeight={removeTodayWeight}
+          unit={unit}
+          unitHint={!unitHintSeen && !welcome}
+          onToggleUnit={() => setUnit(unit === "kcal" ? "kj" : "kcal")}
+          onUnitHintDone={markUnitHintSeen}
         />
       )}
       {tab === "menu" && (
         <MenuScreen
           menu={menu}
           trackProtein={trackProtein}
+          unit={unit}
           onLog={(item) => addEntry(item.calories, item.name, item.protein, item.fat)}
           onAdd={addMenuItem}
           onUpdate={updateMenuItem}
@@ -206,6 +215,7 @@ export default function App() {
           history={history}
           entries={entries}
           trackProtein={trackProtein}
+          unit={unit}
           dailyGoal={dailyGoal}
           trackWeight={trackWeight}
           weights={weights}
@@ -225,6 +235,8 @@ export default function App() {
         onSetTheme={setTheme}
         accent={accent}
         onSetAccent={setAccent}
+        unit={unit}
+        onSetUnit={setUnit}
         dailyGoal={dailyGoal}
         onSetDailyGoal={setDailyGoal}
         trackProtein={trackProtein}

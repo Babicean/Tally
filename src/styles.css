@@ -3053,6 +3053,29 @@ input {
   text-underline-offset: 0.1875rem;
 }
 
+/* The hero number flips between calories and kilojoules on tap. */
+.hero-flip {
+  display: block;
+  width: 100%;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hero-flip.eflip-out {
+  animation: stat-flip-out 150ms ease-in both;
+}
+
+.hero-flip.eflip-in {
+  animation: stat-flip-in 190ms cubic-bezier(0.2, 1.1, 0.4, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-flip.eflip-out,
+  .hero-flip.eflip-in {
+    animation: none;
+  }
+}
+
 .tstat.flip-out {
   animation: stat-flip-out 150ms ease-in both;
 }

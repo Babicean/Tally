@@ -1,14 +1,20 @@
 import { FormEvent, useEffect, useState } from "react";
 import type { Entry } from "../types";
 import Sheet from "./Sheet";
-import { parseCalories } from "../lib/store";
 import { parseProtein } from "../lib/menu";
+import {
+  energyUnitLabel,
+  parseEnergy,
+  toDisplayEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 import { trackingDayFor } from "../lib/day";
 import { formatDayLabel, formatTime } from "../lib/format";
 
 interface Props {
   entry: Entry | null;
   trackProtein: boolean;
+  unit: EnergyUnit;
   onSave: (
     id: string,
     calories: number,
@@ -33,6 +39,7 @@ function toLocalInputValue(ts: number): string {
 export default function EditEntrySheet({
   entry,
   trackProtein,
+  unit,
   onSave,
   onClose,
 }: Props) {
@@ -52,7 +59,7 @@ export default function EditEntrySheet({
 
   useEffect(() => {
     if (entry) {
-      setCalories(String(entry.calories));
+      setCalories(String(toDisplayEnergy(entry.calories, unit)));
       setDescription(entry.description);
       setProtein(entry.protein != null ? String(entry.protein) : "");
       setFat(entry.fat != null ? String(entry.fat) : "");
@@ -70,7 +77,7 @@ export default function EditEntrySheet({
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (!entry) return;
-    const parsed = parseCalories(calories);
+    const parsed = parseEnergy(calories, unit);
     const parsedProtein = trackProtein ? parseProtein(protein) : entry.protein ?? null;
     const parsedFat = trackProtein ? parseProtein(fat) : entry.fat ?? null;
     if (parsed === null || parsedProtein === undefined || parsedFat === undefined) {
@@ -81,7 +88,9 @@ export default function EditEntrySheet({
       });
       setError(
         parsed === null
-          ? "Calories must be a positive number up to 20,000."
+          ? unit === "kj"
+            ? "Kilojoules must be a positive number up to 83,680."
+            : "Calories must be a positive number up to 20,000."
           : parsedProtein === undefined
             ? "Protein must be a number of grams up to 1,000, or blank."
             : "Fat must be a number of grams up to 1,000, or blank.",
@@ -149,9 +158,9 @@ export default function EditEntrySheet({
                 clearError();
               }}
               inputMode="numeric"
-              aria-label="Calories"
+              aria-label={unit === "kj" ? "Kilojoules" : "Calories"}
             />
-            <span className="unit">cal</span>
+            <span className="unit">{energyUnitLabel(unit)}</span>
           </div>
           {trackProtein && (
             <div

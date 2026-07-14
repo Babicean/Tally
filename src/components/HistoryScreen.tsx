@@ -1,7 +1,12 @@
 import { useMemo, useState } from "react";
 import type { DayKey, DaySummary, Entry } from "../types";
 import { addDays } from "../lib/day";
-import { formatCalories, formatDayLabel, formatTime } from "../lib/format";
+import { formatDayLabel, formatTime } from "../lib/format";
+import {
+  energyUnitLabel,
+  formatEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 import { weeklyStats } from "../lib/stats";
 import type { WeightEntry } from "../lib/weight";
 import WeightCard from "./WeightCard";
@@ -56,6 +61,7 @@ interface Props {
   history: DaySummary[];
   entries: Entry[];
   trackProtein: boolean;
+  unit: EnergyUnit;
   dailyGoal: number | null;
   trackWeight: boolean;
   weights: WeightEntry[];
@@ -77,6 +83,7 @@ export default function HistoryScreen({
   history,
   entries,
   trackProtein,
+  unit,
   dailyGoal,
   trackWeight,
   weights,
@@ -116,6 +123,7 @@ export default function HistoryScreen({
           today={today}
           dailyGoal={dailyGoal}
           trackProtein={trackProtein}
+          unit={unit}
           points={points}
           deltaPct={deltaPct}
         />
@@ -217,8 +225,8 @@ export default function HistoryScreen({
                     {formatDayLabel(summary.day)}
                   </span>
                   <span className="day-total">
-                    {formatCalories(summary.total)}
-                    <span className="unit">cal</span>
+                    {formatEnergy(summary.total, unit)}
+                    <span className="unit">{energyUnitLabel(unit)}</span>
                   </span>
                   <svg
                     className="day-chevron"
@@ -249,8 +257,8 @@ export default function HistoryScreen({
                           {entry.description || formatTime(entry.timestamp)}
                         </span>
                         <span className="day-entry-cal">
-                          +{formatCalories(entry.calories)}
-                          <span className="unit">cal</span>
+                          +{formatEnergy(entry.calories, unit)}
+                          <span className="unit">{energyUnitLabel(unit)}</span>
                         </span>
                       </div>
                     ))}
@@ -274,6 +282,7 @@ export default function HistoryScreen({
       <BackdateSheet
         day={backdating}
         trackProtein={trackProtein}
+        unit={unit}
         onAdd={(cal, desc, prot, fatG, when) => {
           onAddBackdated(cal, desc, prot, fatG, when);
           showToast({ kind: "confirm", message: "Added" }, 1600);

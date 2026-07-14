@@ -10,6 +10,25 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.15.0 — code 55 — 2026-07-14
+
+Kilojoules, for the country whose packets print them.
+
+- Tap the big number and it flips scoreboard-style between calories and
+  kilojoules; the choice sticks and every number in the app follows —
+  entries, chips, menu, meals, goal, insights, day list, the lot.
+  There's a Units row in Settings too.
+- On first open the number peeks at the other unit for a second and
+  flips back, so the tap introduces itself once. Respects reduced
+  motion; never replays.
+- In kilojoule mode you also type kilojoules, straight off the packet:
+  the add card, edit sheet, menu items, backdating, and both goal
+  editors all read input in your unit. What you type is exactly what
+  you see back — 500 kJ never comes home as 502.
+- Under the hood nothing changed: data is stored unit-blind, so
+  backups, sync, and merges are untouched and a backup restored on a
+  calorie device just shows calories.
+
 ## 2.14.0 — code 54 — 2026-07-13
 
 The audit's last four medium fixes. The findings list is now empty

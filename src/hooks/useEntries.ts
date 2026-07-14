@@ -12,6 +12,7 @@ import {
   totalForDay,
 } from "../lib/store";
 import { loadSettings, saveSettings, type Settings } from "../lib/settings";
+import type { EnergyUnit } from "../lib/units";
 import {
   buildQuickAdds,
   createMenuItem,
@@ -118,6 +119,19 @@ export function useEntries() {
     setSettings((prev) => {
       if (prev.goalSeen) return prev;
       const next = { ...prev, goalSeen: true };
+      saveSettings(next);
+      return next;
+    });
+  }, []);
+  /** Choosing a unit (either path) also counts as seeing the hint. */
+  const setUnit = useCallback(
+    (unit: EnergyUnit) => updateSettings({ unit, unitHintSeen: true }),
+    [updateSettings],
+  );
+  const markUnitHintSeen = useCallback(() => {
+    setSettings((prev) => {
+      if (prev.unitHintSeen) return prev;
+      const next = { ...prev, unitHintSeen: true };
       saveSettings(next);
       return next;
     });
@@ -432,6 +446,10 @@ export function useEntries() {
     setDailyGoal,
     goalSeen: settings.goalSeen,
     markGoalSeen,
+    unit: settings.unit,
+    setUnit,
+    unitHintSeen: settings.unitHintSeen,
+    markUnitHintSeen,
     theme: settings.theme,
     setTheme,
     trackProtein: settings.trackProtein,

@@ -1,28 +1,34 @@
 import { FormEvent, useEffect, useState } from "react";
 import Sheet from "./Sheet";
-import { parseCalories } from "../lib/store";
+import {
+  energyUnitLabel,
+  parseEnergy,
+  toDisplayEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 
 interface Props {
   open: boolean;
   goal: number | null;
+  unit: EnergyUnit;
   onSave: (goal: number | null) => void;
   onClose: () => void;
 }
 
-export default function GoalSheet({ open, goal, onSave, onClose }: Props) {
+export default function GoalSheet({ open, goal, unit, onSave, onClose }: Props) {
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setValue(goal !== null ? String(goal) : "");
+      setValue(goal !== null ? String(toDisplayEnergy(goal, unit)) : "");
       setError(false);
     }
-  }, [open, goal]);
+  }, [open, goal, unit]);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    const parsed = parseCalories(value);
+    const parsed = parseEnergy(value, unit);
     if (parsed === null) {
       setError(true);
       return;
@@ -32,7 +38,11 @@ export default function GoalSheet({ open, goal, onSave, onClose }: Props) {
   };
 
   return (
-    <Sheet open={open} title="Calorie target" onClose={onClose}>
+    <Sheet
+      open={open}
+      title={unit === "kj" ? "Kilojoule target" : "Calorie target"}
+      onClose={onClose}
+    >
       <p className="sheet-sub">
         A daily target. The ring fills as you log. Information, never
         judgement.
@@ -46,14 +56,16 @@ export default function GoalSheet({ open, goal, onSave, onClose }: Props) {
               setError(false);
             }}
             inputMode="numeric"
-            placeholder="2,000"
-            aria-label="Daily calorie goal"
+            placeholder={unit === "kj" ? "8,700" : "2,000"}
+            aria-label={unit === "kj" ? "Daily kilojoule goal" : "Daily calorie goal"}
           />
-          <span className="unit">cal</span>
+          <span className="unit">{energyUnitLabel(unit)}</span>
         </div>
         {error && (
           <p className="add-error" role="alert">
-            Enter a target between 1 and 20,000 calories.
+            {unit === "kj"
+              ? "Enter a target between 1 and 83,680 kilojoules."
+              : "Enter a target between 1 and 20,000 calories."}
           </p>
         )}
         <div className="sheet-actions">

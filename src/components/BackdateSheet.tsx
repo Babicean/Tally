@@ -1,8 +1,12 @@
 import { FormEvent, useEffect, useState } from "react";
 import type { DayKey } from "../types";
 import Sheet from "./Sheet";
-import { parseCalories } from "../lib/store";
 import { parseProtein } from "../lib/menu";
+import {
+  energyUnitLabel,
+  parseEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 import { fromDayKey } from "../lib/day";
 import { formatDayLabel } from "../lib/format";
 
@@ -10,6 +14,7 @@ interface Props {
   /** The tracking day being amended, or null when closed. */
   day: DayKey | null;
   trackProtein: boolean;
+  unit: EnergyUnit;
   onAdd: (
     calories: number,
     description: string,
@@ -24,6 +29,7 @@ interface Props {
 export default function BackdateSheet({
   day,
   trackProtein,
+  unit,
   onAdd,
   onClose,
 }: Props) {
@@ -59,7 +65,7 @@ export default function BackdateSheet({
   const submit = (e: FormEvent) => {
     e.preventDefault();
     if (!day) return;
-    const cal = parseCalories(calories);
+    const cal = parseEnergy(calories, unit);
     const prot = trackProtein ? parseProtein(protein) : null;
     const fatG = trackProtein ? parseProtein(fat) : null;
     if (cal === null || prot === undefined || fatG === undefined) {
@@ -70,7 +76,9 @@ export default function BackdateSheet({
       });
       setError(
         cal === null
-          ? "Calories must be a positive number up to 20,000."
+          ? unit === "kj"
+            ? "Kilojoules must be a positive number up to 83,680."
+            : "Calories must be a positive number up to 20,000."
           : prot === undefined
             ? "Protein must be a number of grams up to 1,000, or blank."
             : "Fat must be a number of grams up to 1,000, or blank.",
@@ -113,10 +121,10 @@ export default function BackdateSheet({
                 clearError();
               }}
               inputMode="numeric"
-              placeholder="500"
-              aria-label="Calories"
+              placeholder={unit === "kj" ? "2,000" : "500"}
+              aria-label={unit === "kj" ? "Kilojoules" : "Calories"}
             />
-            <span className="unit">cal</span>
+            <span className="unit">{energyUnitLabel(unit)}</span>
           </div>
           {trackProtein && (
             <div

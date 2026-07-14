@@ -1,6 +1,12 @@
 import { useState } from "react";
 import type { MenuItem } from "../types";
-import { formatCalories } from "../lib/format";
+import {
+  energyNoun,
+  energyUnitLabel,
+  formatEnergy,
+  toDisplayEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 import { flyCalories, haptic } from "../lib/fly";
 import { useToast } from "../hooks/useToast";
 import MenuItemSheet from "./MenuItemSheet";
@@ -11,6 +17,7 @@ import Toast from "./Toast";
 interface Props {
   menu: MenuItem[];
   trackProtein: boolean;
+  unit: EnergyUnit;
   onLog: (item: MenuItem) => void;
   onAdd: (
     name: string,
@@ -40,6 +47,7 @@ interface Props {
 export default function MenuScreen({
   menu,
   trackProtein,
+  unit,
   onLog,
   onAdd,
   onUpdate,
@@ -56,7 +64,7 @@ export default function MenuScreen({
 
   const log = (item: MenuItem, el: HTMLElement) => {
     onLog(item);
-    flyCalories(`+${formatCalories(item.calories)}`, el);
+    flyCalories(`+${formatEnergy(item.calories, unit)}`, el);
     haptic(10);
     showConfirmation();
   };
@@ -136,7 +144,7 @@ export default function MenuScreen({
                   <span className="menu-detail">
                     {item.componentIds &&
                       `${item.componentIds.length} items · `}
-                    {formatCalories(item.calories)} cal
+                    {formatEnergy(item.calories, unit)} {energyUnitLabel(unit)}
                     {trackProtein &&
                       item.protein != null &&
                       ` · ${item.protein} g protein`}
@@ -172,7 +180,7 @@ export default function MenuScreen({
               <button
                 className="menu-log"
                 onClick={(e) => log(item, e.currentTarget)}
-                aria-label={`Log ${item.name} (${item.calories} calories)`}
+                aria-label={`Log ${item.name} (${toDisplayEnergy(item.calories, unit)} ${energyNoun(unit)})`}
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path
@@ -191,6 +199,7 @@ export default function MenuScreen({
       <MenuItemSheet
         open={sheetOpen}
         trackProtein={trackProtein}
+        unit={unit}
         item={editing}
         onSave={(name, cal, prot, fatG, category) => {
           if (editing) onUpdate(editing.id, name, cal, prot, fatG, category);
@@ -204,6 +213,7 @@ export default function MenuScreen({
         meal={editing?.componentIds ? editing : null}
         foods={foods}
         trackProtein={trackProtein}
+        unit={unit}
         onSave={(name, ids) => {
           if (editing?.componentIds) onUpdateMeal(editing.id, name, ids);
           else onAddMeal(name, ids);

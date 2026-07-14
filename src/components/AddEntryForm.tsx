@@ -1,11 +1,19 @@
 import { FormEvent, useRef, useState } from "react";
-import { MAX_CALORIES, parseCalories } from "../lib/store";
+import { MAX_CALORIES } from "../lib/store";
 import { parseProtein } from "../lib/menu";
 import { formatCalories } from "../lib/format";
+import {
+  MAX_KILOJOULES,
+  energyNoun,
+  energyUnitLabel,
+  parseEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 
 interface Props {
   /** Shows the optional protein/fat fields behind a quiet toggle. */
   trackProtein: boolean;
+  unit: EnergyUnit;
   onAdd: (
     calories: number,
     description: string,
@@ -15,7 +23,7 @@ interface Props {
   ) => void;
 }
 
-export default function AddEntryForm({ trackProtein, onAdd }: Props) {
+export default function AddEntryForm({ trackProtein, unit, onAdd }: Props) {
   const [calories, setCalories] = useState("");
   const [description, setDescription] = useState("");
   const [protein, setProtein] = useState("");
@@ -43,7 +51,7 @@ export default function AddEntryForm({ trackProtein, onAdd }: Props) {
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    const parsed = parseCalories(calories);
+    const parsed = parseEnergy(calories, unit);
     const parsedProtein = showMacros ? parseProtein(protein) : null;
     const parsedFat = showMacros ? parseProtein(fat) : null;
     if (parsed === null || parsedProtein === undefined || parsedFat === undefined) {
@@ -55,8 +63,8 @@ export default function AddEntryForm({ trackProtein, onAdd }: Props) {
       setError(
         parsed === null
           ? calories.trim() === ""
-            ? "Enter how many calories to add."
-            : `Calories must be a positive number up to ${formatCalories(MAX_CALORIES)}.`
+            ? `Enter how many ${energyNoun(unit)} to add.`
+            : `${unit === "kj" ? "Kilojoules" : "Calories"} must be a positive number up to ${formatCalories(unit === "kj" ? MAX_KILOJOULES : MAX_CALORIES)}.`
           : parsedProtein === undefined
             ? "Protein must be a number of grams up to 1,000, or blank."
             : "Fat must be a number of grams up to 1,000, or blank.",
@@ -86,11 +94,11 @@ export default function AddEntryForm({ trackProtein, onAdd }: Props) {
             }}
             inputMode="numeric"
             enterKeyHint="done"
-            placeholder="500"
-            aria-label="Calories"
+            placeholder={unit === "kj" ? "2,000" : "500"}
+            aria-label={unit === "kj" ? "Kilojoules" : "Calories"}
             aria-invalid={bad.cal === true}
           />
-          <span className="unit">cal</span>
+          <span className="unit">{energyUnitLabel(unit)}</span>
         </div>
         <div className="field">
           <input

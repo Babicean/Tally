@@ -2,7 +2,12 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Sheet from "./Sheet";
 import type { AccentPref, ThemePref } from "../lib/theme";
 import { parseProtein } from "../lib/menu";
-import { parseCalories } from "../lib/store";
+import {
+  energyUnitLabel,
+  parseEnergy,
+  toDisplayEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 import { shareBackupFile } from "../lib/exportFile";
 import { emailProblem, passwordProblem, suggestEmailFix } from "../lib/account";
 import {
@@ -34,6 +39,8 @@ interface Props {
   onSetTheme: (theme: ThemePref) => void;
   accent: AccentPref;
   onSetAccent: (accent: AccentPref) => void;
+  unit: EnergyUnit;
+  onSetUnit: (unit: EnergyUnit) => void;
   dailyGoal: number | null;
   onSetDailyGoal: (goal: number | null) => void;
   trackProtein: boolean;
@@ -76,6 +83,8 @@ export default function SettingsSheet({
   onSetTheme,
   accent,
   onSetAccent,
+  unit,
+  onSetUnit,
   dailyGoal,
   onSetDailyGoal,
   trackProtein,
@@ -122,7 +131,9 @@ export default function SettingsSheet({
     if (open) {
       setTarget(proteinTarget !== null ? String(proteinTarget) : "");
       setFatT(fatTarget !== null ? String(fatTarget) : "");
-      setGoalT(dailyGoal !== null ? String(dailyGoal) : "");
+      setGoalT(
+        dailyGoal !== null ? String(toDisplayEnergy(dailyGoal, unit)) : "",
+      );
       setDataNote(null);
       setView(startAtLogin ? "account" : "settings");
       setSession(loadSession());
@@ -135,7 +146,7 @@ export default function SettingsSheet({
       setConfirmDelete(false);
       setBackAnim(false);
     }
-  }, [open, proteinTarget, fatTarget, dailyGoal, startAtLogin]);
+  }, [open, proteinTarget, fatTarget, dailyGoal, unit, startAtLogin]);
 
   const commitGoal = () => {
     const cleaned = goalT.trim();
@@ -144,10 +155,12 @@ export default function SettingsSheet({
       onSetDailyGoal(null);
       return;
     }
-    const parsed = parseCalories(cleaned);
+    const parsed = parseEnergy(cleaned, unit);
     if (parsed === null) {
       // Invalid input: fall back to what's stored.
-      setGoalT(dailyGoal !== null ? String(dailyGoal) : "");
+      setGoalT(
+        dailyGoal !== null ? String(toDisplayEnergy(dailyGoal, unit)) : "",
+      );
       return;
     }
     onSetDailyGoal(parsed);
@@ -747,10 +760,32 @@ export default function SettingsSheet({
         ))}
       </div>
 
+      <p className="settings-label">Units</p>
+      <div className="seg two" role="radiogroup" aria-label="Energy unit">
+        {(
+          [
+            ["kcal", "Calories"],
+            ["kj", "Kilojoules"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            role="radio"
+            aria-checked={unit === id}
+            className={`seg-btn${unit === id ? " active" : ""}`}
+            onClick={() => onSetUnit(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <p className="settings-label">Daily goal</p>
       <div className="settings-row">
         <div className="settings-row-text">
-          <span className="settings-row-title">Calorie target</span>
+          <span className="settings-row-title">
+            {unit === "kj" ? "Kilojoule target" : "Calorie target"}
+          </span>
           <span className="settings-row-sub">
             Blank for no target. The pill under the ring works too.
           </span>
@@ -764,9 +799,11 @@ export default function SettingsSheet({
               if (e.key === "Enter") (e.target as HTMLInputElement).blur();
             }}
             inputMode="numeric"
-            aria-label="Daily calorie target"
+            aria-label={
+              unit === "kj" ? "Daily kilojoule target" : "Daily calorie target"
+            }
           />
-          <span className="unit">cal</span>
+          <span className="unit">{energyUnitLabel(unit)}</span>
         </div>
       </div>
 

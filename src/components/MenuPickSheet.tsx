@@ -1,12 +1,19 @@
 import type { MenuItem } from "../types";
 import Sheet from "./Sheet";
-import { formatCalories } from "../lib/format";
+import {
+  energyNoun,
+  energyUnitLabel,
+  formatEnergy,
+  toDisplayEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 import CategoryIcon, { CategoryId } from "./CategoryIcon";
 
 interface Props {
   open: boolean;
   menu: MenuItem[];
   trackProtein: boolean;
+  unit: EnergyUnit;
   onPick: (item: MenuItem, sourceEl: HTMLElement) => void;
   onClose: () => void;
 }
@@ -20,6 +27,7 @@ export default function MenuPickSheet({
   open,
   menu,
   trackProtein,
+  unit,
   onPick,
   onClose,
 }: Props) {
@@ -34,7 +42,7 @@ export default function MenuPickSheet({
             key={item.id}
             className="pick-row"
             onClick={(e) => onPick(item, e.currentTarget)}
-            aria-label={`Log ${item.name} (${item.calories} calories)`}
+            aria-label={`Log ${item.name} (${toDisplayEnergy(item.calories, unit)} ${energyNoun(unit)})`}
           >
             <span className="menu-tile" aria-hidden="true">
               <CategoryIcon id={item.category as CategoryId | null} />
@@ -42,7 +50,7 @@ export default function MenuPickSheet({
             <span className="menu-text">
               <span className="menu-name">{item.name}</span>
               <span className="menu-detail">
-                {formatCalories(item.calories)} cal
+                {formatEnergy(item.calories, unit)} {energyUnitLabel(unit)}
                 {trackProtein &&
                   item.protein != null &&
                   ` · ${item.protein} g protein`}

@@ -1,8 +1,9 @@
 import type { FrequentItem } from "../lib/store";
-import { formatCalories } from "../lib/format";
+import { formatEnergy, type EnergyUnit } from "../lib/units";
 
 interface Props {
   items: FrequentItem[];
+  unit: EnergyUnit;
   /** Whether the Menu has anything worth browsing. */
   menuAvailable: boolean;
   /** Ghost weigh-in chip: on until today has a weigh-in. */
@@ -19,6 +20,7 @@ interface Props {
  */
 export default function QuickAddChips({
   items,
+  unit,
   menuAvailable,
   showWeightChip,
   onLogWeight,
@@ -58,7 +60,7 @@ export default function QuickAddChips({
             +
           </span>
           <span className="chip-label">{item.description}</span>
-          <span className="chip-cal">{formatCalories(item.calories)}</span>
+          <span className="chip-cal">{formatEnergy(item.calories, unit)}</span>
         </button>
       ))}
       {showWeightChip && (

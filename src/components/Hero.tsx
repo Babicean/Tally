@@ -2,6 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import type { DayKey } from "../types";
 import type { Streak } from "../lib/streak";
 import { formatCalories, formatHeroDate } from "../lib/format";
+import {
+  energyNoun,
+  energyUnitLabel,
+  formatEnergy,
+  toDisplayEnergy,
+  type EnergyUnit,
+} from "../lib/units";
+import { haptic } from "../lib/fly";
 import AnimatedNumber from "./AnimatedNumber";
 
 interface Props {
@@ -19,6 +27,12 @@ interface Props {
   /** First run: the default goal appeared unasked, so the pill says so. */
   goalHint: boolean;
   onEditGoal: () => void;
+  /** Display unit; tapping the total flips it (scoreboard style). */
+  unit: EnergyUnit;
+  /** Play the one-time teach-flip (peek at the other unit, flip back). */
+  unitHint: boolean;
+  onToggleUnit: () => void;
+  onUnitHintDone: () => void;
 }
 
 // Ring geometry (SVG user units).
@@ -52,10 +66,17 @@ function starPath(r: number): string {
   return `M0 ${-r} L${inner} ${-inner} L${r} 0 L${inner} ${inner} L0 ${r} L${-inner} ${inner} L${-r} 0 L${-inner} ${-inner} Z`;
 }
 
+const other = (u: EnergyUnit): EnergyUnit => (u === "kcal" ? "kj" : "kcal");
+
 /**
  * The hero total. Without a goal it's the big free-standing number; with a
  * goal it sits inside a progress ring that fills toward the target and shifts
  * to a calm amber once the target is passed.
+ *
+ * Tapping the number flips it scoreboard-style between calories and
+ * kilojoules (and persists the choice). On first open a teach-flip peeks
+ * at the other unit for a moment and flips back, so the interaction
+ * introduces itself once.
  */
 export default function Hero({
   today,
@@ -69,6 +90,10 @@ export default function Hero({
   goal,
   goalHint,
   onEditGoal,
+  unit,
+  unitHint,
+  onToggleUnit,
+  onUnitHintDone,
 }: Props) {
   const [pulsing, setPulsing] = useState(false);
   const prevTotal = useRef(total);
@@ -87,6 +112,77 @@ export default function Hero({
     const raf = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(raf);
   }, []);
+
+  // ---- Unit flip ---------------------------------------------------------
+  // `preview` shows a unit without persisting it (the teach-flip peek);
+  // the flip animation runs out → swap content → in.
+  const [preview, setPreview] = useState<EnergyUnit | null>(null);
+  const [flipPhase, setFlipPhase] = useState<"idle" | "out" | "in">("idle");
+  const flipMode = useRef<"user" | "teach-peek" | "teach-back">("user");
+  const teachTimers = useRef<number[]>([]);
+  useEffect(() => () => teachTimers.current.forEach(clearTimeout), []);
+
+  const displayUnit = preview ?? unit;
+
+  useEffect(() => {
+    if (!unitHint) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // No motion means no teach — the Settings row still exists.
+      onUnitHintDone();
+      return;
+    }
+    const t = window.setTimeout(() => {
+      flipMode.current = "teach-peek";
+      setFlipPhase("out");
+    }, 1400);
+    teachTimers.current.push(t);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unitHint]);
+
+  const flipUnit = () => {
+    if (flipPhase !== "idle" || preview !== null) return;
+    haptic(6);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      onToggleUnit();
+      return;
+    }
+    flipMode.current = "user";
+    setFlipPhase("out");
+  };
+
+  const onFlipAnim = (e: React.AnimationEvent) => {
+    if (e.animationName === "stat-flip-out") {
+      if (flipMode.current === "user") {
+        onToggleUnit();
+      } else if (flipMode.current === "teach-peek") {
+        setPreview(other(unit));
+      } else {
+        setPreview(null);
+      }
+      setFlipPhase("in");
+    } else if (e.animationName === "stat-flip-in") {
+      setFlipPhase("idle");
+      if (flipMode.current === "teach-peek") {
+        // Hold the peek briefly, then flip home.
+        const t = window.setTimeout(() => {
+          flipMode.current = "teach-back";
+          setFlipPhase("out");
+        }, 1000);
+        teachTimers.current.push(t);
+      } else if (flipMode.current === "teach-back") {
+        flipMode.current = "user";
+        onUnitHintDone();
+      }
+    }
+  };
+
+  const flipClass = `hero-flip${flipPhase === "out" ? " eflip-out" : ""}${
+    flipPhase === "in" ? " eflip-in" : ""
+  }`;
+  const flipAria = `Showing ${energyNoun(displayUnit)}. Tap to switch to ${energyNoun(
+    other(unit),
+  )}.`;
 
   const proteinLine =
     trackProtein && (protein > 0 || proteinTarget !== null) ? (
@@ -157,14 +253,25 @@ export default function Hero({
             {streak.length}-day streak
           </p>
         )}
-        <h1 id="hero-total" className={`hero-total${pulsing ? " pulse" : ""}`}>
-          <AnimatedNumber value={total} />
-        </h1>
-        <p className="hero-caption">calories today</p>
+        <button
+          type="button"
+          className={flipClass}
+          onClick={flipUnit}
+          onAnimationEnd={onFlipAnim}
+          aria-label={flipAria}
+        >
+          <h1 id="hero-total" className={`hero-total${pulsing ? " pulse" : ""}`}>
+            <AnimatedNumber
+              key={displayUnit}
+              value={toDisplayEnergy(total, displayUnit)}
+            />
+          </h1>
+          <p className="hero-caption">{energyNoun(displayUnit)} today</p>
+        </button>
         {proteinLine}
         {fatLine}
         <button className="goal-pill ghost" onClick={onEditGoal}>
-          Set a calorie target
+          Set a {displayUnit === "kj" ? "kilojoule" : "calorie"} target
         </button>
       </header>
     );
@@ -189,7 +296,7 @@ export default function Hero({
         <svg
           viewBox={`0 0 ${SIZE} ${SIZE}`}
           role="img"
-          aria-label={`${total} of ${goal} calories`}
+          aria-label={`${toDisplayEnergy(total, unit)} of ${toDisplayEnergy(goal, unit)} ${energyNoun(unit)}`}
         >
           {/* Sparkles accumulate with progress; each keeps its spot. */}
           <g className="sparkles">
@@ -236,13 +343,27 @@ export default function Hero({
           />
         </svg>
         <div className="ring-inner">
-          <h1
-            id="hero-total"
-            className={`ring-total${pulsing ? " pulse" : ""}`}
+          <button
+            type="button"
+            className={flipClass}
+            onClick={flipUnit}
+            onAnimationEnd={onFlipAnim}
+            aria-label={flipAria}
           >
-            <AnimatedNumber value={total} />
-          </h1>
-          <p className="ring-caption">of {formatCalories(goal)} cal</p>
+            <h1
+              id="hero-total"
+              className={`ring-total${pulsing ? " pulse" : ""}`}
+            >
+              <AnimatedNumber
+                key={displayUnit}
+                value={toDisplayEnergy(total, displayUnit)}
+              />
+            </h1>
+            <p className="ring-caption">
+              of {formatEnergy(goal, displayUnit)}{" "}
+              {energyUnitLabel(displayUnit)}
+            </p>
+          </button>
         </div>
       </div>
       {proteinLine}
@@ -251,9 +372,12 @@ export default function Hero({
         className={`goal-pill${over ? " over" : ""}`}
         onClick={onEditGoal}
       >
-        <AnimatedNumber value={over ? total - goal : goal - total} />
+        <AnimatedNumber
+          key={unit}
+          value={toDisplayEnergy(over ? total - goal : goal - total, unit)}
+        />
         {over ? " over goal" : " remaining"}
-        {goalHint && !over && " · tap to set your own"}
+        {goalHint && !over && " · tap to set your own"}
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
           <path
             d="M3.5 2l3 3-3 3"

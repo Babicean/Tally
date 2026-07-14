@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 import type { DayKey, Entry } from "../types";
-import { formatCalories } from "../lib/format";
 import { insightsFor, InsightsRange } from "../lib/insights";
+import {
+  energyUnitLabel,
+  formatEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 import MacroStat from "./MacroStat";
 import TrendChart, { TrendPoint } from "./TrendChart";
 
@@ -14,6 +18,7 @@ interface Props {
   today: DayKey;
   dailyGoal: number | null;
   trackProtein: boolean;
+  unit: EnergyUnit;
   /** The last 7 tracking days, oldest first, for the Week bar chart. */
   points: TrendPoint[];
   /** Signed percent change vs the previous week, or null. */
@@ -31,6 +36,7 @@ export default function InsightsCard({
   today,
   dailyGoal,
   trackProtein,
+  unit,
   points,
   deltaPct,
 }: Props) {
@@ -80,11 +86,15 @@ export default function InsightsCard({
           {range === "week" && insights.avgCalories !== null && (
             <>
               <p className="trend-avg">
-                {formatCalories(insights.avgCalories)}
-                <span className="unit">cal</span>
+                {formatEnergy(insights.avgCalories, unit)}
+                <span className="unit">{energyUnitLabel(unit)}</span>
               </p>
               <p className="trend-avg-caption">daily average</p>
-              <TrendChart points={points} average={insights.avgCalories} />
+              <TrendChart
+                points={points}
+                average={insights.avgCalories}
+                unit={unit}
+              />
             </>
           )}
           <div className="trend-stats insights-stats">
@@ -100,9 +110,9 @@ export default function InsightsCard({
             {range === "month" && insights.avgCalories !== null && (
               <div className="tstat">
                 <span className="tstat-v">
-                  {formatCalories(insights.avgCalories)}
+                  {formatEnergy(insights.avgCalories, unit)}
                 </span>
-                <span className="tstat-l">cal / day</span>
+                <span className="tstat-l">{energyUnitLabel(unit)} / day</span>
               </div>
             )}
             {range === "week" && deltaPct !== null && (
@@ -112,7 +122,9 @@ export default function InsightsCard({
                   {deltaPct}
                   <span className="u">%</span>
                 </span>
-                <span className="tstat-l">cal vs last week</span>
+                <span className="tstat-l">
+                  {energyUnitLabel(unit)} vs last week
+                </span>
               </div>
             )}
             {insights.goalDays !== null && (
@@ -144,8 +156,8 @@ export default function InsightsCard({
                     <span className="ifood-name">{food.name}</span>
                     <span className="ifood-count">&times;{food.count}</span>
                     <span className="ifood-cal">
-                      {formatCalories(food.calories)}
-                      <span className="u"> cal</span>
+                      {formatEnergy(food.calories, unit)}
+                      <span className="u"> {energyUnitLabel(unit)}</span>
                     </span>
                   </li>
                 ))}

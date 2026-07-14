@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import type { DayKey, Entry, MenuItem } from "../types";
 import type { FrequentItem } from "../lib/store";
-import { formatCalories } from "../lib/format";
+import { formatEnergy, type EnergyUnit } from "../lib/units";
 import { flyCalories, haptic } from "../lib/fly";
 import { celebrate, emberBurst } from "../lib/burst";
 import type { Streak } from "../lib/streak";
@@ -55,6 +55,11 @@ interface Props {
   lastWeight: number | null;
   onLogWeight: (kg: number) => void;
   onRemoveWeight: () => void;
+  unit: EnergyUnit;
+  /** Play the hero teach-flip once (kcal peeks at kJ, flips back). */
+  unitHint: boolean;
+  onToggleUnit: () => void;
+  onUnitHintDone: () => void;
 }
 
 export default function TodayScreen({
@@ -82,6 +87,10 @@ export default function TodayScreen({
   lastWeight,
   onLogWeight,
   onRemoveWeight,
+  unit,
+  unitHint,
+  onToggleUnit,
+  onUnitHintDone,
 }: Props) {
   const { toast, showToast, showConfirmation, dismiss, hold, release } =
     useToast();
@@ -108,7 +117,7 @@ export default function TodayScreen({
         protein < proteinTarget &&
         protein + itemProtein >= proteinTarget;
       onAdd(calories, description, itemProtein, itemFat);
-      flyCalories(`+${formatCalories(calories)}`, sourceEl);
+      flyCalories(`+${formatEnergy(calories, unit)}`, sourceEl);
       if (extendsStreak) {
         // First log of the day and the chain holds — small fireworks.
         const day = streak.length + 1;
@@ -139,7 +148,7 @@ export default function TodayScreen({
         showConfirmation();
       }
     },
-    [onAdd, streak, total, dailyGoal, trackProtein, proteinTarget, protein, showToast, showConfirmation],
+    [onAdd, streak, total, dailyGoal, trackProtein, proteinTarget, protein, unit, showToast, showConfirmation],
   );
 
   const handleDelete = useCallback(
@@ -182,6 +191,10 @@ export default function TodayScreen({
         streak={streak}
         goal={dailyGoal}
         goalHint={!goalSeen}
+        unit={unit}
+        unitHint={unitHint}
+        onToggleUnit={onToggleUnit}
+        onUnitHintDone={onUnitHintDone}
         onEditGoal={() => {
           onGoalSeen();
           setGoalOpen(true);
@@ -190,6 +203,7 @@ export default function TodayScreen({
 
       <QuickAddChips
         items={quickAdds}
+        unit={unit}
         menuAvailable={menu.length > 0}
         showWeightChip={trackWeight && todayWeight === null}
         onLogWeight={() => setWeightOpen(true)}
@@ -207,6 +221,7 @@ export default function TodayScreen({
 
       <AddEntryForm
         trackProtein={trackProtein}
+        unit={unit}
         onAdd={(cal, desc, el, p, f) => handleAdd(cal, desc, el, p, f)}
       />
 
@@ -217,6 +232,7 @@ export default function TodayScreen({
       <EntryList
         entries={entries}
         trackProtein={trackProtein}
+        unit={unit}
         onDelete={handleDelete}
         onEdit={setEditing}
         onRepeat={(entry, el) =>
@@ -234,6 +250,7 @@ export default function TodayScreen({
         open={menuPickOpen}
         menu={menu}
         trackProtein={trackProtein}
+        unit={unit}
         onPick={(item, el) => {
           handleAdd(
             item.calories,
@@ -249,6 +266,7 @@ export default function TodayScreen({
       <GoalSheet
         open={goalOpen}
         goal={dailyGoal}
+        unit={unit}
         onSave={onSetGoal}
         onClose={() => setGoalOpen(false)}
       />
@@ -266,6 +284,7 @@ export default function TodayScreen({
       <EditEntrySheet
         entry={editing}
         trackProtein={trackProtein}
+        unit={unit}
         onSave={onUpdate}
         onClose={() => setEditing(null)}
       />

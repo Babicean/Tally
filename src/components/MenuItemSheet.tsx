@@ -1,13 +1,19 @@
 import { FormEvent, useEffect, useState } from "react";
 import type { MenuItem } from "../types";
 import Sheet from "./Sheet";
-import { parseCalories } from "../lib/store";
 import { parseProtein } from "../lib/menu";
+import {
+  energyUnitLabel,
+  parseEnergy,
+  toDisplayEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 import CategoryIcon, { CATEGORIES } from "./CategoryIcon";
 
 interface Props {
   open: boolean;
   trackProtein: boolean;
+  unit: EnergyUnit;
   /** Item being edited, or null when adding a new one. */
   item: MenuItem | null;
   onSave: (
@@ -24,6 +30,7 @@ interface Props {
 export default function MenuItemSheet({
   open,
   trackProtein,
+  unit,
   item,
   onSave,
   onDelete,
@@ -39,13 +46,13 @@ export default function MenuItemSheet({
   useEffect(() => {
     if (open) {
       setName(item?.name ?? "");
-      setCalories(item ? String(item.calories) : "");
+      setCalories(item ? String(toDisplayEnergy(item.calories, unit)) : "");
       setProtein(item?.protein != null ? String(item.protein) : "");
       setFat(item?.fat != null ? String(item.fat) : "");
       setCategory(item?.category ?? null);
       setError(null);
     }
-  }, [open, item]);
+  }, [open, item, unit]);
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -54,9 +61,13 @@ export default function MenuItemSheet({
       setError("Give the item a name.");
       return;
     }
-    const cal = parseCalories(calories);
+    const cal = parseEnergy(calories, unit);
     if (cal === null) {
-      setError("Calories must be a positive number up to 20,000.");
+      setError(
+        unit === "kj"
+          ? "Kilojoules must be a positive number up to 83,680."
+          : "Calories must be a positive number up to 20,000.",
+      );
       return;
     }
     const prot = trackProtein ? parseProtein(protein) : item?.protein ?? null;
@@ -102,10 +113,10 @@ export default function MenuItemSheet({
                 setError(null);
               }}
               inputMode="numeric"
-              placeholder="545"
-              aria-label="Calories"
+              placeholder={unit === "kj" ? "2,280" : "545"}
+              aria-label={unit === "kj" ? "Kilojoules" : "Calories"}
             />
-            <span className="unit">cal</span>
+            <span className="unit">{energyUnitLabel(unit)}</span>
           </div>
           {trackProtein && (
           <div className="field field-cal field-protein">

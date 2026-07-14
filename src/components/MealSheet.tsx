@@ -1,6 +1,10 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { MenuItem } from "../types";
-import { formatCalories } from "../lib/format";
+import {
+  energyUnitLabel,
+  formatEnergy,
+  type EnergyUnit,
+} from "../lib/units";
 import Sheet from "./Sheet";
 
 interface Props {
@@ -10,6 +14,7 @@ interface Props {
   /** Foods available as components (meals can't contain meals). */
   foods: MenuItem[];
   trackProtein: boolean;
+  unit: EnergyUnit;
   onSave: (name: string, componentIds: string[]) => void;
   onDelete?: () => void;
   onClose: () => void;
@@ -25,6 +30,7 @@ export default function MealSheet({
   meal,
   foods,
   trackProtein,
+  unit,
   onSave,
   onDelete,
   onClose,
@@ -130,7 +136,7 @@ export default function MealSheet({
                   </span>
                   <span className="meal-option-name">{f.name}</span>
                   <span className="meal-option-cal">
-                    {formatCalories(f.calories)} cal
+                    {formatEnergy(f.calories, unit)} {energyUnitLabel(unit)}
                   </span>
                 </button>
               );
@@ -139,7 +145,7 @@ export default function MealSheet({
         )}
         {picked.size > 0 && (
           <p className="meal-total">
-            {formatCalories(totals.cal)} cal
+            {formatEnergy(totals.cal, unit)} {energyUnitLabel(unit)}
             {trackProtein && totals.protein > 0 && ` · ${totals.protein} g protein`}
             {trackProtein && totals.fat > 0 && ` · ${totals.fat} g fat`}
           </p>

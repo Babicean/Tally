@@ -69,9 +69,10 @@ export function parseBackup(json: string): BackupPayload | null {
       entries: raw.entries.filter(isEntry),
       menu: Array.isArray(raw.menu) ? raw.menu.filter(isMenuItem) : [],
       settings: {
+        // Unrounded: a kilojoule goal stores its exact kcal equivalent.
         dailyGoal:
           typeof goal === "number" && Number.isFinite(goal) && goal > 0
-            ? Math.round(goal)
+            ? goal
             : null,
         theme: theme === "light" || theme === "dark" ? theme : "system",
         // Grandfather rule, matching loadSettings: backups from before
@@ -96,6 +97,11 @@ export function parseBackup(json: string): BackupPayload | null {
         goalSeen:
           typeof raw.settings?.goalSeen === "boolean"
             ? raw.settings.goalSeen
+            : true,
+        unit: raw.settings?.unit === "kj" ? "kj" : "kcal",
+        unitHintSeen:
+          typeof raw.settings?.unitHintSeen === "boolean"
+            ? raw.settings.unitHintSeen
             : true,
       },
       weights: Array.isArray(raw.weights)
