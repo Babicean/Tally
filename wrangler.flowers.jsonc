@@ -1,0 +1,15 @@
+// Cloudflare Workers config for the flowers page only (not the Tally app).
+// Deployed by .github/workflows/deploy-flowers.yml, which stages
+// public/flowers.html as .flowers-site/index.html before running wrangler.
+{
+  "name": "flowers",
+  "compatibility_date": "2026-07-16",
+  "assets": {
+    "directory": "./.flowers-site"
+  }
+  // Once the domain is decided, uncomment to attach it automatically on deploy
+  // (requires the API token to include Zone → Workers Routes → Edit + DNS → Edit):
+  // ,"routes": [
+  //   { "pattern": "flowers.example.com", "custom_domain": true }
+  // ]
+}
