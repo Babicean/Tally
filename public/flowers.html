@@ -26,7 +26,6 @@
     --leaf-deep:#1f6b36;
     --leaf-ink:#14472a;
     --gold:#f3d48a;
-    --note-red:#ff6b7a;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
   html,body{ height:100%; }
@@ -43,29 +42,21 @@
 
   .scene{ position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; }
 
-  /* ——— dedication ——— */
-  header{
-    position:absolute; top:clamp(20px,6vh,64px); left:0; right:0;
-    text-align:center; z-index:5; pointer-events:none; padding:0 24px;
-  }
-  .eyebrow{
-    font-family:ui-sans-serif,system-ui,sans-serif;
-    font-size:11px; letter-spacing:.34em; text-transform:uppercase;
-    color:#b99a86; opacity:0;
-    animation:rise 1.6s ease .5s both;
-  }
-  h1{
-    margin-top:14px;
-    font-size:clamp(30px,5.4vw,54px);
-    font-weight:400; font-style:italic; letter-spacing:.01em;
-    text-wrap:balance;
-    color:var(--cream);
-    text-shadow:0 0 34px rgba(243,212,138,.25);
-    opacity:0;
-    animation:rise 1.8s cubic-bezier(.22,1,.36,1) both;
-    animation-delay:var(--title-delay,4.6s);
-  }
   @keyframes rise{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ——— sun & moon ——— */
+  .celestial{
+    position:absolute; z-index:2; overflow:visible; pointer-events:none;
+    opacity:0; animation:dawn 2.6s ease both;
+  }
+  #sun{ left:8%; top:17%; width:clamp(64px,11vmin,110px); height:clamp(64px,11vmin,110px); animation-delay:.7s; }
+  #moon{ right:8%; top:11%; width:clamp(56px,9.5vmin,96px); height:clamp(56px,9.5vmin,96px); animation-delay:1.3s; }
+  @keyframes dawn{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
+  .sun-rays{
+    transform-box:fill-box; transform-origin:50% 50%;
+    animation:turn 240s linear infinite;
+  }
+  @keyframes turn{ to{ transform:rotate(360deg); } }
 
   /* ——— the garden ——— */
   #garden{
@@ -119,26 +110,6 @@
   }
   @keyframes sway{ from{ transform:rotate(-1.6deg); } to{ transform:rotate(1.8deg); } }
 
-  /* ——— love notes ——— */
-  .note{
-    position:absolute; z-index:6;
-    font-style:italic; font-size:clamp(13px,1.6vw,16px); letter-spacing:.02em;
-    color:#ffd9d3;
-    background:rgba(58,12,18,.55);
-    border:1px solid rgba(255,107,122,.55);
-    border-radius:999px;
-    padding:10px 20px;
-    backdrop-filter:blur(3px);
-    box-shadow:0 0 18px rgba(255,80,96,.28), inset 0 0 12px rgba(255,107,122,.12);
-    text-shadow:0 0 10px rgba(255,107,122,.6);
-    opacity:0;
-    animation:notein 1.4s ease both, bob 6s ease-in-out calc(var(--d) + 1.4s) infinite alternate;
-    animation-delay:var(--d);
-    max-width:min(46vw,290px); text-align:center;
-  }
-  @keyframes notein{ from{ opacity:0; transform:translateY(18px) scale(.92); } to{ opacity:1; transform:none; } }
-  @keyframes bob{ from{ translate:0 0; } to{ translate:0 -10px; } }
-
   /* ——— sparkles & stars ——— */
   .star{
     position:absolute; border-radius:50%;
@@ -180,7 +151,8 @@
 
   @media (max-width:700px){
     #garden{ width:152vw; height:auto; max-height:72vh; }
-    .note{ padding:8px 14px; max-width:60vw; }
+    #sun{ left:9%; top:9%; }
+    #moon{ right:9%; top:6%; }
     #replay{ right:50%; transform:translateX(50%); background:rgba(22,15,19,.65); }
   }
 
@@ -192,28 +164,13 @@
 </head>
 <body>
 <div class="scene" id="scene">
-  <header>
-    <div class="eyebrow" id="eyebrow"></div>
-    <h1 id="dedication"></h1>
-  </header>
+  <svg id="sun" class="celestial" viewBox="-60 -60 120 120" aria-label="The sun"></svg>
+  <svg id="moon" class="celestial" viewBox="-60 -60 120 120"></svg>
   <svg id="garden" viewBox="0 0 1000 820" aria-label="A bouquet of cream roses and red carnations blossoming"></svg>
   <button id="replay" type="button">bloom again</button>
 </div>
 
 <script>
-/* ═══════════ make it yours ═══════════ */
-const CONFIG = {
-  eyebrow:    "picked fresh · coded by hand",
-  dedication: "for you, my love",
-  notes: [
-    "you make my world brighter ♥",
-    "every flower reminds me of you",
-    "i’m lucky to have you",
-    "forever grateful for you ☾",
-  ],
-};
-/* ═════════════════════════════════════ */
-
 const SVG = "http://www.w3.org/2000/svg";
 const rand = (a, b) => a + Math.random() * (b - a);
 
@@ -417,31 +374,69 @@ function buildGarden(){
   });
 }
 
-function buildNotes(){
-  document.querySelectorAll(".note").forEach(n => n.remove());
-  const scene = document.getElementById("scene");
-  const phone = matchMedia("(max-width:700px)").matches;
-  const spots = phone
-    ? [
-        { left:"6%",  top:"18%" },
-        { right:"5%", top:"27%" },
-        { left:"9%",  top:"36%" },
-        { right:"8%", top:"45%" },
-      ]
-    : [
-        { left:"6%",  bottom:"46%" },
-        { right:"5%", top:"26%" },
-        { right:"7%", bottom:"30%" },
-        { left:"10%", top:"22%" },
-      ];
-  CONFIG.notes.slice(0, 4).forEach((text, i) => {
-    const n = document.createElement("div");
-    n.className = "note";
-    n.textContent = text;
-    Object.assign(n.style, spots[i]);
-    n.style.setProperty("--d", (4.4 + i * 0.55) + "s");
-    scene.appendChild(n);
-  });
+/* ——— an inked sun ——— */
+function buildSun(){
+  const svg = document.getElementById("sun");
+  svg.textContent = "";
+  const glow = el("radialGradient", { id:"sunglow" }, el("defs", {}, svg));
+  el("stop", { offset:"0%",  "stop-color":"#f3d48a", "stop-opacity":.35 }, glow);
+  el("stop", { offset:"100%","stop-color":"#f3d48a", "stop-opacity":0 }, glow);
+  el("circle", { r:58, fill:"url(#sunglow)" }, svg);
+  /* woodcut rays, alternating long and short */
+  const rays = el("g", { class:"sun-rays" }, svg);
+  for (let i = 0; i < 12; i++){
+    const a = (Math.PI * 2 * i) / 12;
+    const r2 = i % 2 ? 40 : 47;
+    el("line", {
+      x1:Math.cos(a)*33, y1:Math.sin(a)*33, x2:Math.cos(a)*r2, y2:Math.sin(a)*r2,
+      stroke:"var(--gold)", "stroke-width":2.6, "stroke-linecap":"round", opacity:.85,
+    }, rays);
+  }
+  el("circle", { r:26, fill:"#f0cd7e", stroke:"var(--ink)", "stroke-width":1.8 }, svg);
+  /* cel-shade crescent along the lower-left of the disc */
+  el("path", { d:"M -20 14 A 26 26 0 0 0 12 22 A 21 21 0 0 1 -20 14 Z",
+    fill:"var(--ink)", opacity:.18 }, svg);
+}
+
+/* ——— the moon, as it is tonight ———
+   0 = new · .25 = first quarter · .5 = full · .75 = last quarter */
+function moonPhase(){
+  const synodic = 29.530588853;
+  const newMoonRef = Date.UTC(2000, 0, 6, 18, 14);
+  let p = ((Date.now() - newMoonRef) / 86400000 / synodic) % 1;
+  return p < 0 ? p + 1 : p;
+}
+function phaseName(p){
+  const names = ["new moon","waxing crescent","first quarter moon","waxing gibbous moon",
+                 "full moon","waning gibbous moon","last quarter moon","waning crescent"];
+  return names[Math.round(p * 8) % 8];
+}
+function buildMoon(){
+  const svg = document.getElementById("moon");
+  svg.textContent = "";
+  const p = moonPhase(), R = 28;
+  svg.setAttribute("aria-label", "Tonight's " + phaseName(p));
+  const glow = el("radialGradient", { id:"moonglow" }, el("defs", {}, svg));
+  const lit = Math.max(0.06, (1 - Math.cos(Math.PI * 2 * p)) / 2);
+  el("stop", { offset:"0%",  "stop-color":"#f2e6c4", "stop-opacity":.3 * lit + .06 }, glow);
+  el("stop", { offset:"100%","stop-color":"#f2e6c4", "stop-opacity":0 }, glow);
+  el("circle", { r:56, fill:"url(#moonglow)" }, svg);
+  /* the dark disc, faintly there, with the same sepia ink line as the flowers */
+  el("circle", { r:R, fill:"#332b3a", stroke:"var(--ink)", "stroke-width":1.6, "stroke-opacity":.8 }, svg);
+  /* the sunlit part: limb semicircle + elliptical terminator */
+  const a = Math.cos(Math.PI * 2 * p) * R;   /* terminator half-width, signed */
+  if (p > 0.98 || p < 0.02){
+    /* new moon: nothing lit */
+  } else if (Math.abs(p - 0.5) < 0.02){
+    el("circle", { r:R, fill:"#f2e6c4" }, svg);
+  } else {
+    const d = `M0 ${-R} A ${R} ${R} 0 0 1 0 ${R} A ${Math.abs(a).toFixed(2)} ${R} 0 0 ${a > 0 ? 0 : 1} 0 ${-R} Z`;
+    el("path", { d, fill:"#f2e6c4", transform: p < 0.5 ? "" : "scale(-1 1)" }, svg);
+  }
+  /* two quiet craters */
+  const s = p < 0.5 ? 1 : -1;
+  el("circle", { cx:s*R*0.52, cy:-R*0.18, r:R*0.12, fill:"#000", opacity:.08 }, svg);
+  el("circle", { cx:s*R*0.3,  cy: R*0.34, r:R*0.09, fill:"#000", opacity:.08 }, svg);
 }
 
 function buildSky(){
@@ -480,19 +475,17 @@ function buildSky(){
 
 function bloom(){
   buildGarden();
-  buildNotes();
+  buildSun();
+  buildMoon();
   buildSky();
+  /* restart the sun & moon fade-in on replay */
+  document.querySelectorAll(".celestial").forEach(c => {
+    c.style.animation = "none"; void c.getBoundingClientRect();
+    c.style.animation = "";
+  });
 }
 
-document.getElementById("eyebrow").textContent = CONFIG.eyebrow;
-document.getElementById("dedication").textContent = CONFIG.dedication;
-document.getElementById("replay").addEventListener("click", () => {
-  /* restart every animation by rebuilding the scene */
-  const h1 = document.getElementById("dedication");
-  h1.style.animation = "none"; void h1.offsetWidth;
-  h1.style.animation = ""; h1.style.setProperty("--title-delay", "4.6s");
-  bloom();
-});
+document.getElementById("replay").addEventListener("click", bloom);
 bloom();
 </script>
 </body>
