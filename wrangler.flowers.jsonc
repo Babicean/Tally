@@ -6,10 +6,10 @@
   "compatibility_date": "2026-07-16",
   "assets": {
     "directory": "./.flowers-site"
-  }
-  // Once the domain is decided, uncomment to attach it automatically on deploy
-  // (requires the API token to include Zone → Workers Routes → Edit + DNS → Edit):
-  // ,"routes": [
-  //   { "pattern": "flowers.example.com", "custom_domain": true }
-  // ]
+  },
+  // Attaching the custom domain here means every deploy keeps the DNS
+  // record and certificate in place automatically.
+  "routes": [
+    { "pattern": "flowers.babicean.com", "custom_domain": true }
+  ]
 }
