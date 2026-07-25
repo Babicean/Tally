@@ -58,6 +58,26 @@
   }
   @keyframes turn{ to{ transform:rotate(360deg); } }
 
+  /* ——— the sun's constellation, hung between them ——— */
+  #zodiac{
+    position:absolute; z-index:1; pointer-events:none; overflow:visible;
+    /* centred with auto margins, not a transform — the fade-in animation
+       animates transform, and would otherwise cancel the centring */
+    left:0; right:0; margin-inline:auto; top:9%;
+    width:clamp(190px,26vw,340px); height:clamp(90px,15vh,150px);
+    opacity:0; animation:dawn 3.4s ease 2.1s both;
+  }
+  .con-line{ stroke:var(--ink); stroke-width:.9; opacity:.34; stroke-linecap:round; }
+  .con-star{
+    fill:#fdf4dd;
+    animation:shimmer var(--dur,4s) ease-in-out var(--d,0s) infinite alternate;
+  }
+  @keyframes shimmer{ from{ opacity:.45; } to{ opacity:1; } }
+  .moon-glyph{
+    fill:var(--cream); opacity:.42;
+    font-family:"Iowan Old Style",Georgia,serif; font-size:19px; text-anchor:middle;
+  }
+
   /* ——— the garden ——— */
   #garden{
     position:absolute; bottom:0; left:50%; transform:translateX(-50%);
@@ -166,6 +186,7 @@
 <div class="scene" id="scene">
   <svg id="sun" class="celestial" viewBox="-60 -60 120 120" aria-label="The sun"></svg>
   <svg id="moon" class="celestial" viewBox="-60 -60 120 120"></svg>
+  <svg id="zodiac" viewBox="0 0 340 150"></svg>
   <svg id="garden" viewBox="0 0 1000 820" aria-label="A bouquet of cream roses and red carnations blossoming"></svg>
   <button id="replay" type="button">bloom again</button>
 </div>
@@ -398,6 +419,111 @@ function buildSun(){
     fill:"var(--ink)", opacity:.18 }, svg);
 }
 
+/* ═══════════ the zodiac ═══════════
+   Real stars: [right ascension in hours, declination in degrees, magnitude].
+   `lines` joins them by index into the shape people actually trace. */
+const ZODIAC = [
+  { name:"Aries", glyph:"♈", stars:[[1.892,19.29,3.9],[1.911,20.81,2.6],[2.119,23.46,2.0],[2.833,27.26,3.6]],
+    lines:[[0,1],[1,2],[2,3]] },
+  { name:"Taurus", glyph:"♉", stars:[[4.599,16.51,0.9],[5.438,28.61,1.7],[3.791,24.11,2.9],[4.477,15.87,3.4],[4.330,15.63,3.6],[4.478,19.18,3.5],[5.627,21.14,3.0],[4.011,12.49,3.4]],
+    lines:[[4,3],[3,0],[5,0],[2,5],[0,6],[6,1],[7,4]] },
+  { name:"Gemini", glyph:"♊", stars:[[7.755,28.03,1.1],[7.577,31.89,1.6],[6.629,16.40,1.9],[7.335,21.98,3.5],[6.732,25.13,3.0],[6.383,22.51,2.9],[6.248,22.51,3.3],[6.755,12.90,3.4]],
+    lines:[[1,4],[0,3],[4,5],[5,6],[3,2],[3,4],[2,7]] },
+  { name:"Cancer", glyph:"♋", stars:[[8.975,11.86,4.3],[8.275,9.19,3.5],[8.745,18.15,3.9],[8.722,21.47,4.7],[8.778,28.76,4.0]],
+    lines:[[1,2],[2,0],[2,3],[3,4]] },
+  { name:"Leo", glyph:"♌", stars:[[10.139,11.97,1.4],[11.818,14.57,2.1],[10.333,19.84,2.0],[11.235,20.52,2.6],[9.764,23.77,3.0],[11.237,15.43,3.3],[10.278,23.42,3.4],[10.123,16.76,3.5],[9.879,26.01,3.9]],
+    lines:[[4,8],[8,6],[6,2],[2,7],[7,0],[0,5],[5,1],[1,3],[3,2]] },
+  { name:"Virgo", glyph:"♍", stars:[[13.420,-11.16,1.0],[11.845,1.76,3.6],[12.694,-1.45,2.7],[12.926,3.40,3.4],[13.036,10.96,2.8],[13.578,-0.60,3.4],[12.332,-0.67,3.9]],
+    lines:[[4,3],[3,2],[2,1],[2,5],[5,0],[2,6]] },
+  { name:"Libra", glyph:"♎", stars:[[14.848,-16.04,2.8],[15.283,-9.38,2.6],[15.592,-14.79,3.9],[15.067,-25.28,3.3]],
+    lines:[[0,1],[1,2],[2,0],[0,3]] },
+  { name:"Scorpius", glyph:"♏", stars:[[16.490,-26.43,1.0],[16.090,-19.81,2.6],[16.006,-22.62,2.3],[15.981,-26.11,2.9],[16.353,-25.59,2.9],[16.611,-28.22,2.8],[16.836,-34.29,2.3],[16.864,-38.05,3.0],[16.897,-42.36,3.6],[17.202,-43.24,3.3],[17.622,-42.99,1.9],[17.708,-39.03,2.4],[17.560,-37.10,1.6]],
+    lines:[[1,2],[2,3],[3,4],[4,0],[0,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12]] },
+  { name:"Sagittarius", glyph:"♐", stars:[[18.403,-34.38,1.9],[18.921,-26.30,2.1],[18.350,-29.83,2.7],[18.466,-25.42,2.8],[19.044,-29.88,2.6],[18.766,-26.99,3.2],[19.116,-27.67,3.3],[18.097,-30.42,3.0]],
+    lines:[[7,2],[2,0],[0,4],[4,1],[1,5],[5,3],[3,2],[5,4],[4,6]] },
+  { name:"Capricornus", glyph:"♑", stars:[[20.300,-12.51,3.6],[20.351,-14.78,3.1],[21.784,-16.13,2.9],[21.668,-16.66,3.7],[20.864,-26.92,4.1],[21.444,-22.41,3.7]],
+    lines:[[0,1],[1,4],[4,5],[5,3],[3,2],[2,0]] },
+  { name:"Aquarius", glyph:"♒", stars:[[22.096,-0.32,3.0],[21.526,-5.57,2.9],[22.911,-15.82,3.3],[22.481,-0.02,3.6],[22.361,-1.39,3.8],[20.795,-9.50,3.8],[22.877,-7.58,3.7]],
+    lines:[[5,1],[1,0],[0,4],[4,3],[3,6],[6,2]] },
+  { name:"Pisces", glyph:"♓", stars:[[1.525,15.35,3.6],[23.286,3.28,3.7],[23.983,6.86,4.0],[23.666,5.63,4.1],[2.034,2.76,3.8],[1.048,7.89,4.3],[0.811,7.59,4.4]],
+    lines:[[0,5],[5,6],[6,3],[3,2],[2,1],[0,4]] },
+];
+
+/* Days since the J2000.0 epoch */
+function daysSinceJ2000(){ return (Date.now() - Date.UTC(2000, 0, 1, 12)) / 86400000; }
+const sin = d => Math.sin(d * Math.PI / 180);
+
+/* Ecliptic longitude of the sun, good to ~0.01° */
+function sunLongitude(){
+  const d = daysSinceJ2000();
+  const M = 357.529 + 0.98560028 * d;
+  const L = 280.459 + 0.98564736 * d;
+  return ((L + 1.915 * sin(M) + 0.020 * sin(2 * M)) % 360 + 360) % 360;
+}
+
+/* Ecliptic longitude of the moon, good to ~0.2° — it moves ~13°/day,
+   so it changes sign every 2 or 3 days. */
+function moonLongitude(){
+  const d = daysSinceJ2000();
+  const L = 218.316 + 13.176396 * d;      /* mean longitude */
+  const M = 134.963 + 13.064993 * d;      /* mean anomaly */
+  const F = 93.272 + 13.229350 * d;       /* argument of latitude */
+  const D = 297.850 + 12.190749 * d;      /* mean elongation from the sun */
+  const Ms = 357.529 + 0.98560028 * d;    /* the sun's mean anomaly */
+  const lon = L + 6.289 * sin(M) + 1.274 * sin(2 * D - M) + 0.658 * sin(2 * D)
+            + 0.214 * sin(2 * M) - 0.186 * sin(Ms) - 0.114 * sin(2 * F);
+  return ((lon % 360) + 360) % 360;
+}
+
+/* Tropical signs are simply 30° slices of ecliptic longitude from the equinox */
+const signOf = longitude => ZODIAC[Math.floor(longitude / 30) % 12];
+
+/* ——— draw a constellation, auto-fitted to its box ——— */
+function buildConstellation(){
+  const svg = document.getElementById("zodiac");
+  svg.textContent = "";
+  const sign = signOf(sunLongitude());
+  svg.setAttribute("aria-label", "The constellation " + sign.name + ", where the sun sits today");
+
+  /* flat projection around the constellation's own centre */
+  const raC = sign.stars[0][0];
+  const decC = sign.stars.reduce((s, st) => s + st[1], 0) / sign.stars.length;
+  const cosDec = Math.cos(decC * Math.PI / 180);
+  const pts = sign.stars.map(([ra, dec]) => {
+    let dRa = ra - raC;                        /* keep constellations that straddle 0h together */
+    if (dRa > 12) dRa -= 24;
+    if (dRa < -12) dRa += 24;
+    return [-dRa * 15 * cosDec, -(dec - decC)];
+  });
+
+  /* fit to the viewBox with padding, preserving the true shape */
+  const W = 340, H = 150, pad = 26;
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const spanX = Math.max(...xs) - Math.min(...xs) || 1;
+  const spanY = Math.max(...ys) - Math.min(...ys) || 1;
+  const k = Math.min((W - pad * 2) / spanX, (H - pad * 2) / spanY);
+  const offX = (W - spanX * k) / 2 - Math.min(...xs) * k;
+  const offY = (H - spanY * k) / 2 - Math.min(...ys) * k;
+  const xy = pts.map(([x, y]) => [x * k + offX, y * k + offY]);
+
+  sign.lines.forEach(([a, b]) => {
+    el("line", { class:"con-line", x1:xy[a][0], y1:xy[a][1], x2:xy[b][0], y2:xy[b][1] }, svg);
+  });
+  sign.stars.forEach(([, , mag], i) => {
+    const r = Math.max(1.1, 3.1 - 0.5 * (mag - 0.9));   /* brighter stars, bigger dots */
+    const s = el("circle", { class:"con-star", cx:xy[i][0], cy:xy[i][1], r }, svg);
+    s.style.setProperty("--d", rand(0, 4) + "s");
+    s.style.setProperty("--dur", rand(2.4, 5) + "s");
+    if (mag < 2.2) s.setAttribute("filter", "url(#starglow)");
+  });
+  const defs = el("defs", {}, svg);
+  const f = el("filter", { id:"starglow", x:"-300%", y:"-300%", width:"700%", height:"700%" }, defs);
+  el("feGaussianBlur", { stdDeviation:2.2, result:"b" }, f);
+  const m = el("feMerge", {}, f);
+  el("feMergeNode", { in:"b" }, m);
+  el("feMergeNode", { in:"SourceGraphic" }, m);
+}
+
 /* ——— the moon, as it is tonight ———
    0 = new · .25 = first quarter · .5 = full · .75 = last quarter */
 function moonPhase(){
@@ -437,6 +563,15 @@ function buildMoon(){
   const s = p < 0.5 ? 1 : -1;
   el("circle", { cx:s*R*0.52, cy:-R*0.18, r:R*0.12, fill:"#000", opacity:.08 }, svg);
   el("circle", { cx:s*R*0.3,  cy: R*0.34, r:R*0.09, fill:"#000", opacity:.08 }, svg);
+
+  /* the sign the moon is travelling through right now — it crosses one
+     every 2 to 3 days, so this is the fastest-moving thing on the page */
+  const moonSign = signOf(moonLongitude());
+  const g = el("text", { class:"moon-glyph", x:0, y:R + 22 }, svg);
+  /* U+FE0E asks for the inked text form of the glyph, not a colour emoji */
+  g.textContent = moonSign.glyph + "︎";
+  svg.setAttribute("aria-label",
+    "Tonight's " + phaseName(p) + ", travelling through " + moonSign.name);
 }
 
 function buildSky(){
@@ -477,9 +612,10 @@ function bloom(){
   buildGarden();
   buildSun();
   buildMoon();
+  buildConstellation();
   buildSky();
   /* restart the sun & moon fade-in on replay */
-  document.querySelectorAll(".celestial").forEach(c => {
+  document.querySelectorAll(".celestial, #zodiac").forEach(c => {
     c.style.animation = "none"; void c.getBoundingClientRect();
     c.style.animation = "";
   });
