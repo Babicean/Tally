@@ -85,12 +85,29 @@
     overflow:visible;
   }
 
+  /* ——— the ground ——— */
+  #ground{
+    position:absolute; left:0; right:0; bottom:0; width:100%;
+    height:clamp(110px,18vh,205px);
+    animation:groundrise 1.4s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes groundrise{ from{ opacity:0; transform:translateY(26px); } to{ opacity:1; transform:none; } }
+
   .blade{
     transform-box:fill-box; transform-origin:50% 100%;
     animation:sprout .9s cubic-bezier(.3,1.4,.5,1) both;
     animation-delay:var(--d);
   }
   @keyframes sprout{ from{ transform:scaleY(0) scaleX(.6); } to{ transform:none; } }
+
+  .petalfall{
+    transform-box:fill-box; transform-origin:50% 50%;
+    animation:settle 1.3s ease var(--d) both;
+  }
+  @keyframes settle{
+    from{ opacity:0; translate:0 -30px; rotate:-24deg; }
+    to{ opacity:.9; translate:0 0; rotate:0deg; }
+  }
 
   .stem{
     fill:none; stroke-linecap:round;
@@ -188,6 +205,7 @@
   <svg id="moon" class="celestial" viewBox="-60 -60 120 120"></svg>
   <svg id="zodiac" viewBox="0 0 340 150"></svg>
   <svg id="garden" viewBox="0 0 1000 820" aria-label="A bouquet of cream roses and red carnations blossoming"></svg>
+  <svg id="ground" preserveAspectRatio="none" aria-hidden="true"></svg>
   <button id="replay" type="button">bloom again</button>
 </div>
 
@@ -320,13 +338,74 @@ function leaf(parent, x, y, angle, size, delay){
   el("path", { d:`M0 ${-h*0.08} L0 ${-h*0.9}`, stroke:"var(--leaf-ink)", "stroke-width":1.1, opacity:0.65 }, inner);
 }
 
-function blade(parent, x, h, lean, delay, color){
+/* ═══════════ the ground ═══════════
+   A full-bleed layer of rolling earth and grass, sized to the real
+   viewport so nothing ends mid-screen. Painted over the stem bases so
+   the bouquet grows out of the hill rather than off an oval. */
+
+function groundBlade(parent, x, y, h, lean, color, delay){
   const b = el("path", {
     class:"blade",
-    d:`M${x} 800 Q ${x + lean*0.3} ${800 - h*0.6}, ${x + lean} ${800 - h} Q ${x + lean*0.55} ${800 - h*0.55}, ${x + 7} 800 Z`,
+    /* rooted 3 units into the soil so no hairline gap shows at the base */
+    d:`M${x} ${y+3} Q ${x + lean*0.3} ${y - h*0.6}, ${x + lean} ${y - h}
+       Q ${x + lean*0.55} ${y - h*0.55}, ${x + rand(4.5, 6.5)} ${y+3} Z`,
     fill: color,
   }, parent);
   b.style.setProperty("--d", delay + "s");
+}
+
+function buildGround(){
+  const svg = document.getElementById("ground");
+  svg.textContent = "";
+  const rect = svg.getBoundingClientRect();
+  const H = 240;
+  /* match the viewBox to the element's real aspect: full bleed, no squash */
+  const W = Math.max(360, Math.round(H * rect.width / Math.max(1, rect.height)));
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+  const t = x => 2 * x / W - 1;                       /* -1 .. 1 across the screen */
+  const yBack  = x => 148 + 38 * t(x) * t(x);         /* two gentle crests, */
+  const yFront = x => 180 + 28 * t(x) * t(x);         /* highest under the bouquet */
+  const hill = (crest, fill) => {
+    let d = `M0 ${H} L0 ${crest(0).toFixed(1)}`;
+    for (let x = 0; x <= W; x += W / 28) d += ` L${x.toFixed(0)} ${crest(x).toFixed(1)}`;
+    el("path", { d: d + ` L${W} ${H} Z`, fill }, svg);
+  };
+
+  /* back hill + its shorter, darker grass */
+  hill(yBack, "#241a1d");
+  for (let x = -12; x <= W + 12; x += rand(11, 20)){
+    const boost = 1 + 0.7 * (1 - t(x) * t(x));        /* taller toward the bouquet */
+    groundBlade(svg, x, yBack(x) + rand(0, 5), rand(26, 62) * boost, rand(-22, 22),
+      ["#173f23", "#1a4a28", "#144020"][Math.floor(rand(0, 3))], rand(0, 0.9));
+  }
+
+  /* front hill, a soft blurred contact shadow, then the front grass */
+  hill(yFront, "#1b1015");
+  const defs = el("defs", {}, svg);
+  const f = el("filter", { id:"groundblur", x:"-60%", y:"-300%", width:"220%", height:"700%" }, defs);
+  el("feGaussianBlur", { stdDeviation:8 }, f);
+  el("ellipse", { cx:W/2, cy:yFront(W/2) + 8, rx:Math.min(W*0.28, 250), ry:15,
+    fill:"#000", opacity:0.32, filter:"url(#groundblur)" }, svg);
+  for (let x = -12; x <= W + 12; x += rand(8, 15)){
+    const boost = 1 + 0.85 * (1 - t(x) * t(x));
+    groundBlade(svg, x, yFront(x) + rand(0, 6), rand(34, 92) * boost, rand(-28, 28),
+      ["var(--leaf-deep)", "#1c5b31", "#256d3a", "#1c5b31"][Math.floor(rand(0, 4))],
+      rand(0, 0.9));
+  }
+
+  /* a few petals that fell while the bouquet bloomed */
+  for (let i = 0; i < 8; i++){
+    const px = W/2 + rand(-190, 190);
+    const p = el("ellipse", {
+      class:"petalfall",
+      cx:px, cy:yFront(px) + rand(2, 10), rx:rand(5.5, 9), ry:rand(2.6, 4.2),
+      fill: i === 3 ? "var(--cream)" : ["var(--red)", "var(--red-deep)"][i % 2],
+      stroke: i === 3 ? "var(--ink)" : "var(--red-ink)", "stroke-width":0.6,
+      transform:`rotate(${rand(-30, 30)} ${px} ${yFront(px)})`,
+    }, svg);
+    p.style.setProperty("--d", rand(4.6, 6.4) + "s");
+  }
 }
 
 function stem(parent, x0, x1, y1, bend, delay, dur){
@@ -366,18 +445,6 @@ const FLOWERS = [
 function buildGarden(){
   const svg = document.getElementById("garden");
   svg.textContent = "";
-
-  /* soft pooled shadow under the bouquet */
-  el("ellipse", { cx:500, cy:800, rx:290, ry:26, fill:"#000", opacity:0.35 }, svg);
-
-  /* grass skirt */
-  const grass = el("g", {}, svg);
-  for (let i = 0; i < 26; i++){
-    const x = 190 + i * 24 + rand(-9, 9);
-    const dist = Math.abs(x - 500) / 310;
-    blade(grass, x, rand(70, 190) * (1.15 - dist * 0.55), rand(-45, 45), rand(0, 0.7),
-      i % 3 ? "var(--leaf-deep)" : "#256d3a");
-  }
 
   const stems = el("g", {}, svg);
   const leavesG = el("g", {}, svg);
@@ -610,18 +677,25 @@ function buildSky(){
 
 function bloom(){
   buildGarden();
+  buildGround();
   buildSun();
   buildMoon();
   buildConstellation();
   buildSky();
-  /* restart the sun & moon fade-in on replay */
-  document.querySelectorAll(".celestial, #zodiac").forEach(c => {
+  /* restart the fade-ins on replay */
+  document.querySelectorAll(".celestial, #zodiac, #ground").forEach(c => {
     c.style.animation = "none"; void c.getBoundingClientRect();
     c.style.animation = "";
   });
 }
 
 document.getElementById("replay").addEventListener("click", bloom);
+/* the ground is sized to the real viewport — refit it when that changes */
+let groundTimer;
+addEventListener("resize", () => {
+  clearTimeout(groundTimer);
+  groundTimer = setTimeout(buildGround, 160);
+});
 bloom();
 </script>
 </body>
