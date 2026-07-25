@@ -11,6 +11,7 @@
   // record and certificate in place automatically.
   "routes": [
     { "pattern": "babicean.com", "custom_domain": true },
+    { "pattern": "www.babicean.com", "custom_domain": true },
     { "pattern": "flowers.babicean.com", "custom_domain": true }
   ]
 }
