@@ -113,7 +113,9 @@ export default function EntryList({
       {groups.map((group) => {
         const newest = group.items[0];
         const count = group.items.length;
-        const showProtein = trackProtein && group.totalProtein > 0;
+        const showProtein =
+          trackProtein &&
+          (group.totalProtein > 0 || group.totalCarbs !== null);
         const label = newest.description || formatTime(newest.timestamp);
         const isNew = !seen.has(group.key);
         const isLeaving = leaving.has(group.key);
@@ -143,15 +145,17 @@ export default function EntryList({
                         {newest.description
                           ? formatTime(newest.timestamp)
                           : null}
-                        {newest.description && showProtein && " · "}
+                        {newest.description && showProtein && " ·\u00a0"}
                         {showProtein &&
                           [
                             group.totalProtein > 0 &&
                               `${group.totalProtein} g protein`,
                             group.totalFat > 0 && `${group.totalFat} g fat`,
+                            group.totalCarbs !== null &&
+                              `≈ ${Math.round(group.totalCarbs)} g carbs`,
                           ]
                             .filter(Boolean)
-                            .join(" · ")}
+                            .join(" ·\u00a0")}
                       </span>
                     )}
                   </span>

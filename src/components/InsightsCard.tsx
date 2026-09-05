@@ -137,6 +137,7 @@ export default function InsightsCard({
               <MacroStat
                 proteinAvg={insights.proteinAvg}
                 fatAvg={insights.fatAvg}
+                carbsAvg={insights.carbsAvg}
               />
             )}
           </div>

@@ -55,7 +55,7 @@ celebration, weight card, export/import).
 Opt-in extras (Settings gear): **kilojoules** (tap the hero number to
 flip units, or the Settings Units row; input and display convert,
 storage stays kcal), **protein/fat tracking** ("Track
-macros"), **daily protein target** with its own bar and a fire-emoji
+macros", with carbs derived and shown with a ≈), **daily protein target** with its own bar and a fire-emoji
 celebration on hitting it, **weight tracking** (one weigh-in a day,
 logged from the History weight card, ~60-point SVG trend, 30-day
 change), theme System/Light/Dark, accent Azure/Emerald/Blush (Blush
@@ -224,6 +224,12 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.16.0, code 56 (derived carbs: `lib/macros.ts` carbsOf/carbsForDay,
+  4/9/4 kcal per gram, only entries with BOTH protein and fat count,
+  null when nothing derivable; hero macro row protein | fat | carbs;
+  entry rows + insights MacroStat cycle include carbs). Container was
+  rebuilt Sept 2026: old scratchpad E2E scripts are gone; the current
+  suite is `verify-carbs216.mjs` — rebuild older ones as needed.
 - v2.15.0, code 55 (kilojoules: hero tap-flip + Settings Units row;
   display/input converts everywhere, storage stays kcal — kJ entries
   keep exact float kcal so typed values round-trip; teach-flip plays

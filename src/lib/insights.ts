@@ -1,5 +1,6 @@
 import type { DayKey, Entry } from "../types";
 import { addDays } from "./day";
+import { carbsOf } from "./macros";
 
 /**
  * Insights: what you actually ate over a period, derived entirely from
@@ -43,6 +44,8 @@ export interface Insights {
   proteinAvg: number | null;
   /** Average grams of fat per logged day, or null when none tracked. */
   fatAvg: number | null;
+  /** Average derived carbs per logged day; null when nothing derivable. */
+  carbsAvg: number | null;
   /** Every named food in the range, most-logged first. */
   foods: TopFood[];
   split: [TimeSplit, TimeSplit, TimeSplit];
@@ -83,6 +86,8 @@ export function insightsFor(
   let totalCalories = 0;
   let protein = 0;
   let fat = 0;
+  let carbs = 0;
+  let carbsDerivable = false;
 
   for (const e of entries) {
     if (!inRange(e.day)) continue;
@@ -90,6 +95,11 @@ export function insightsFor(
     byDay.set(e.day, (byDay.get(e.day) ?? 0) + e.calories);
     if (typeof e.protein === "number") protein += e.protein;
     if (typeof e.fat === "number") fat += e.fat;
+    const c = carbsOf(e);
+    if (c !== null) {
+      carbs += c;
+      carbsDerivable = true;
+    }
     bucketCalories[bucketOf(e.timestamp)] += e.calories;
 
     const name = e.description.trim();
@@ -128,6 +138,8 @@ export function insightsFor(
     daysLogged > 0 && protein > 0 ? Math.round(protein / daysLogged) : null;
   const fatAvg =
     daysLogged > 0 && fat > 0 ? Math.round(fat / daysLogged) : null;
+  const carbsAvg =
+    daysLogged > 0 && carbsDerivable ? Math.round(carbs / daysLogged) : null;
 
   const ranked = [...foods.values()]
     .sort((a, b) => b.count - a.count || b.calories - a.calories)
@@ -153,6 +165,7 @@ export function insightsFor(
     goalDays,
     proteinAvg,
     fatAvg,
+    carbsAvg,
     foods: ranked,
     split,
     totalCalories,

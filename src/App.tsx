@@ -69,6 +69,7 @@ export default function App() {
     todayTotal,
     todayProtein,
     todayFat,
+    todayCarbs,
     history,
     quickAdds,
     menu,
@@ -169,6 +170,7 @@ export default function App() {
           total={todayTotal}
           protein={todayProtein}
           fat={todayFat}
+          carbs={todayCarbs}
           trackProtein={trackProtein}
           proteinTarget={proteinTarget}
           fatTarget={fatTarget}

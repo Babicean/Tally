@@ -1,6 +1,7 @@
 import type { DayKey, DaySummary, Entry } from "../types";
 import { trackingDayFor } from "./day";
 import { mirrorWrite } from "./mirror";
+import { carbsForEntries } from "./macros";
 
 /**
  * Persistence lives behind this tiny repository so the storage engine can be
@@ -225,6 +226,8 @@ export interface EntryGroup {
   totalCalories: number;
   totalProtein: number;
   totalFat: number;
+  /** Derived carbs across the instances; null when not derivable. */
+  totalCarbs: number | null;
 }
 
 /**
@@ -252,6 +255,7 @@ export function groupEntries(entries: Entry[]): EntryGroup[] {
       (s, e) => s + (typeof e.fat === "number" ? e.fat : 0),
       0,
     ),
+    totalCarbs: carbsForEntries(items),
   }));
 }
 

@@ -13,6 +13,7 @@ import {
 } from "../lib/store";
 import { loadSettings, saveSettings, type Settings } from "../lib/settings";
 import type { EnergyUnit } from "../lib/units";
+import { carbsForDay } from "../lib/macros";
 import {
   buildQuickAdds,
   createMenuItem,
@@ -419,6 +420,10 @@ export function useEntries() {
     () => fatForDay(entries, today),
     [entries, today],
   );
+  const todayCarbs = useMemo(
+    () => carbsForDay(entries, today),
+    [entries, today],
+  );
   const history = useMemo(() => summarizeByDay(entries), [entries]);
   const quickAdds = useMemo(
     () => buildQuickAdds(menu, entries),
@@ -437,6 +442,7 @@ export function useEntries() {
     todayTotal,
     todayProtein,
     todayFat,
+    todayCarbs,
     history,
     quickAdds,
     menu: sortedMenu,

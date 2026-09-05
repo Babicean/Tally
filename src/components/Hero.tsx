@@ -19,6 +19,8 @@ interface Props {
   protein: number;
   /** Grams of fat logged today; shown under protein with advanced tracking. */
   fat: number;
+  /** Derived carbs for today (null when no entry carries both macros). */
+  carbs: number | null;
   trackProtein: boolean;
   proteinTarget: number | null;
   fatTarget: number | null;
@@ -83,6 +85,7 @@ export default function Hero({
   total,
   protein,
   fat,
+  carbs,
   trackProtein,
   proteinTarget,
   fatTarget,
@@ -184,58 +187,79 @@ export default function Hero({
     other(unit),
   )}.`;
 
-  const proteinLine =
-    trackProtein && (protein > 0 || proteinTarget !== null) ? (
-      <div className="hero-protein-wrap" id="protein-line">
-        <p
-          className={`hero-protein${
-            proteinTarget !== null && protein >= proteinTarget ? " met" : ""
-          }`}
-        >
-          {formatCalories(protein)}
-          {proteinTarget !== null && ` / ${formatCalories(proteinTarget)}`} g
-          protein
-        </p>
-        {proteinTarget !== null && (
-          <div
-            className="protein-bar"
-            role="img"
-            aria-label={`${protein} of ${proteinTarget} grams of protein`}
-          >
-            <div
-              className="protein-bar-fill"
-              style={{
-                width: `${
-                  (mounted ? Math.min(protein / proteinTarget, 1) : 0) * 100
-                }%`,
-              }}
-            />
+  // ---- Macro row ---------------------------------------------------------
+  // Protein | fat | carbs side by side under the ring: less height than the
+  // old stacked lines even with a third macro. Carbs are derived, so they
+  // wear a "≈" and appear only when something today is derivable.
+  const showProtein = trackProtein && (protein > 0 || proteinTarget !== null);
+  const showFat = trackProtein && (fat > 0 || fatTarget !== null);
+  const showCarbs = trackProtein && carbs !== null;
+  const macroRow =
+    showProtein || showFat || showCarbs ? (
+      <div className="macro-row">
+        {showProtein && (
+          <div className="macro-cell" id="protein-line">
+            <p
+              className={`hero-protein${
+                proteinTarget !== null && protein >= proteinTarget ? " met" : ""
+              }`}
+            >
+              {formatCalories(protein)}
+              {proteinTarget !== null && ` / ${formatCalories(proteinTarget)}`} g
+            </p>
+            <span className="macro-label">protein</span>
+            {proteinTarget !== null && (
+              <div
+                className="protein-bar"
+                role="img"
+                aria-label={`${protein} of ${proteinTarget} grams of protein`}
+              >
+                <div
+                  className="protein-bar-fill"
+                  style={{
+                    width: `${
+                      (mounted ? Math.min(protein / proteinTarget, 1) : 0) * 100
+                    }%`,
+                  }}
+                />
+              </div>
+            )}
           </div>
         )}
-      </div>
-    ) : null;
-
-  const fatLine =
-    trackProtein && (fat > 0 || fatTarget !== null) ? (
-      <div className="hero-protein-wrap">
-        <p className="hero-protein fat">
-          {formatCalories(fat)}
-          {fatTarget !== null && ` / ${formatCalories(fatTarget)}`} g fat
-        </p>
-        {fatTarget !== null && (
-          <div
-            className="protein-bar"
-            role="img"
-            aria-label={`${fat} of ${fatTarget} grams of fat`}
-          >
-            <div
-              className="protein-bar-fill fat"
-              style={{
-                width: `${
-                  (mounted ? Math.min(fat / fatTarget, 1) : 0) * 100
-                }%`,
-              }}
-            />
+        {showFat && (
+          <div className="macro-cell">
+            <p className="hero-protein fat">
+              {formatCalories(fat)}
+              {fatTarget !== null && ` / ${formatCalories(fatTarget)}`} g
+            </p>
+            <span className="macro-label">fat</span>
+            {fatTarget !== null && (
+              <div
+                className="protein-bar"
+                role="img"
+                aria-label={`${fat} of ${fatTarget} grams of fat`}
+              >
+                <div
+                  className="protein-bar-fill fat"
+                  style={{
+                    width: `${
+                      (mounted ? Math.min(fat / fatTarget, 1) : 0) * 100
+                    }%`,
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+        {showCarbs && carbs !== null && (
+          <div className="macro-cell">
+            <p
+              className="hero-protein carbs"
+              aria-label={`about ${Math.round(carbs)} grams of carbs, derived`}
+            >
+              ≈ {formatCalories(Math.round(carbs))} g
+            </p>
+            <span className="macro-label">carbs</span>
           </div>
         )}
       </div>
@@ -268,8 +292,7 @@ export default function Hero({
           </h1>
           <p className="hero-caption">{energyNoun(displayUnit)} today</p>
         </button>
-        {proteinLine}
-        {fatLine}
+        {macroRow}
         <button className="goal-pill ghost" onClick={onEditGoal}>
           Set a {displayUnit === "kj" ? "kilojoule" : "calorie"} target
         </button>
@@ -366,8 +389,7 @@ export default function Hero({
           </button>
         </div>
       </div>
-      {proteinLine}
-      {fatLine}
+      {macroRow}
       <button
         className={`goal-pill${over ? " over" : ""}`}
         onClick={onEditGoal}

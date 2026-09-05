@@ -1458,6 +1458,46 @@ input {
   color: var(--accent-text);
 }
 
+/* ---- v2.16: macro row -----------------------------------------------------
+   Protein | fat | carbs side by side under the ring. Value on top, a quiet
+   label, and the thin target bar for the two macros that have targets.
+   Carbs are derived (shown with ≈) and have no bar. */
+.macro-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.375rem;
+  margin-top: 0.875rem;
+}
+
+.macro-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 5.25rem;
+}
+
+.macro-cell .hero-protein,
+.macro-cell .hero-protein.fat {
+  margin-top: 0;
+}
+
+.macro-label {
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}
+
+.macro-cell .protein-bar {
+  width: 100%;
+  max-width: 5.25rem;
+  margin: 0.4375rem 0 0;
+}
+
+.hero-protein.carbs {
+  color: var(--ink-2);
+}
+
 .settings-foot {
   margin-top: 1.5rem;
   font-size: 0.8125rem;

@@ -10,6 +10,23 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.16.0 — code 56 — 2026-09-05
+
+Carbs, derived. With macros on, Tally now works out carbohydrates from
+what you already enter (4 kcal per gram of protein and carbs, 9 per gram
+of fat; whatever is left is carbs).
+
+- Today: the protein and fat lines under the ring become one compact
+  row, protein | fat | carbs, each with its value, a quiet label, and
+  the thin target bar where a target exists. Less height than before,
+  one more macro.
+- Carbs wear a "≈" because they are derived, and only entries carrying
+  both protein and fat count toward them: an entry with no macros can't
+  be assumed to be all carbs, so it contributes nothing rather than a
+  wrong number. No derivable entry today means no carbs figure at all.
+- Entry rows show "≈ N g carbs" beside protein and fat when derivable.
+- History: the macro stat now cycles protein → fat → carbs per day.
+
 ## 2.15.0 — code 55 — 2026-07-14
 
 Kilojoules, for the country whose packets print them.

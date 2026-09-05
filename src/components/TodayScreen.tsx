@@ -21,6 +21,8 @@ interface Props {
   total: number;
   protein: number;
   fat: number;
+  /** Derived carbs for today, or null when nothing is derivable. */
+  carbs: number | null;
   trackProtein: boolean;
   proteinTarget: number | null;
   fatTarget: number | null;
@@ -67,6 +69,7 @@ export default function TodayScreen({
   total,
   protein,
   fat,
+  carbs,
   trackProtein,
   proteinTarget,
   fatTarget,
@@ -185,6 +188,7 @@ export default function TodayScreen({
         total={total}
         protein={protein}
         fat={fat}
+        carbs={carbs}
         trackProtein={trackProtein}
         proteinTarget={proteinTarget}
         fatTarget={fatTarget}
