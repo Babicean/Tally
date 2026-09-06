@@ -10,6 +10,13 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.19.1 — code 63 — 2026-09-06
+
+- Android manifest: two VO2 max health permissions the plugin declares
+  slipped past the strip in 2.19.0 (a digit in the name). Removed; the
+  APK now declares READ_STEPS and nothing else health-related. No app
+  changes.
+
 ## 2.19.0 — code 62 — 2026-09-06
 
 Steps, from the phone, in one small number.

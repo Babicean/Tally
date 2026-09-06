@@ -231,7 +231,7 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
-- v2.19.0, code 62 (steps): `lib/steps.ts` wraps
+- v2.19.0, code 62 / 2.19.1, code 63 (steps): `lib/steps.ts` wraps
   `@capgo/capacitor-health` behind a `StepsSource` (availability /
   request / check / dailyTotals / openSettings); tests may install
   `globalThis.__tallyStepsSource` before boot (the E2E does). Pure
@@ -247,8 +247,10 @@ library, no backend SDK — the biggest JS dependency is React itself.
   `.settings-note` for unavailable / denied (+ "Open Health Connect"
   on Android). Nothing stored, no calories burned (owner's call).
   Android: minSdk 26 (plugin floor); app manifest strips the plugin's
-  44 other health permissions with `tools:node="remove"` (re-check on
-  plugin upgrade); `health_connect_privacy_policy_url` string → hosted
+  46 other health permissions with `tools:node="remove"` (re-check on
+  plugin upgrade — 2.19.1 fixed two VO2_MAX entries missed by a
+  digit-less regex; verify by decoding the APK manifest with
+  `strings -el`); `health_connect_privacy_policy_url` string → hosted
   PRIVACY.html. iOS: `App.entitlements` + `CODE_SIGN_ENTITLEMENTS` +
   `NSHealthShareUsageDescription`; owner must tick HealthKit on the App
   ID once (docs/IOS.md). UNTESTED ON DEVICE at ship time — sandbox has
