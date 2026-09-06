@@ -231,6 +231,18 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.19.2, code 64: `.field-cal .unit` is now a flex sibling (static,
+  `padding-right: 1rem`) instead of absolutely positioned, and
+  `.field-cal input` is `flex: 1; min-width: 0; padding-right: .5rem`
+  — so "1100" + "mg potassium" can't overprint (owner's bug report).
+  `.field-protein`'s 5.5rem hack is gone; `.target-cell` keeps its
+  tighter 0.875rem inset. `components/UtensilsIcon.tsx` is the shared
+  Menu icon (filled 3-tine fork head, outlined spoon with a bowl
+  shorter than its handle) used by the tab bar and the Today Menu
+  chip. Keyboard-clipping question from owner: the sheet body already
+  scrolls (`.sheet-body overflow-y: auto`, `max-height: 100dvh-3rem`),
+  Android `adjustResize` shrinks the WebView — expected behaviour, not
+  a bug. E2E: `verify-2192.mjs`.
 - v2.19.0, code 62 / 2.19.1, code 63 (steps): `lib/steps.ts` wraps
   `@capgo/capacitor-health` behind a `StepsSource` (availability /
   request / check / dailyTotals / openSettings); tests may install

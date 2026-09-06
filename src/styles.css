@@ -1686,22 +1686,24 @@ input {
 }
 
 .field-cal input {
+  flex: 1 1 auto;
+  min-width: 0;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  padding-right: 2.875rem;
+  padding-right: 0.5rem;
   text-align: right;
 }
 
+/* The unit sits in the row after the input rather than floating over
+   it, so a long unit ("mg potassium") pushes the number left instead of
+   colliding with it. Short units land exactly where they always did. */
 .field-cal .unit {
-  position: absolute;
-  right: 1rem;
+  flex: none;
+  padding-right: 1rem;
   font-size: 0.9375rem;
   color: var(--ink-3);
+  white-space: nowrap;
   pointer-events: none;
-}
-
-.field-protein input {
-  padding-right: 5.5rem;
 }
 
 .field.invalid {
@@ -3398,9 +3400,12 @@ input {
 }
 
 .target-cell .field input {
-  padding: 0.6875rem 0.875rem;
-  padding-right: 2.875rem; /* room for "mg" after four digits */
+  padding: 0.6875rem 0.5rem 0.6875rem 0.875rem;
   font-size: max(1rem, 16px);
+}
+
+.target-cell .field .unit {
+  padding-right: 0.875rem;
 }
 
 .target-note {

@@ -4,6 +4,7 @@ import { loadSettings } from "./lib/settings";
 import SettingsSheet from "./components/SettingsSheet";
 import TopBar from "./components/TopBar";
 import TabRing from "./components/TabRing";
+import UtensilsIcon from "./components/UtensilsIcon";
 import Welcome from "./components/Welcome";
 import { markWelcomed, shouldShowWelcome } from "./lib/welcome";
 import { useEntries } from "./hooks/useEntries";
@@ -25,16 +26,7 @@ const TABS: { id: Tab; label: string; icon: JSX.Element | null }[] = [
   {
     id: "menu",
     label: "Menu",
-    icon: (
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <path
-          d="M3 2v3.75a2.5 2.5 0 005 0V2M5.5 2v13M12.75 10c-1.5 0-2.5-1.8-2.5-4.25S11.35 2 12.75 2 15 3.8 15 5.75 14.25 10 12.75 10zm0 0v5"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
+    icon: <UtensilsIcon />,
   },
   {
     id: "history",

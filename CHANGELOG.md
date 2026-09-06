@@ -10,7 +10,20 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
-## 2.19.1 — code 63 — 2026-09-06
+## 2.19.2 — code 64 — 2026-09-06
+
+Two small things the owner spotted.
+
+- Big electrolyte numbers no longer collide with their unit. "1100"
+  next to "mg potassium" used to overprint; the unit now sits in the
+  row after the number instead of floating over it, so long units push
+  the number left. Every number field (calories, macros, targets) uses
+  the same layout and looks as before.
+- The Menu icon is a fork now, not a trident: three short parallel
+  tines on a filled head. The spoon's bowl shrank so the handle is the
+  longer part, as on a real spoon. Same icon on the Today "Menu" chip.
+
+
 
 - Android manifest: two VO2 max health permissions the plugin declares
   slipped past the strip in 2.19.0 (a digit in the name). Removed; the
