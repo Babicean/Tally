@@ -231,6 +231,13 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.19.3, code 65: UtensilsIcon spoon bowl filled (owner asked for
+  the "C" draft). `CategoryIcon` meat = rotated-ellipse lobe + one-path
+  bone with arc knuckles (outline circles + stick always read as a
+  magnifier: tested 8 drafts in `scratchpad/icon/*.html`); sweet =
+  scoop + rim + tapered cone (bare circle on triangle read as a map
+  pin). Other six glyphs judged fine and left alone. E2E:
+  `verify-2193.mjs`.
 - v2.19.2, code 64: `.field-cal .unit` is now a flex sibling (static,
   `padding-right: 1rem`) instead of absolutely positioned, and
   `.field-cal input` is `flex: 1; min-width: 0; padding-right: .5rem`

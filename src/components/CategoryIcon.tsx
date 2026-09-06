@@ -29,13 +29,13 @@ const GLYPHS: Record<CategoryId, JSX.Element> = {
       <path d="M7 7.5c0-1.2 1-1.4 1-2.5M11 7.5c0-1.2 1-1.4 1-2.5" />
     </g>
   ),
-  // Drumstick: round of meat, a short leg bone, two knuckles
+  // Drumstick: an oval of meat (a circle read as a magnifying glass),
+  // and the bone drawn as one outline so the knuckle is a bone end, not
+  // two loose dots.
   meat: (
     <g {...STROKE}>
-      <circle cx="11.8" cy="7.2" r="4.4" />
-      <path d="M8.7 10.3l-3.6 3.6" />
-      <circle cx="4" cy="13.2" r="1.3" />
-      <circle cx="5.8" cy="15" r="1.3" />
+      <ellipse cx="12.6" cy="7.4" rx="5.3" ry="4.3" transform="rotate(-45 12.6 7.4)" />
+      <path d="M8.2 10.8l-2 2a2.2 2.2 0 10-1.6 4 2.2 2.2 0 104-1.6l2-2" />
     </g>
   ),
   // Cup with straw
@@ -63,11 +63,13 @@ const GLYPHS: Record<CategoryId, JSX.Element> = {
       <circle cx="7.9" cy="13.5" r="0.45" fill="currentColor" />
     </g>
   ),
-  // Ice cream cone
+  // Ice cream cone: scoop with a rim over a tapered cone (a bare circle
+  // on a triangle read as a map pin).
   sweet: (
     <g {...STROKE}>
-      <path d="M6.2 9.5a3.8 3.8 0 117.6 0" />
-      <path d="M6.2 9.5h7.6L10 17.5 6.2 9.5z" />
+      <path d="M6.2 10.6l3.1 6.6a.8.8 0 001.4 0l3.1-6.6" />
+      <path d="M13.9 7.4a3.9 3.9 0 00-7.8 0" />
+      <path d="M13.9 7.4a1.6 1.6 0 010 3.2H6.1a1.6 1.6 0 010-3.2" />
     </g>
   ),
   // Fries

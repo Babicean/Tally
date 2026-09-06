@@ -10,7 +10,19 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
-## 2.19.2 — code 64 — 2026-09-06
+## 2.19.3 — code 65 — 2026-09-06
+
+Icon polish, round two.
+
+- The Menu spoon's bowl is filled in, matching the fork's head.
+- The Meat category icon is a proper drumstick: an oval of meat and a
+  bone with a real knuckle end, drawn as one outline. The old circle on
+  a stick read as a magnifying glass.
+- The Sweet category icon gains a rim between scoop and cone, so it
+  reads as ice cream rather than a map pin. The other six category
+  icons are unchanged.
+
+
 
 Two small things the owner spotted.
 
