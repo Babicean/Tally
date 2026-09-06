@@ -3327,3 +3327,40 @@ input {
 .add-micros .unit {
   white-space: nowrap;
 }
+
+/* ---- v2.17.1: compact target grids in Settings ----------------------------
+   Six full-height rows for six numbers made the sheet a scroll. Targets
+   now sit two-up under their toggle: a small label, the field, nothing
+   else. Same fields, same hit sizes, half the height. */
+.target-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 0.625rem;
+  margin: 0.625rem 0.125rem 0;
+}
+
+.target-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.target-label {
+  padding-left: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+.target-cell .field input {
+  padding: 0.6875rem 0.875rem;
+  padding-right: 2.875rem; /* room for "mg" after four digits */
+  font-size: max(1rem, 16px);
+}
+
+.target-note {
+  grid-column: 1 / -1;
+  margin-top: -0.125rem;
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}

@@ -10,6 +10,20 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.17.1 — code 58 — 2026-09-06
+
+Two things from the first day with electrolytes.
+
+- Settings: the six target fields (protein, fat, sodium, potassium,
+  magnesium, calcium) now sit two-up in compact grids under their
+  toggles instead of one tall row each. Same fields, same tap sizes,
+  about 40% less scrolling.
+- The ring gives you 2% grace. Three calories over a 2,400 goal is not
+  an "over" day, so the ring and pill stay blue until you pass the goal
+  by more than 2% (48 cal on 2,400; it scales with kilojoules too). The
+  pill still says exactly how far over you are, and "days under goal" in
+  History uses the same band.
+
 ## 2.17.0 — code 57 — 2026-09-06
 
 Electrolytes: sodium, potassium, magnesium and calcium, for the foods

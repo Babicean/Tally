@@ -863,45 +863,40 @@ export default function SettingsSheet({
         </button>
       </div>
       {trackProtein && (
-        <div className="settings-row">
-          <div className="settings-row-text">
-            <span className="settings-row-title">Daily protein target</span>
-            <span className="settings-row-sub">Blank for no target.</span>
-          </div>
-          <div className="field field-cal settings-target">
-            <input
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
-              onBlur={commitTarget}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-              }}
-              inputMode="numeric"
-              aria-label="Daily protein target in grams"
-            />
-            <span className="unit">g</span>
-          </div>
-        </div>
-      )}
-      {trackProtein && (
-        <div className="settings-row">
-          <div className="settings-row-text">
-            <span className="settings-row-title">Daily fat target</span>
-            <span className="settings-row-sub">Blank for no target.</span>
-          </div>
-          <div className="field field-cal settings-target">
-            <input
-              value={fatT}
-              onChange={(e) => setFatT(e.target.value)}
-              onBlur={commitFatTarget}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-              }}
-              inputMode="numeric"
-              aria-label="Daily fat target in grams"
-            />
-            <span className="unit">g</span>
-          </div>
+        <div className="target-grid" aria-label="Macro targets">
+          <label className="target-cell">
+            <span className="target-label">protein target</span>
+            <div className="field field-cal">
+              <input
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                onBlur={commitTarget}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                }}
+                inputMode="numeric"
+                aria-label="Daily protein target in grams"
+              />
+              <span className="unit">g</span>
+            </div>
+          </label>
+          <label className="target-cell">
+            <span className="target-label">fat target</span>
+            <div className="field field-cal">
+              <input
+                value={fatT}
+                onChange={(e) => setFatT(e.target.value)}
+                onBlur={commitFatTarget}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                }}
+                inputMode="numeric"
+                aria-label="Daily fat target in grams"
+              />
+              <span className="unit">g</span>
+            </div>
+          </label>
+          <p className="target-note">Blank for none.</p>
         </div>
       )}
 
@@ -923,34 +918,33 @@ export default function SettingsSheet({
           <span className="switch-knob" />
         </button>
       </div>
-      {trackMicros &&
-        MICROS.map((m) => (
-          <div className="settings-row" key={m.id}>
-            <div className="settings-row-text">
-              <span className="settings-row-title">
-                Daily {m.label} {m.kind === "limit" ? "limit" : "target"}
+      {trackMicros && (
+        <div className="target-grid" aria-label="Electrolyte targets">
+          {MICROS.map((m) => (
+            <label className="target-cell" key={m.id}>
+              <span className="target-label">
+                {m.label} {m.kind === "limit" ? "limit" : "target"}
               </span>
-              <span className="settings-row-sub">
-                {m.kind === "limit" ? "Blank for no limit." : "Blank for no target."}
-              </span>
-            </div>
-            <div className="field field-cal settings-target settings-goal">
-              <input
-                value={microT[m.id]}
-                onChange={(e) =>
-                  setMicroT((prev) => ({ ...prev, [m.id]: e.target.value }))
-                }
-                onBlur={() => commitMicroTarget(m.id)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                }}
-                inputMode="numeric"
-                aria-label={`Daily ${m.label} ${m.kind === "limit" ? "limit" : "target"} in milligrams`}
-              />
-              <span className="unit">mg</span>
-            </div>
-          </div>
-        ))}
+              <div className="field field-cal">
+                <input
+                  value={microT[m.id]}
+                  onChange={(e) =>
+                    setMicroT((prev) => ({ ...prev, [m.id]: e.target.value }))
+                  }
+                  onBlur={() => commitMicroTarget(m.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                  }}
+                  inputMode="numeric"
+                  aria-label={`Daily ${m.label} ${m.kind === "limit" ? "limit" : "target"} in milligrams`}
+                />
+                <span className="unit">mg</span>
+              </div>
+            </label>
+          ))}
+          <p className="target-note">Blank for none.</p>
+        </div>
+      )}
 
       <p className="settings-label">Weight</p>
       <div className="settings-row">

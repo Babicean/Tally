@@ -43,7 +43,7 @@ only.
 ## Product, in one pass
 
 Three tabs: **Today** (hero ring of calories against an optional goal —
-green under, calm amber over, never red; quick-add chips learned from
+green under, calm amber only past a 2% grace band, never red; quick-add chips learned from
 habit; two-tap logging; entries tap-to-edit, 5-second undo, backdating),
 **Menu** (saved foods with optional protein/fat and a category icon;
 pinned items become Today chips; **Meals** bundle menu items and log as
@@ -227,6 +227,11 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.17.1, code 58: Settings target fields are compact two-up grids
+  (`.target-grid`); the calorie goal has a 2% grace band
+  (`lib/goal.ts` withinGoal) used by the hero ring/pill colour and by
+  "days under goal" — the pill's WORDS stay factual ("3 over goal"),
+  only the amber waits. E2E: `verify-2171.mjs`.
 - v2.17.0, code 57 (electrolytes: `lib/micros.ts` — fixed set sodium /
   potassium / magnesium / calcium in mg as an optional `micros` map on
   entries and menu items; meals sum components; chips carry them;

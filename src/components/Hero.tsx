@@ -10,6 +10,7 @@ import {
   type EnergyUnit,
 } from "../lib/units";
 import { haptic } from "../lib/fly";
+import { withinGoal } from "../lib/goal";
 import {
   MICROS,
   naKRatio,
@@ -415,7 +416,11 @@ export default function Hero({
   }
 
   const progress = Math.min(total / goal, 1);
-  const over = total > goal;
+  // Two different questions: `past` picks the honest words ("3 over
+  // goal"); `over` picks the amber, and only past the grace band, since
+  // three calories over is nothing worth a colour change.
+  const past = total > goal;
+  const over = !withinGoal(total, goal);
   const offset = CIRCUMFERENCE * (1 - (mounted ? progress : 0));
 
   return (
@@ -514,10 +519,10 @@ export default function Hero({
       >
         <AnimatedNumber
           key={unit}
-          value={toDisplayEnergy(over ? total - goal : goal - total, unit)}
+          value={toDisplayEnergy(past ? total - goal : goal - total, unit)}
         />
-        {over ? " over goal" : " remaining"}
-        {goalHint && !over && " · tap to set your own"}
+        {past ? " over goal" : " remaining"}
+        {goalHint && !past && " · tap to set your own"}
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
           <path
             d="M3.5 2l3 3-3 3"

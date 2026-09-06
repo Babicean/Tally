@@ -1,6 +1,7 @@
 import type { DayKey, Entry } from "../types";
 import { addDays } from "./day";
 import { carbsOf } from "./macros";
+import { withinGoal } from "./goal";
 
 /**
  * Insights: what you actually ate over a period, derived entirely from
@@ -132,7 +133,7 @@ export function insightsFor(
   const completedDays = [...byDay.entries()].filter(([day]) => day !== today);
   const goalDays =
     dailyGoal !== null && dailyGoal > 0 && completedDays.length > 0
-      ? completedDays.filter(([, total]) => total <= dailyGoal).length
+      ? completedDays.filter(([, total]) => withinGoal(total, dailyGoal)).length
       : null;
   const proteinAvg =
     daysLogged > 0 && protein > 0 ? Math.round(protein / daysLogged) : null;

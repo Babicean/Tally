@@ -125,6 +125,14 @@ describe("insightsFor numbers", () => {
     expect(insightsFor(dayOne, TODAY, "week", 2000).goalDays).toBeNull();
   });
 
+  it("gives a day the same 2% grace the ring does", () => {
+    const entries = [
+      mk("2026-07-08", 12, 2030, "a whisker over"), // within grace
+      mk("2026-07-09", 12, 2100, "actually over"),
+    ];
+    expect(insightsFor(entries, TODAY, "week", 2000).goalDays).toBe(1);
+  });
+
   it("averages fat per logged day when entries carry it", () => {
     const withFat = [
       { ...mk("2026-07-09", 12, 1800, "day one"), fat: 60 },
