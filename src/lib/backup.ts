@@ -2,7 +2,7 @@ import type { Entry, MenuItem } from "../types";
 import { isEntry } from "./store";
 import { isMenuItem } from "./menu";
 import { isWeightEntry, mergeWeights, type WeightEntry } from "./weight";
-import type { Settings } from "./settings";
+import { loadMicroTargets, type Settings } from "./settings";
 
 /**
  * Backup = one JSON file holding everything: entries, menu, settings.
@@ -103,6 +103,8 @@ export function parseBackup(json: string): BackupPayload | null {
           typeof raw.settings?.unitHintSeen === "boolean"
             ? raw.settings.unitHintSeen
             : true,
+        trackMicros: raw.settings?.trackMicros === true,
+        microTargets: loadMicroTargets(raw.settings?.microTargets),
       },
       weights: Array.isArray(raw.weights)
         ? raw.weights.filter(isWeightEntry)

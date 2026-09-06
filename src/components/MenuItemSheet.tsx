@@ -9,10 +9,19 @@ import {
   type EnergyUnit,
 } from "../lib/units";
 import CategoryIcon, { CATEGORIES } from "./CategoryIcon";
+import {
+  MICROS,
+  hasMicros,
+  parseMg,
+  type MicroId,
+  type Micros,
+} from "../lib/micros";
 
 interface Props {
   open: boolean;
   trackProtein: boolean;
+  /** Shows the electrolyte fields behind a quiet reveal. */
+  trackMicros: boolean;
   unit: EnergyUnit;
   /** Item being edited, or null when adding a new one. */
   item: MenuItem | null;
@@ -22,6 +31,8 @@ interface Props {
     protein: number | null,
     fat: number | null,
     category: string | null,
+    /** Electrolytes in mg, or null to clear. */
+    micros: Micros | null,
   ) => void;
   onDelete?: () => void;
   onClose: () => void;
@@ -30,6 +41,7 @@ interface Props {
 export default function MenuItemSheet({
   open,
   trackProtein,
+  trackMicros,
   unit,
   item,
   onSave,
@@ -42,6 +54,16 @@ export default function MenuItemSheet({
   const [fat, setFat] = useState("");
   const [category, setCategory] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const emptyMicro = (): Record<MicroId, string> => ({
+    sodium: "",
+    potassium: "",
+    magnesium: "",
+    calcium: "",
+  });
+  const [micro, setMicro] = useState<Record<MicroId, string>>(emptyMicro);
+  // Opens itself when the item already carries electrolytes.
+  const [microsOpen, setMicrosOpen] = useState(false);
+  const [bad, setBad] = useState<MicroId | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -50,6 +72,14 @@ export default function MenuItemSheet({
       setProtein(item?.protein != null ? String(item.protein) : "");
       setFat(item?.fat != null ? String(item.fat) : "");
       setCategory(item?.category ?? null);
+      const m = emptyMicro();
+      for (const meta of MICROS) {
+        const v = item?.micros?.[meta.id];
+        if (typeof v === "number") m[meta.id] = String(v);
+      }
+      setMicro(m);
+      setMicrosOpen(hasMicros(item?.micros));
+      setBad(null);
       setError(null);
     }
   }, [open, item, unit]);
@@ -76,7 +106,24 @@ export default function MenuItemSheet({
       setError("Grams must be between 0 and 1,000 (or left blank).");
       return;
     }
-    onSave(trimmed, cal, prot, fatG, category);
+    const micros: Micros = {};
+    if (trackMicros && microsOpen) {
+      for (const meta of MICROS) {
+        const parsed = parseMg(micro[meta.id]);
+        if (parsed === undefined) {
+          setBad(meta.id);
+          setError(
+            `${meta.label[0].toUpperCase()}${meta.label.slice(1)} must be a number of milligrams, or blank.`,
+          );
+          return;
+        }
+        if (parsed !== null) micros[meta.id] = parsed;
+      }
+    } else if (item?.micros) {
+      // Tracking off or the reveal closed: keep what the item already had.
+      Object.assign(micros, item.micros);
+    }
+    onSave(trimmed, cal, prot, fatG, category, hasMicros(micros) ? micros : null);
     onClose();
   };
 
@@ -147,6 +194,37 @@ export default function MenuItemSheet({
           </div>
           )}
         </div>
+        {trackMicros && !microsOpen && (
+          <button
+            type="button"
+            className="add-macros-toggle"
+            onClick={() => setMicrosOpen(true)}
+          >
+            + electrolytes
+          </button>
+        )}
+        {trackMicros && microsOpen && (
+          <div className="add-micros">
+            {MICROS.map((m) => (
+              <div
+                key={m.id}
+                className={`field field-cal field-protein${bad === m.id ? " invalid" : ""}`}
+              >
+                <input
+                  value={micro[m.id]}
+                  onChange={(e) => {
+                    setMicro((prev) => ({ ...prev, [m.id]: e.target.value }));
+                    setError(null);
+                    setBad(null);
+                  }}
+                  inputMode="numeric"
+                  aria-label={`${m.label[0].toUpperCase()}${m.label.slice(1)} in milligrams (optional)`}
+                />
+                <span className="unit">mg {m.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
         <div
           className="cat-grid"
           role="radiogroup"

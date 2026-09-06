@@ -2,6 +2,7 @@ import type { Entry, MenuItem } from "../types";
 import { frequentEntries, type FrequentItem } from "./store";
 import { categoryOrder, isCategoryId } from "../components/CategoryIcon";
 import { mirrorWrite } from "./mirror";
+import { isMicros, normalizeMicros, type Micros } from "./micros";
 
 /**
  * The user's saved staples ("Menu"), stored under their own versioned key so
@@ -29,6 +30,7 @@ export function isMenuItem(value: unknown): value is MenuItem {
       m.fat === null ||
       (typeof m.fat === "number" && Number.isFinite(m.fat))) &&
     (m.componentIds === undefined || Array.isArray(m.componentIds)) &&
+    (m.micros === undefined || isMicros(m.micros)) &&
     typeof m.pinned === "boolean"
   );
 }
@@ -69,8 +71,9 @@ export function createMenuItem(
   fat: number | null,
   category: string | null = null,
   now: number = Date.now(),
+  micros?: Micros | null,
 ): MenuItem {
-  return {
+  const item: MenuItem = {
     id:
       typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
@@ -83,6 +86,9 @@ export function createMenuItem(
     category,
     createdAt: now,
   };
+  const m = normalizeMicros(micros);
+  if (m) item.micros = m;
+  return item;
 }
 
 /**
@@ -134,6 +140,7 @@ export function buildQuickAdds(
       calories: m.calories,
       protein: m.protein,
       fat: m.fat,
+      ...(m.micros ? { micros: m.micros } : {}),
     });
   }
   const learned = frequentEntries(entries, limit).filter(

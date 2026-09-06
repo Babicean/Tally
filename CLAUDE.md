@@ -55,7 +55,10 @@ celebration, weight card, export/import).
 Opt-in extras (Settings gear): **kilojoules** (tap the hero number to
 flip units, or the Settings Units row; input and display convert,
 storage stays kcal), **protein/fat tracking** ("Track
-macros", with carbs derived and shown with a ≈), **daily protein target** with its own bar and a fire-emoji
+macros", with carbs derived and shown with a ≈), **electrolytes**
+("Track electrolytes": sodium/potassium/magnesium/calcium in mg on
+menu items, inherited by entries; the hero gains a swipeable second
+page with the Na:K ratio and each against its target), **daily protein target** with its own bar and a fire-emoji
 celebration on hitting it, **weight tracking** (one weigh-in a day,
 logged from the History weight card, ~60-point SVG trend, 30-day
 change), theme System/Light/Dark, accent Azure/Emerald/Blush (Blush
@@ -224,6 +227,16 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.17.0, code 57 (electrolytes: `lib/micros.ts` — fixed set sodium /
+  potassium / magnesium / calcium in mg as an optional `micros` map on
+  entries and menu items; meals sum components; chips carry them;
+  settings `trackMicros` + `microTargets` (sodium is a limit, others
+  goals, AU adult defaults); hero becomes a two-page scroll-snap
+  carousel with dots when on, page 2 = Na:K ratio + rows vs targets;
+  "+ electrolytes" reveal on MenuItemSheet and EditEntrySheet; the
+  quick-add card deliberately has no micro fields). E2E:
+  `verify-micros217.mjs`. Owner is field-testing; the Insights weekly
+  electrolyte averages are a natural follow-up if he wants them.
 - v2.16.0, code 56 (derived carbs: `lib/macros.ts` carbsOf/carbsForDay,
   4/9/4 kcal per gram, only entries with BOTH protein and fat count,
   null when nothing derivable; hero macro row protein | fat | carbs;

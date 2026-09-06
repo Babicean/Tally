@@ -2,6 +2,7 @@ import type { DayKey, DaySummary, Entry } from "../types";
 import { trackingDayFor } from "./day";
 import { mirrorWrite } from "./mirror";
 import { carbsForEntries } from "./macros";
+import { isMicros, normalizeMicros, type Micros } from "./micros";
 
 /**
  * Persistence lives behind this tiny repository so the storage engine can be
@@ -39,7 +40,8 @@ export function isEntry(value: unknown): value is Entry {
     Number.isFinite(e.timestamp) &&
     typeof e.day === "string" &&
     isOptionalGrams(e.protein) &&
-    isOptionalGrams(e.fat)
+    isOptionalGrams(e.fat) &&
+    (e.micros === undefined || isMicros(e.micros))
   );
 }
 
@@ -90,8 +92,9 @@ export function createEntry(
   when: Date = new Date(),
   protein: number | null = null,
   fat: number | null = null,
+  micros?: Micros | null,
 ): Entry {
-  return {
+  const entry: Entry = {
     id:
       typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
@@ -103,6 +106,9 @@ export function createEntry(
     protein,
     fat,
   };
+  const m = normalizeMicros(micros);
+  if (m) entry.micros = m;
+  return entry;
 }
 
 export interface FrequentItem {
@@ -112,6 +118,8 @@ export interface FrequentItem {
   protein?: number | null;
   /** Grams of fat carried along when logging. */
   fat?: number | null;
+  /** Electrolytes carried along when logging. */
+  micros?: Micros;
 }
 
 /**
@@ -139,6 +147,9 @@ export function frequentEntries(entries: Entry[], limit = 4): FrequentItem[] {
       count: number;
       lastUsed: number;
       combos: Map<string, MacroCombo>;
+      /** The newest electrolyte map seen for this key, if any. */
+      micros?: Micros;
+      microsSeen: number;
     }
   >();
   for (const e of entries) {
@@ -155,11 +166,16 @@ export function frequentEntries(entries: Entry[], limit = 4): FrequentItem[] {
         count: 0,
         lastUsed: 0,
         combos: new Map(),
+        microsSeen: 0,
       };
       stats.set(key, record);
     }
     record.count += 1;
     record.lastUsed = Math.max(record.lastUsed, e.timestamp);
+    if (e.micros && e.timestamp >= record.microsSeen) {
+      record.micros = e.micros;
+      record.microsSeen = e.timestamp;
+    }
     const combo = record.combos.get(comboKey);
     if (combo) {
       combo.count += 1;
@@ -186,6 +202,7 @@ export function frequentEntries(entries: Entry[], limit = 4): FrequentItem[] {
     }
     record.item.protein = best?.protein ?? null;
     record.item.fat = best?.fat ?? null;
+    if (record.micros) record.item.micros = record.micros;
   }
   const bestVariant = new Map<
     string,

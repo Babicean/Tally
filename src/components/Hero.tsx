@@ -10,6 +10,12 @@ import {
   type EnergyUnit,
 } from "../lib/units";
 import { haptic } from "../lib/fly";
+import {
+  MICROS,
+  naKRatio,
+  type MicroTargets,
+  type Micros,
+} from "../lib/micros";
 import AnimatedNumber from "./AnimatedNumber";
 
 interface Props {
@@ -35,6 +41,10 @@ interface Props {
   unitHint: boolean;
   onToggleUnit: () => void;
   onUnitHintDone: () => void;
+  /** Electrolytes on: the hero gains a second, swipeable page. */
+  trackMicros: boolean;
+  micros: Micros;
+  microTargets: MicroTargets;
 }
 
 // Ring geometry (SVG user units).
@@ -97,6 +107,9 @@ export default function Hero({
   unitHint,
   onToggleUnit,
   onUnitHintDone,
+  trackMicros,
+  micros,
+  microTargets,
 }: Props) {
   const [pulsing, setPulsing] = useState(false);
   const prevTotal = useRef(total);
@@ -186,6 +199,103 @@ export default function Hero({
   const flipAria = `Showing ${energyNoun(displayUnit)}. Tap to switch to ${energyNoun(
     other(unit),
   )}.`;
+
+  // ---- Pages ---------------------------------------------------------------
+  // With electrolytes on, the hero is a two-page carousel: ring + macros,
+  // then today's electrolytes against their targets. Native horizontal
+  // scroll with snap points does the swiping; the dots mirror it.
+  const [page, setPage] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const onTrackScroll = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    const next = Math.round(el.scrollLeft / el.clientWidth);
+    if (next !== page) setPage(next);
+  };
+  const goToPage = (i: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    haptic(4);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollTo({ left: i * el.clientWidth, behavior: reduce ? "auto" : "smooth" });
+  };
+
+  const ratio = naKRatio(micros);
+  const microPanel = (
+    <div className="micro-panel" aria-label="Today's electrolytes">
+      <div className="micro-ratio">
+        <span className="micro-ratio-v">
+          {ratio === null ? "–" : ratio.toFixed(2)}
+        </span>
+        <span className="micro-ratio-l">sodium : potassium</span>
+      </div>
+      {MICROS.map((m) => {
+        const amount = micros[m.id] ?? 0;
+        const target = microTargets[m.id];
+        const over = m.kind === "limit" && target !== null && amount > target;
+        const met = m.kind === "goal" && target !== null && amount >= target;
+        return (
+          <div className="micro-row" key={m.id}>
+            <span className="micro-label">{m.label}</span>
+            <span className={`micro-value${over ? " over" : ""}${met ? " met" : ""}`}>
+              {formatCalories(Math.round(amount))}
+              {target !== null && (
+                <span className="micro-target"> / {formatCalories(target)}</span>
+              )}
+              <span className="micro-unit"> mg</span>
+            </span>
+            {target !== null && (
+              <div
+                className="protein-bar micro-bar"
+                role="img"
+                aria-label={`${Math.round(amount)} of ${target} milligrams of ${m.label}`}
+              >
+                <div
+                  className={`protein-bar-fill${over ? " over" : ""}${
+                    m.kind === "limit" && !over ? " limit" : ""
+                  }`}
+                  style={{
+                    width: `${(mounted ? Math.min(amount / target, 1) : 0) * 100}%`,
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  /** Wrap the ring block in the carousel when electrolytes are on. */
+  const paged = (first: JSX.Element) =>
+    trackMicros ? (
+      <>
+        <div className="hero-track" ref={trackRef} onScroll={onTrackScroll}>
+          <div className="hero-page">{first}</div>
+          <div className="hero-page hero-page-micros">{microPanel}</div>
+        </div>
+        <div className="hero-dots" role="tablist" aria-label="Hero pages">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={page === 0}
+            aria-label="Calories and macros"
+            className={`hero-dot${page === 0 ? " active" : ""}`}
+            onClick={() => goToPage(0)}
+          />
+          <button
+            type="button"
+            role="tab"
+            aria-selected={page === 1}
+            aria-label="Electrolytes"
+            className={`hero-dot${page === 1 ? " active" : ""}`}
+            onClick={() => goToPage(1)}
+          />
+        </div>
+      </>
+    ) : (
+      first
+    );
 
   // ---- Macro row ---------------------------------------------------------
   // Protein | fat | carbs side by side under the ring: less height than the
@@ -277,22 +387,26 @@ export default function Hero({
             {streak.length}-day streak
           </p>
         )}
-        <button
-          type="button"
-          className={flipClass}
-          onClick={flipUnit}
-          onAnimationEnd={onFlipAnim}
-          aria-label={flipAria}
-        >
-          <h1 id="hero-total" className={`hero-total${pulsing ? " pulse" : ""}`}>
-            <AnimatedNumber
-              key={displayUnit}
-              value={toDisplayEnergy(total, displayUnit)}
-            />
-          </h1>
-          <p className="hero-caption">{energyNoun(displayUnit)} today</p>
-        </button>
-        {macroRow}
+        {paged(
+          <>
+            <button
+              type="button"
+              className={flipClass}
+              onClick={flipUnit}
+              onAnimationEnd={onFlipAnim}
+              aria-label={flipAria}
+            >
+              <h1 id="hero-total" className={`hero-total${pulsing ? " pulse" : ""}`}>
+                <AnimatedNumber
+                  key={displayUnit}
+                  value={toDisplayEnergy(total, displayUnit)}
+                />
+              </h1>
+              <p className="hero-caption">{energyNoun(displayUnit)} today</p>
+            </button>
+            {macroRow}
+          </>,
+        )}
         <button className="goal-pill ghost" onClick={onEditGoal}>
           Set a {displayUnit === "kj" ? "kilojoule" : "calorie"} target
         </button>
@@ -315,6 +429,8 @@ export default function Hero({
           {streak.length}-day streak
         </p>
       )}
+      {paged(
+        <>
       <div className="ring">
         <svg
           viewBox={`0 0 ${SIZE} ${SIZE}`}
@@ -389,7 +505,9 @@ export default function Hero({
           </button>
         </div>
       </div>
-      {macroRow}
+          {macroRow}
+        </>,
+      )}
       <button
         className={`goal-pill${over ? " over" : ""}`}
         onClick={onEditGoal}

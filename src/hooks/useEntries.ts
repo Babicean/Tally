@@ -15,6 +15,12 @@ import { loadSettings, saveSettings, type Settings } from "../lib/settings";
 import type { EnergyUnit } from "../lib/units";
 import { carbsForDay } from "../lib/macros";
 import {
+  normalizeMicros,
+  sumMicros,
+  type MicroId,
+  type Micros,
+} from "../lib/micros";
+import {
   buildQuickAdds,
   createMenuItem,
   loadMenu,
@@ -33,6 +39,13 @@ import {
 } from "../lib/weight";
 import { computeStreak } from "../lib/streak";
 import { applyAccent, applyTheme, type AccentPref, type ThemePref } from "../lib/theme";
+
+/** Attach an electrolyte map, or strip the key entirely when there is none. */
+function withMicros<T extends { micros?: Micros }>(item: T, micros: Micros | undefined): T {
+  const { micros: _old, ...rest } = item;
+  void _old;
+  return (micros ? { ...rest, micros } : rest) as T;
+}
 
 /**
  * Single source of truth for entries, menu, and settings. Persists on every
@@ -157,6 +170,22 @@ export function useEntries() {
     (trackWeight: boolean) => updateSettings({ trackWeight }),
     [updateSettings],
   );
+  const setTrackMicros = useCallback(
+    (trackMicros: boolean) => updateSettings({ trackMicros }),
+    [updateSettings],
+  );
+  const setMicroTarget = useCallback(
+    (id: MicroId, target: number | null) =>
+      setSettings((prev) => {
+        const next = {
+          ...prev,
+          microTargets: { ...prev.microTargets, [id]: target },
+        };
+        saveSettings(next);
+        return next;
+      }),
+    [],
+  );
   const setAccent = useCallback(
     (accent: AccentPref) => updateSettings({ accent }),
     [updateSettings],
@@ -169,8 +198,16 @@ export function useEntries() {
       protein: number | null = null,
       fat: number | null = null,
       when: Date = new Date(),
+      micros?: Micros | null,
     ) => {
-      const entry = createEntry(calories, description, when, protein, fat);
+      const entry = createEntry(
+        calories,
+        description,
+        when,
+        protein,
+        fat,
+        micros,
+      );
       // If the 2 AM boundary passed but the rollover timer hasn't fired
       // yet, roll now so the new entry is visible on the screen it
       // belongs to.
@@ -189,13 +226,20 @@ export function useEntries() {
       protein: number | null = null,
       fat: number | null = null,
       timestamp?: number,
+      /** undefined = leave as is; null or {} = clear. */
+      micros?: Micros | null,
     ) => {
       setEntries((prev) =>
         prev.map((e) => {
           if (e.id !== id) return e;
           const ts = timestamp ?? e.timestamp;
+          const nextMicros =
+            micros === undefined ? e.micros : normalizeMicros(micros);
+          const { micros: _dropped, ...rest } = e;
+          void _dropped;
           return {
-            ...e,
+            ...rest,
+            ...(nextMicros ? { micros: nextMicros } : {}),
             calories,
             description: description.trim(),
             protein,
@@ -243,10 +287,11 @@ export function useEntries() {
       protein: number | null,
       fat: number | null,
       category: string | null,
+      micros?: Micros | null,
     ) => {
       setMenu((prev) => [
         ...prev,
-        createMenuItem(name, calories, protein, fat, category),
+        createMenuItem(name, calories, protein, fat, category, Date.now(), micros),
       ]);
     },
     [],
@@ -258,14 +303,21 @@ export function useEntries() {
       let calories = 0;
       let protein = 0;
       let fat = 0;
+      const parts: MenuItem[] = [];
       for (const id of componentIds) {
         const f = menu.find((m) => m.id === id);
         if (!f) continue;
+        parts.push(f);
         calories += f.calories;
         protein += f.protein ?? 0;
         fat += f.fat ?? 0;
       }
-      return { calories, protein: protein || null, fat: fat || null };
+      return {
+        calories,
+        protein: protein || null,
+        fat: fat || null,
+        micros: normalizeMicros(sumMicros(parts)),
+      };
     },
     [menu],
   );
@@ -274,7 +326,7 @@ export function useEntries() {
     (name: string, componentIds: string[]) => {
       const t = mealTotals(componentIds);
       const item = {
-        ...createMenuItem(name, t.calories, t.protein, t.fat, null),
+        ...createMenuItem(name, t.calories, t.protein, t.fat, null, Date.now(), t.micros),
         componentIds,
       };
       setMenu((prev) => [...prev, item]);
@@ -289,14 +341,17 @@ export function useEntries() {
       setMenu((prev) =>
         prev.map((m) =>
           m.id === id
-            ? {
-                ...m,
-                name: name.trim(),
-                calories: t.calories,
-                protein: t.protein,
-                fat: t.fat,
-                componentIds,
-              }
+            ? withMicros(
+                {
+                  ...m,
+                  name: name.trim(),
+                  calories: t.calories,
+                  protein: t.protein,
+                  fat: t.fat,
+                  componentIds,
+                },
+                t.micros,
+              )
             : m,
         ),
       );
@@ -320,19 +375,26 @@ export function useEntries() {
       let calories = 0;
       let protein = 0;
       let fat = 0;
+      const parts: MenuItem[] = [];
       for (const cid of ids) {
         const f = byId.get(cid)!;
+        parts.push(f);
         calories += f.calories;
         protein += f.protein ?? 0;
         fat += f.fat ?? 0;
       }
-      out.push({
-        ...m,
-        componentIds: ids,
-        calories,
-        protein: protein || null,
-        fat: fat || null,
-      });
+      out.push(
+        withMicros(
+          {
+            ...m,
+            componentIds: ids,
+            calories,
+            protein: protein || null,
+            fat: fat || null,
+          },
+          normalizeMicros(sumMicros(parts)),
+        ),
+      );
     }
     return out;
   };
@@ -345,12 +407,17 @@ export function useEntries() {
       protein: number | null,
       fat: number | null,
       category: string | null,
+      /** undefined = leave as is; null or {} = clear. */
+      micros?: Micros | null,
     ) => {
       setMenu((prev) =>
         reconcileMeals(
           prev.map((m) =>
             m.id === id
-              ? { ...m, name: name.trim(), calories, protein, fat, category }
+              ? withMicros(
+                  { ...m, name: name.trim(), calories, protein, fat, category },
+                  micros === undefined ? m.micros : normalizeMicros(micros),
+                )
               : m,
           ),
         ),
@@ -424,6 +491,7 @@ export function useEntries() {
     () => carbsForDay(entries, today),
     [entries, today],
   );
+  const todayMicros = useMemo(() => sumMicros(todayEntries), [todayEntries]);
   const history = useMemo(() => summarizeByDay(entries), [entries]);
   const quickAdds = useMemo(
     () => buildQuickAdds(menu, entries),
@@ -443,6 +511,7 @@ export function useEntries() {
     todayProtein,
     todayFat,
     todayCarbs,
+    todayMicros,
     history,
     quickAdds,
     menu: sortedMenu,
@@ -481,6 +550,10 @@ export function useEntries() {
     lastWeight: latestWeight(weights, today),
     trackWeight: settings.trackWeight,
     setTrackWeight,
+    trackMicros: settings.trackMicros,
+    setTrackMicros,
+    microTargets: settings.microTargets,
+    setMicroTarget,
     logWeight,
     removeTodayWeight,
   };

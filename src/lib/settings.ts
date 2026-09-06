@@ -1,5 +1,10 @@
 import { mirrorWrite } from "./mirror";
 import type { EnergyUnit } from "./units";
+import {
+  DEFAULT_MICRO_TARGETS,
+  MICRO_IDS,
+  type MicroTargets,
+} from "./micros";
 
 /**
  * User preferences, stored separately from entries so either can evolve
@@ -42,6 +47,10 @@ export interface Settings {
   unit: EnergyUnit;
   /** Whether the hero's one-time unit teach-flip has played. */
   unitHintSeen: boolean;
+  /** Electrolytes (sodium, potassium, magnesium, calcium) are opt-in. */
+  trackMicros: boolean;
+  /** Daily targets in mg; null = no target for that one. */
+  microTargets: MicroTargets;
 }
 
 const DEFAULTS: Settings = {
@@ -55,6 +64,8 @@ const DEFAULTS: Settings = {
   goalSeen: false,
   unit: "kcal",
   unitHintSeen: false,
+  trackMicros: false,
+  microTargets: { ...DEFAULT_MICRO_TARGETS },
 };
 
 interface SettingsShape {
@@ -99,10 +110,25 @@ export function loadSettings(): Settings {
       // The unit teach-flip plays once for everyone, old installs too —
       // discovering kilojoules is the whole point of it.
       unitHintSeen: s.unitHintSeen === true,
+      trackMicros: s.trackMicros === true,
+      microTargets: loadMicroTargets(s.microTargets),
     };
   } catch {
     return { ...DEFAULTS };
   }
+}
+
+/** A stored target wins (null = deliberately blank); a missing key means
+    the payload predates it and gets the default. */
+export function loadMicroTargets(raw: unknown): MicroTargets {
+  const out = { ...DEFAULT_MICRO_TARGETS };
+  if (typeof raw !== "object" || raw === null) return out;
+  const r = raw as Record<string, unknown>;
+  for (const id of MICRO_IDS) {
+    if (!(id in r)) continue;
+    out[id] = asTarget(r[id]);
+  }
+  return out;
 }
 
 export function saveSettings(settings: Settings): void {

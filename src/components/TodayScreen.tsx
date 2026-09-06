@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import type { DayKey, Entry, MenuItem } from "../types";
 import type { FrequentItem } from "../lib/store";
 import { formatEnergy, type EnergyUnit } from "../lib/units";
+import type { MicroTargets, Micros } from "../lib/micros";
 import { flyCalories, haptic } from "../lib/fly";
 import { celebrate, emberBurst } from "../lib/burst";
 import type { Streak } from "../lib/streak";
@@ -40,6 +41,8 @@ interface Props {
     description: string,
     protein?: number | null,
     fat?: number | null,
+    when?: Date,
+    micros?: Micros | null,
   ) => Entry;
   onUpdate: (
     id: string,
@@ -48,6 +51,7 @@ interface Props {
     protein?: number | null,
     fat?: number | null,
     timestamp?: number,
+    micros?: Micros | null,
   ) => void;
   onDelete: (id: string) => Entry | null;
   onRestore: (entry: Entry) => void;
@@ -62,6 +66,10 @@ interface Props {
   unitHint: boolean;
   onToggleUnit: () => void;
   onUnitHintDone: () => void;
+  /** Electrolytes: today's totals and targets for the hero's second page. */
+  trackMicros: boolean;
+  micros: Micros;
+  microTargets: MicroTargets;
 }
 
 export default function TodayScreen({
@@ -94,6 +102,9 @@ export default function TodayScreen({
   unitHint,
   onToggleUnit,
   onUnitHintDone,
+  trackMicros,
+  micros,
+  microTargets,
 }: Props) {
   const { toast, showToast, showConfirmation, dismiss, hold, release } =
     useToast();
@@ -109,6 +120,7 @@ export default function TodayScreen({
       sourceEl: HTMLElement,
       itemProtein: number | null = null,
       itemFat: number | null = null,
+      itemMicros: Micros | null = null,
     ) => {
       const extendsStreak = !streak.loggedToday && streak.length + 1 >= 2;
       const crossesTarget =
@@ -119,7 +131,7 @@ export default function TodayScreen({
         itemProtein !== null &&
         protein < proteinTarget &&
         protein + itemProtein >= proteinTarget;
-      onAdd(calories, description, itemProtein, itemFat);
+      onAdd(calories, description, itemProtein, itemFat, undefined, itemMicros);
       flyCalories(`+${formatEnergy(calories, unit)}`, sourceEl);
       if (extendsStreak) {
         // First log of the day and the chain holds — small fireworks.
@@ -199,6 +211,9 @@ export default function TodayScreen({
         unitHint={unitHint}
         onToggleUnit={onToggleUnit}
         onUnitHintDone={onUnitHintDone}
+        trackMicros={trackMicros}
+        micros={micros}
+        microTargets={microTargets}
         onEditGoal={() => {
           onGoalSeen();
           setGoalOpen(true);
@@ -219,6 +234,7 @@ export default function TodayScreen({
             el,
             item.protein ?? null,
             item.fat ?? null,
+            item.micros ?? null,
           )
         }
       />
@@ -246,6 +262,7 @@ export default function TodayScreen({
             el,
             entry.protein ?? null,
             entry.fat ?? null,
+            entry.micros ?? null,
           )
         }
       />
@@ -262,6 +279,7 @@ export default function TodayScreen({
             el,
             item.protein ?? null,
             item.fat ?? null,
+            item.micros ?? null,
           );
           setMenuPickOpen(false);
         }}
@@ -288,6 +306,7 @@ export default function TodayScreen({
       <EditEntrySheet
         entry={editing}
         trackProtein={trackProtein}
+        trackMicros={trackMicros}
         unit={unit}
         onSave={onUpdate}
         onClose={() => setEditing(null)}

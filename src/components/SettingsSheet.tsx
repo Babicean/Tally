@@ -9,6 +9,12 @@ import {
   type EnergyUnit,
 } from "../lib/units";
 import { shareBackupFile } from "../lib/exportFile";
+import {
+  MICROS,
+  parseMg,
+  type MicroId,
+  type MicroTargets,
+} from "../lib/micros";
 import { emailProblem, passwordProblem, suggestEmailFix } from "../lib/account";
 import {
   clearLastBackup,
@@ -51,6 +57,10 @@ interface Props {
   onSetFatTarget: (grams: number | null) => void;
   trackWeight: boolean;
   onSetTrackWeight: (on: boolean) => void;
+  trackMicros: boolean;
+  onSetTrackMicros: (on: boolean) => void;
+  microTargets: MicroTargets;
+  onSetMicroTarget: (id: MicroId, target: number | null) => void;
   /** Snapshot of everything worth backing up, in export format. */
   getBackup: () => BackupPayload;
   /** Merge a pulled backup into local data; reports what was added. */
@@ -95,6 +105,10 @@ export default function SettingsSheet({
   onSetFatTarget,
   trackWeight,
   onSetTrackWeight,
+  trackMicros,
+  onSetTrackMicros,
+  microTargets,
+  onSetMicroTarget,
   getBackup,
   onRestore,
   onImportFile,
@@ -104,6 +118,12 @@ export default function SettingsSheet({
   const [target, setTarget] = useState("");
   const [fatT, setFatT] = useState("");
   const [goalT, setGoalT] = useState("");
+  const [microT, setMicroT] = useState<Record<MicroId, string>>({
+    sodium: "",
+    potassium: "",
+    magnesium: "",
+    calcium: "",
+  });
   const [dataNote, setDataNote] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [view, setView] = useState<View>("settings");
@@ -134,6 +154,12 @@ export default function SettingsSheet({
       setGoalT(
         dailyGoal !== null ? String(toDisplayEnergy(dailyGoal, unit)) : "",
       );
+      setMicroT({
+        sodium: microTargets.sodium !== null ? String(microTargets.sodium) : "",
+        potassium: microTargets.potassium !== null ? String(microTargets.potassium) : "",
+        magnesium: microTargets.magnesium !== null ? String(microTargets.magnesium) : "",
+        calcium: microTargets.calcium !== null ? String(microTargets.calcium) : "",
+      });
       setDataNote(null);
       setView(startAtLogin ? "account" : "settings");
       setSession(loadSession());
@@ -146,7 +172,7 @@ export default function SettingsSheet({
       setConfirmDelete(false);
       setBackAnim(false);
     }
-  }, [open, proteinTarget, fatTarget, dailyGoal, unit, startAtLogin]);
+  }, [open, proteinTarget, fatTarget, dailyGoal, unit, microTargets, startAtLogin]);
 
   const commitGoal = () => {
     const cleaned = goalT.trim();
@@ -207,6 +233,16 @@ export default function SettingsSheet({
       return;
     }
     onSetProteinTarget(parsed === 0 ? null : parsed);
+  };
+
+  const commitMicroTarget = (id: MicroId) => {
+    const parsed = parseMg(microT[id]);
+    if (parsed === undefined) {
+      const stored = microTargets[id];
+      setMicroT((prev) => ({ ...prev, [id]: stored !== null ? String(stored) : "" }));
+      return;
+    }
+    onSetMicroTarget(id, parsed === 0 ? null : parsed);
   };
 
   const commitFatTarget = () => {
@@ -868,6 +904,53 @@ export default function SettingsSheet({
           </div>
         </div>
       )}
+
+      <div className="settings-row">
+        <div className="settings-row-text">
+          <span className="settings-row-title">Track electrolytes</span>
+          <span className="settings-row-sub">
+            Sodium, potassium, magnesium and calcium on menu items and
+            entries. Swipe the ring to see today's.
+          </span>
+        </div>
+        <button
+          className={`switch${trackMicros ? " on" : ""}`}
+          role="switch"
+          aria-checked={trackMicros}
+          aria-label="Track electrolytes"
+          onClick={() => onSetTrackMicros(!trackMicros)}
+        >
+          <span className="switch-knob" />
+        </button>
+      </div>
+      {trackMicros &&
+        MICROS.map((m) => (
+          <div className="settings-row" key={m.id}>
+            <div className="settings-row-text">
+              <span className="settings-row-title">
+                Daily {m.label} {m.kind === "limit" ? "limit" : "target"}
+              </span>
+              <span className="settings-row-sub">
+                {m.kind === "limit" ? "Blank for no limit." : "Blank for no target."}
+              </span>
+            </div>
+            <div className="field field-cal settings-target settings-goal">
+              <input
+                value={microT[m.id]}
+                onChange={(e) =>
+                  setMicroT((prev) => ({ ...prev, [m.id]: e.target.value }))
+                }
+                onBlur={() => commitMicroTarget(m.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                }}
+                inputMode="numeric"
+                aria-label={`Daily ${m.label} ${m.kind === "limit" ? "limit" : "target"} in milligrams`}
+              />
+              <span className="unit">mg</span>
+            </div>
+          </div>
+        ))}
 
       <p className="settings-label">Weight</p>
       <div className="settings-row">

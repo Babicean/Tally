@@ -1,3 +1,5 @@
+import type { Micros } from "./lib/micros";
+
 /** A local calendar day in `YYYY-MM-DD` form (the *tracking* day, 2 AM boundary). */
 export type DayKey = string;
 
@@ -21,6 +23,8 @@ export interface Entry {
   protein?: number | null;
   /** Grams of fat, when known (advanced tracking). */
   fat?: number | null;
+  /** Electrolytes in mg, when known (usually inherited from a Menu item). */
+  micros?: Micros;
 }
 
 /** A saved staple food in the user's personal menu. */
@@ -37,6 +41,8 @@ export interface MenuItem {
   /** Optional preset category (see CategoryIcon), or null for none. */
   category: string | null;
   createdAt: number;
+  /** Electrolytes in mg; meals store the sum of their components. */
+  micros?: Micros;
   /**
    * Present on Meals: ids of the component foods. The stored
    * calories/protein/fat are the sums, recomputed whenever the meal

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { MenuItem } from "../types";
+import type { Micros } from "../lib/micros";
 import {
   energyNoun,
   energyUnitLabel,
@@ -17,6 +18,7 @@ import Toast from "./Toast";
 interface Props {
   menu: MenuItem[];
   trackProtein: boolean;
+  trackMicros: boolean;
   unit: EnergyUnit;
   onLog: (item: MenuItem) => void;
   onAdd: (
@@ -25,6 +27,7 @@ interface Props {
     protein: number | null,
     fat: number | null,
     category: string | null,
+    micros: Micros | null,
   ) => void;
   onUpdate: (
     id: string,
@@ -33,6 +36,7 @@ interface Props {
     protein: number | null,
     fat: number | null,
     category: string | null,
+    micros: Micros | null,
   ) => void;
   onDelete: (id: string) => void;
   onTogglePinned: (id: string) => void;
@@ -47,6 +51,7 @@ interface Props {
 export default function MenuScreen({
   menu,
   trackProtein,
+  trackMicros,
   unit,
   onLog,
   onAdd,
@@ -199,11 +204,12 @@ export default function MenuScreen({
       <MenuItemSheet
         open={sheetOpen}
         trackProtein={trackProtein}
+        trackMicros={trackMicros}
         unit={unit}
         item={editing}
-        onSave={(name, cal, prot, fatG, category) => {
-          if (editing) onUpdate(editing.id, name, cal, prot, fatG, category);
-          else onAdd(name, cal, prot, fatG, category);
+        onSave={(name, cal, prot, fatG, category, micros) => {
+          if (editing) onUpdate(editing.id, name, cal, prot, fatG, category, micros);
+          else onAdd(name, cal, prot, fatG, category, micros);
         }}
         onDelete={editing ? () => onDelete(editing.id) : undefined}
         onClose={() => setSheetOpen(false)}

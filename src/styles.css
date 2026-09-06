@@ -3164,3 +3164,166 @@ input {
   color: var(--accent-text);
   -webkit-tap-highlight-color: transparent;
 }
+
+/* ---- v2.17: electrolytes ---------------------------------------------------
+   With "Track electrolytes" on, the hero becomes a two-page carousel:
+   ring + macros, then today's electrolytes against their targets. Native
+   scroll-snap does the swiping; the dots mirror it. */
+
+.hero-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.hero-track::-webkit-scrollbar {
+  display: none;
+}
+
+.hero-page {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-page-micros {
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+}
+
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.hero-dot {
+  position: relative;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--ink-3);
+  opacity: 0.45;
+  transition:
+    opacity 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hero-dot.active {
+  background: var(--accent);
+  opacity: 1;
+  transform: scale(1.25);
+}
+
+.hero-dot::after {
+  content: "";
+  position: absolute;
+  inset: -0.75rem;
+}
+
+/* The electrolytes page: the sodium:potassium ratio up top, then one
+   compact row per electrolyte with its value against the target. */
+.micro-panel {
+  width: 100%;
+  max-width: 19rem;
+}
+
+.micro-ratio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0.875rem;
+}
+
+.micro-ratio-v {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.micro-ratio-l {
+  margin-top: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.micro-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 0.75rem;
+  padding: 0.4375rem 0;
+}
+
+.micro-row + .micro-row {
+  border-top: 1px solid var(--hairline);
+}
+
+.micro-label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: left; /* the hero centers text; rows read as a list */
+}
+
+.micro-value {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.micro-value.over {
+  color: var(--warn);
+}
+
+.micro-value.met {
+  color: var(--accent-text);
+}
+
+.micro-target,
+.micro-unit {
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.micro-unit {
+  font-size: 0.8125rem;
+}
+
+.micro-bar {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 0.375rem 0 0;
+}
+
+/* Sodium is a limit: neutral fill while under, amber once past it. */
+.protein-bar-fill.limit {
+  background: var(--ink-3);
+}
+
+.protein-bar-fill.over {
+  background: var(--warn);
+}
+
+/* The electrolyte fields behind the "+ electrolytes" reveal. */
+.add-micros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.add-micros .unit {
+  white-space: nowrap;
+}

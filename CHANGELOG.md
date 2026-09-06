@@ -10,6 +10,27 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.17.0 — code 57 — 2026-09-06
+
+Electrolytes: sodium, potassium, magnesium and calcium, for the foods
+that print them.
+
+- A new "Track electrolytes" switch under Advanced tracking, with four
+  editable daily figures prefilled with Australian adult reference
+  values. Sodium is a stay-under limit; the others are targets to
+  reach. Blank means none.
+- With it on, the hero becomes two pages: swipe the ring (or tap the
+  dots beneath it) to see today's sodium : potassium ratio and each
+  electrolyte against its figure, with the same thin bars as the
+  macros. Sodium turns the calm amber once past its limit.
+- You enter electrolytes where the labels are: a "+ electrolytes"
+  reveal on menu items, so anything logged from a chip, the picker, or
+  a meal inherits them and meals sum their components. The edit sheet
+  has the same reveal for one-off corrections. The quick-add card is
+  untouched.
+- Backups and sync carry electrolytes as an optional field; older
+  backups import unchanged.
+
 ## 2.16.0 — code 56 — 2026-09-05
 
 Carbs, derived. With macros on, Tally now works out carbohydrates from

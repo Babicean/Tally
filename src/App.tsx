@@ -70,6 +70,7 @@ export default function App() {
     todayProtein,
     todayFat,
     todayCarbs,
+    todayMicros,
     history,
     quickAdds,
     menu,
@@ -108,6 +109,10 @@ export default function App() {
     lastWeight,
     trackWeight,
     setTrackWeight,
+    trackMicros,
+    setTrackMicros,
+    microTargets,
+    setMicroTarget,
     logWeight,
     removeTodayWeight,
   } = useEntries();
@@ -115,7 +120,7 @@ export default function App() {
   // Invisible sync: signed-in users' changes back themselves up.
   useAutoBackup(
     () => buildBackup(entries, menu, loadSettings(), weights),
-    [entries, menu, weights, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget, trackWeight, unit],
+    [entries, menu, weights, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget, trackWeight, unit, trackMicros, microTargets],
   );
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -195,14 +200,20 @@ export default function App() {
           unitHint={!unitHintSeen && !welcome}
           onToggleUnit={() => setUnit(unit === "kcal" ? "kj" : "kcal")}
           onUnitHintDone={markUnitHintSeen}
+          trackMicros={trackMicros}
+          micros={todayMicros}
+          microTargets={microTargets}
         />
       )}
       {tab === "menu" && (
         <MenuScreen
           menu={menu}
           trackProtein={trackProtein}
+          trackMicros={trackMicros}
           unit={unit}
-          onLog={(item) => addEntry(item.calories, item.name, item.protein, item.fat)}
+          onLog={(item) =>
+            addEntry(item.calories, item.name, item.protein, item.fat, undefined, item.micros)
+          }
           onAdd={addMenuItem}
           onUpdate={updateMenuItem}
           onDelete={deleteMenuItem}
@@ -249,6 +260,10 @@ export default function App() {
         onSetFatTarget={setFatTarget}
         trackWeight={trackWeight}
         onSetTrackWeight={setTrackWeight}
+        trackMicros={trackMicros}
+        onSetTrackMicros={setTrackMicros}
+        microTargets={microTargets}
+        onSetMicroTarget={setMicroTarget}
         getBackup={() => buildBackup(entries, menu, loadSettings(), weights)}
         onRestore={(b) => importBackup(b, { applySettings: true })}
         onImportFile={(b) => importBackup(b)}

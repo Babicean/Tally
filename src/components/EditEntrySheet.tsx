@@ -9,11 +9,19 @@ import {
   type EnergyUnit,
 } from "../lib/units";
 import { trackingDayFor } from "../lib/day";
+import {
+  MICROS,
+  hasMicros,
+  parseMg,
+  type MicroId,
+  type Micros,
+} from "../lib/micros";
 import { formatDayLabel, formatTime } from "../lib/format";
 
 interface Props {
   entry: Entry | null;
   trackProtein: boolean;
+  trackMicros: boolean;
   unit: EnergyUnit;
   onSave: (
     id: string,
@@ -23,6 +31,8 @@ interface Props {
     fat: number | null,
     /** Omitted when the time field was left untouched. */
     timestamp?: number,
+    /** Electrolytes in mg, or null to clear. */
+    micros?: Micros | null,
   ) => void;
   onClose: () => void;
 }
@@ -39,6 +49,7 @@ function toLocalInputValue(ts: number): string {
 export default function EditEntrySheet({
   entry,
   trackProtein,
+  trackMicros,
   unit,
   onSave,
   onClose,
@@ -55,7 +66,16 @@ export default function EditEntrySheet({
     cal?: boolean;
     protein?: boolean;
     fat?: boolean;
+    micro?: MicroId;
   }>({});
+  const emptyMicro = (): Record<MicroId, string> => ({
+    sodium: "",
+    potassium: "",
+    magnesium: "",
+    calcium: "",
+  });
+  const [micro, setMicro] = useState<Record<MicroId, string>>(emptyMicro);
+  const [microsOpen, setMicrosOpen] = useState(false);
 
   useEffect(() => {
     if (entry) {
@@ -64,6 +84,13 @@ export default function EditEntrySheet({
       setProtein(entry.protein != null ? String(entry.protein) : "");
       setFat(entry.fat != null ? String(entry.fat) : "");
       setWhen(toLocalInputValue(entry.timestamp));
+      const m = emptyMicro();
+      for (const meta of MICROS) {
+        const v = entry.micros?.[meta.id];
+        if (typeof v === "number") m[meta.id] = String(v);
+      }
+      setMicro(m);
+      setMicrosOpen(hasMicros(entry.micros));
       setError(null);
       setBad({});
     }
@@ -111,6 +138,22 @@ export default function EditEntrySheet({
       setError("Can’t log into the future.");
       return;
     }
+    let micros: Micros | null | undefined;
+    if (trackMicros && microsOpen) {
+      const next: Micros = {};
+      for (const meta of MICROS) {
+        const mg = parseMg(micro[meta.id]);
+        if (mg === undefined) {
+          setBad({ micro: meta.id });
+          setError(
+            `${meta.label[0].toUpperCase()}${meta.label.slice(1)} must be a number of milligrams, or blank.`,
+          );
+          return;
+        }
+        if (mg !== null) next[meta.id] = mg;
+      }
+      micros = hasMicros(next) ? next : null;
+    }
     onSave(
       entry.id,
       parsed,
@@ -118,6 +161,7 @@ export default function EditEntrySheet({
       parsedProtein,
       parsedFat,
       timeChanged ? ts : undefined,
+      micros,
     );
     onClose();
   };
@@ -195,6 +239,36 @@ export default function EditEntrySheet({
             </div>
           )}
         </div>
+        {trackMicros && !microsOpen && (
+          <button
+            type="button"
+            className="add-macros-toggle"
+            onClick={() => setMicrosOpen(true)}
+          >
+            + electrolytes
+          </button>
+        )}
+        {trackMicros && microsOpen && (
+          <div className="add-micros">
+            {MICROS.map((m) => (
+              <div
+                key={m.id}
+                className={`field field-cal field-protein${bad.micro === m.id ? " invalid" : ""}`}
+              >
+                <input
+                  value={micro[m.id]}
+                  onChange={(e) => {
+                    setMicro((prev) => ({ ...prev, [m.id]: e.target.value }));
+                    clearError();
+                  }}
+                  inputMode="numeric"
+                  aria-label={`${m.label[0].toUpperCase()}${m.label.slice(1)} in milligrams (optional)`}
+                />
+                <span className="unit">mg {m.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="field sheet-name sheet-when">
           {/* The styled label is what you see; the real datetime input is
               an invisible layer on top so a tap still opens the system
