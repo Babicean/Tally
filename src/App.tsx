@@ -3,6 +3,7 @@ import { buildBackup } from "./lib/backup";
 import { loadSettings } from "./lib/settings";
 import SettingsSheet from "./components/SettingsSheet";
 import TopBar from "./components/TopBar";
+import TabRing from "./components/TabRing";
 import Welcome from "./components/Welcome";
 import { markWelcomed, shouldShowWelcome } from "./lib/welcome";
 import { useEntries } from "./hooks/useEntries";
@@ -13,33 +14,12 @@ import HistoryScreen from "./components/HistoryScreen";
 
 type Tab = "today" | "menu" | "history";
 
-const TABS: { id: Tab; label: string; icon: JSX.Element }[] = [
+const TABS: { id: Tab; label: string; icon: JSX.Element | null }[] = [
   {
     id: "today",
     label: "Today",
-    icon: (
-      // A miniature of the hero ring: faint track, partial arc.
-      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <circle
-          cx="8.5"
-          cy="8.5"
-          r="6.5"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          opacity="0.28"
-        />
-        <circle
-          cx="8.5"
-          cy="8.5"
-          r="6.5"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeDasharray="26 100"
-          transform="rotate(-90 8.5 8.5)"
-        />
-      </svg>
-    ),
+    // Rendered live from the day's tally; see TabRing.
+    icon: null,
   },
   {
     id: "menu",
@@ -304,7 +284,7 @@ export default function App() {
               onClick={() => setTab(t.id)}
               aria-current={tab === t.id ? "page" : undefined}
             >
-              {t.icon}
+              {t.id === "today" ? <TabRing total={todayTotal} goal={dailyGoal} /> : t.icon}
               {t.label}
             </button>
           ))}

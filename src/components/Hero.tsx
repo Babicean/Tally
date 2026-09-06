@@ -385,7 +385,7 @@ export default function Hero({
             <svg width="11" height="11" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true">
               <path d="M7.5 0.8l1.7 4.9 4.9 1.8-4.9 1.8-1.7 4.9-1.7-4.9L.9 7.5l4.9-1.8L7.5.8z" />
             </svg>
-            {streak.length}-day streak
+            {streak.length} day streak
           </p>
         )}
         {paged(
@@ -431,7 +431,7 @@ export default function Hero({
           <svg width="11" height="11" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true">
             <path d="M7.5 0.8l1.7 4.9 4.9 1.8-4.9 1.8-1.7 4.9-1.7-4.9L.9 7.5l4.9-1.8L7.5.8z" />
           </svg>
-          {streak.length}-day streak
+          {streak.length} day streak
         </p>
       )}
       {paged(

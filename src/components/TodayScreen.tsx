@@ -139,7 +139,7 @@ export default function TodayScreen({
         window.setTimeout(() => {
           celebrate(document.getElementById("hero-total"));
           haptic(24);
-          showToast({ kind: "streak", message: `${day}-day streak` }, 2600);
+          showToast({ kind: "streak", message: `${day} day streak` }, 2600);
         }, 350);
         haptic(10);
       } else if (crossesTarget) {

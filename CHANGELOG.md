@@ -10,6 +10,18 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.18.1 — code 60 — 2026-09-06
+
+The Today tab keeps score.
+
+- The Today tab's little ring now fills with the day's tally, exactly
+  like the big one: empty before breakfast, full at the goal, amber only
+  past the same 2% grace band. It moves as you log, so a glance at the
+  tab bar from Menu or History tells you where the day sits. With no
+  goal set it rests at the app icon's arc rather than sitting empty.
+- "24-day streak" is now "24 day streak", on the hero line and in the
+  streak toast.
+
 ## 2.18.0 — code 59 — 2026-09-06
 
 The top of the app stops saying "Tally" to itself.

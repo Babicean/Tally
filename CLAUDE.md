@@ -174,7 +174,7 @@ library, no backend SDK — the biggest JS dependency is React itself.
   create / verify-wait / logged-in states). `Welcome.tsx` is the
   landing page + tally-strokes delighter.
 - Tests live next to the code: `src/lib/*.test.ts`, pure-function only
-  (vitest, node env, no DOM). 62 tests at last count. UI logic that
+  (vitest, node env, no DOM). 110 tests at last count. UI logic that
   needs testing gets extracted into a pure lib function first (see
   `welcomeDecision`).
 
@@ -227,13 +227,18 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.18.1, code 60: Today tab icon is live — `components/TabRing.tsx`
+  draws the day's tally against the goal (`lib/goal.ts` ringProgress,
+  amber via withinGoal, resting 0.64 arc when no goal, arc hidden at 0
+  so the round cap doesn't paint a dot). Streak copy is "24 day
+  streak" (no dash). E2E: `verify-2181.mjs`.
 - v2.18.0, code 59: `components/TopBar.tsx` replaces the "Tally"
   wordmark — time-of-day greeting (`lib/greeting.ts`, deterministic
   per period, accent period icon) for ~3.8 s, then the tracking day's
   weekday (`formatWeekday`); replays after ≥5 min hidden; the spin
   easter egg lives on it. Hero date dropped the weekday
   (`formatHeroDate` → "6 September"). Active tab = `--accent-text`.
-  Today tab icon = mini ring (track + dasharray arc). E2E:
+  Today tab icon = mini ring (static then; live since 2.18.1). E2E:
   `verify-218.mjs`.
 - v2.17.1, code 58: Settings target fields are compact two-up grids
   (`.target-grid`); the calorie goal has a 2% grace band

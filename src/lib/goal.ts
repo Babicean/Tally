@@ -11,3 +11,14 @@ export const GOAL_GRACE = 0.02;
 export function withinGoal(total: number, goal: number): boolean {
   return total <= goal * (1 + GOAL_GRACE);
 }
+
+/**
+ * How full a progress ring should be for `total` against `goal`, 0..1.
+ * Null when there is no goal to measure against, so the caller can fall
+ * back to a resting shape instead of an empty ring that would read as
+ * "nothing logged".
+ */
+export function ringProgress(total: number, goal: number | null): number | null {
+  if (goal === null || !(goal > 0)) return null;
+  return Math.min(Math.max(total, 0) / goal, 1);
+}
