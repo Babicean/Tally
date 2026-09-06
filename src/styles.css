@@ -485,10 +485,6 @@ input {
   transform: scale(0.96);
 }
 
-.goal-pill.over {
-  color: var(--warn);
-}
-
 .goal-pill.ghost {
   background: none;
   box-shadow: none;

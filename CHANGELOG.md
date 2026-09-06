@@ -10,6 +10,16 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.18.2 — code 61 — 2026-09-06
+
+One less thing under the ring.
+
+- The "1,200 remaining" / "3 over goal" pill is gone. The ring already
+  says "2,403 of 2,400 cal" and turns amber past the grace band, so the
+  pill was repeating it in a second card. The goal itself is edited from
+  Settings (Daily goal); with no goal set, the quiet "Set a calorie
+  target" prompt still sits under the ring.
+
 ## 2.18.1 — code 60 — 2026-09-06
 
 The Today tab keeps score.

@@ -227,6 +227,16 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.18.2, code 61: goal pill culled (owner's call; the ring caption
+  and amber say it all). `Hero` keeps only the no-goal ghost prompt
+  (`.goal-pill.ghost`); goal editing lives in Settings. `goalSeen`
+  stays in settings/backup for compat but nothing reads it now. E2E:
+  `verify-2182.mjs` (also emits the steps-placement mocks). NEXT UP,
+  owner-approved: steps (v2.19) — Health Connect / HealthKit via
+  `@capgo/capacitor-health`, opt-in "Show steps", display only, no
+  storage, no calories burned; Today shows one small number, Insights
+  gets a weekly average. Placement pending his pick (A: on the streak
+  line in ink-3; B: inside the ring under the caption).
 - v2.18.1, code 60: Today tab icon is live — `components/TabRing.tsx`
   draws the day's tally against the goal (`lib/goal.ts` ringProgress,
   amber via withinGoal, resting 0.64 arc when no goal, arc hidden at 0

@@ -33,7 +33,6 @@ interface Props {
   menu: MenuItem[];
   dailyGoal: number | null;
   /** False until the goal sheet is first opened; drives the pill hint. */
-  goalSeen: boolean;
   onGoalSeen: () => void;
   onSetGoal: (goal: number | null) => void;
   onAdd: (
@@ -86,7 +85,6 @@ export default function TodayScreen({
   quickAdds,
   menu,
   dailyGoal,
-  goalSeen,
   onGoalSeen,
   onSetGoal,
   onAdd,
@@ -206,7 +204,6 @@ export default function TodayScreen({
         fatTarget={fatTarget}
         streak={streak}
         goal={dailyGoal}
-        goalHint={!goalSeen}
         unit={unit}
         unitHint={unitHint}
         onToggleUnit={onToggleUnit}

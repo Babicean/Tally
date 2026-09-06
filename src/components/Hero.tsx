@@ -34,7 +34,6 @@ interface Props {
   streak: Streak;
   goal: number | null;
   /** First run: the default goal appeared unasked, so the pill says so. */
-  goalHint: boolean;
   onEditGoal: () => void;
   /** Display unit; tapping the total flips it (scoreboard style). */
   unit: EnergyUnit;
@@ -102,7 +101,6 @@ export default function Hero({
   fatTarget,
   streak,
   goal,
-  goalHint,
   onEditGoal,
   unit,
   unitHint,
@@ -416,10 +414,8 @@ export default function Hero({
   }
 
   const progress = Math.min(total / goal, 1);
-  // Two different questions: `past` picks the honest words ("3 over
-  // goal"); `over` picks the amber, and only past the grace band, since
-  // three calories over is nothing worth a colour change.
-  const past = total > goal;
+  // Amber only past the grace band: three calories over is nothing
+  // worth a colour change. The numbers inside the ring stay factual.
   const over = !withinGoal(total, goal);
   const offset = CIRCUMFERENCE * (1 - (mounted ? progress : 0));
 
@@ -513,26 +509,6 @@ export default function Hero({
           {macroRow}
         </>,
       )}
-      <button
-        className={`goal-pill${over ? " over" : ""}`}
-        onClick={onEditGoal}
-      >
-        <AnimatedNumber
-          key={unit}
-          value={toDisplayEnergy(past ? total - goal : goal - total, unit)}
-        />
-        {past ? " over goal" : " remaining"}
-        {goalHint && !past && " · tap to set your own"}
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <path
-            d="M3.5 2l3 3-3 3"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
     </header>
   );
 }

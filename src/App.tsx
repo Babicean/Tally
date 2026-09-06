@@ -69,7 +69,6 @@ export default function App() {
     importBackup,
     dailyGoal,
     setDailyGoal,
-    goalSeen,
     markGoalSeen,
     unit,
     setUnit,
@@ -162,7 +161,6 @@ export default function App() {
           quickAdds={quickAdds}
           menu={menu}
           dailyGoal={dailyGoal}
-          goalSeen={goalSeen}
           onGoalSeen={markGoalSeen}
           onSetGoal={setDailyGoal}
           onAdd={addEntry}
