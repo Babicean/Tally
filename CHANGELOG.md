@@ -10,6 +10,33 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.19.0 — code 62 — 2026-09-06
+
+Steps, from the phone, in one small number.
+
+- Settings gains "Show steps" (off by default). On, Tally asks the phone
+  for read access to step counts only, Health Connect on Android and
+  Apple Health on iPhone, and shows today's count in grey beside the
+  streak line under the date: "24 day streak · 4,210 steps". No streak,
+  just the steps. It refreshes when the app opens, when it comes back
+  to the foreground, and once a minute while on screen.
+- The History Insights card's Week view adds "steps a day": the
+  average of the seven completed days before today, skipping days the
+  phone has no data for. Today is never averaged in because it is
+  always half done.
+- Nothing is stored. Steps are read fresh every time, never written to
+  Tally's storage, never part of a backup, never uploaded. Turn the
+  switch off and the phone is never asked. No calories burned, on
+  purpose.
+- If access is refused the switch stays on with a one-line note and, on
+  Android, an "Open Health Connect" link to fix it. In a browser the
+  note says steps need the phone app.
+- Under the hood: `@capgo/capacitor-health` (MPL-2.0). The merged
+  Android manifest strips every health permission except READ_STEPS,
+  so the APK declares exactly what it uses. Android minimum is now
+  8.0 (Health Connect's floor); iOS adds the HealthKit entitlement,
+  which needs a one-time tick on the App ID (docs/IOS.md).
+
 ## 2.18.2 — code 61 — 2026-09-06
 
 One less thing under the ring.

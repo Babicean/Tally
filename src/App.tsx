@@ -8,6 +8,7 @@ import Welcome from "./components/Welcome";
 import { markWelcomed, shouldShowWelcome } from "./lib/welcome";
 import { useEntries } from "./hooks/useEntries";
 import { useAutoBackup } from "./hooks/useAutoBackup";
+import { useSteps } from "./hooks/useSteps";
 import TodayScreen from "./components/TodayScreen";
 import MenuScreen from "./components/MenuScreen";
 import HistoryScreen from "./components/HistoryScreen";
@@ -103,6 +104,8 @@ export default function App() {
     setTrackMicros,
     microTargets,
     setMicroTarget,
+    showSteps,
+    setShowSteps,
     logWeight,
     removeTodayWeight,
   } = useEntries();
@@ -110,8 +113,12 @@ export default function App() {
   // Invisible sync: signed-in users' changes back themselves up.
   useAutoBackup(
     () => buildBackup(entries, menu, loadSettings(), weights),
-    [entries, menu, weights, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget, trackWeight, unit, trackMicros, microTargets],
+    [entries, menu, weights, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget, trackWeight, unit, trackMicros, microTargets, showSteps],
   );
+
+  // Steps are read from the phone, never stored: nothing here reaches
+  // the backup.
+  const stepsState = useSteps(showSteps);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [gearSpin, setGearSpin] = useState(false);
@@ -157,6 +164,7 @@ export default function App() {
           proteinTarget={proteinTarget}
           fatTarget={fatTarget}
           streak={streak}
+          steps={stepsState.today}
           entries={todayEntries}
           quickAdds={quickAdds}
           menu={menu}
@@ -212,6 +220,7 @@ export default function App() {
           lastWeight={lastWeight}
           onLogWeight={logWeight}
           onRemoveWeight={removeTodayWeight}
+          stepsAvg={stepsState.weekAvg}
           onAddBackdated={(cal, desc, prot, fatG, when) => {
             addEntry(cal, desc, prot, fatG, when);
           }}
@@ -240,6 +249,13 @@ export default function App() {
         onSetTrackMicros={setTrackMicros}
         microTargets={microTargets}
         onSetMicroTarget={setMicroTarget}
+        showSteps={showSteps}
+        onSetShowSteps={(on) => {
+          setShowSteps(on);
+          if (on) void stepsState.request();
+        }}
+        stepsStatus={stepsState.status}
+        onOpenStepsSettings={() => void stepsState.openSettings()}
         getBackup={() => buildBackup(entries, menu, loadSettings(), weights)}
         onRestore={(b) => importBackup(b, { applySettings: true })}
         onImportFile={(b) => importBackup(b)}

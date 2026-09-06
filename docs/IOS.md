@@ -186,6 +186,17 @@ or App Store Connect rejects the upload. Currently at 2.5 / build 26.
   as free insurance but 15.x is unsupported. iOS 16 covers roughly
   95%+ of active iPhones, including iPhone 8/X on their final OS.
 
+- **HealthKit (steps, v2.19+).** `ios/App/App/App.entitlements` declares
+  `com.apple.developer.healthkit` and the Xcode project points
+  `CODE_SIGN_ENTITLEMENTS` at it; `Info.plist` carries
+  `NSHealthShareUsageDescription`. ONE-TIME, in a browser: Apple
+  Developer → Certificates, Identifiers & Profiles → Identifiers →
+  `com.babicean.tally` → tick **HealthKit** → Save. Without that the
+  App Store profile Codemagic mints won't carry the entitlement and the
+  archive step fails with "Provisioning profile doesn't include the
+  com.apple.developer.healthkit entitlement". Codemagic's
+  `fetch-signing-files --create` regenerates the profile on the next
+  build; nothing else to change. Tally only ever reads step counts.
 - Safe areas (notch / home indicator) are already handled: the app
   uses `viewport-fit=cover` plus `env(safe-area-inset-*)` fallbacks.
 - The status-bar plugin's `setBackgroundColor` is Android-only; on

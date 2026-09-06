@@ -51,6 +51,11 @@ export interface Settings {
   trackMicros: boolean;
   /** Daily targets in mg; null = no target for that one. */
   microTargets: MicroTargets;
+  /**
+   * Show the phone's step count (Health Connect / Apple Health). Read
+   * live, never stored; off, the app never asks the phone anything.
+   */
+  showSteps: boolean;
 }
 
 const DEFAULTS: Settings = {
@@ -66,6 +71,7 @@ const DEFAULTS: Settings = {
   unitHintSeen: false,
   trackMicros: false,
   microTargets: { ...DEFAULT_MICRO_TARGETS },
+  showSteps: false,
 };
 
 interface SettingsShape {
@@ -112,6 +118,7 @@ export function loadSettings(): Settings {
       unitHintSeen: s.unitHintSeen === true,
       trackMicros: s.trackMicros === true,
       microTargets: loadMicroTargets(s.microTargets),
+      showSteps: s.showSteps === true,
     };
   } catch {
     return { ...DEFAULTS };

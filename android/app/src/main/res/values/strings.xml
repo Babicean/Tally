@@ -4,4 +4,7 @@
     <string name="title_activity_main">Tally</string>
     <string name="package_name">com.babicean.tally</string>
     <string name="custom_url_scheme">com.babicean.tally</string>
+    <!-- Health Connect shows this when the user taps "Privacy policy" on
+         the steps permission sheet. -->
+    <string name="health_connect_privacy_policy_url">https://babicean.github.io/Tally/PRIVACY.html</string>
 </resources>

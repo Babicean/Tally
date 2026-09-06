@@ -105,6 +105,7 @@ export function parseBackup(json: string): BackupPayload | null {
             : true,
         trackMicros: raw.settings?.trackMicros === true,
         microTargets: loadMicroTargets(raw.settings?.microTargets),
+        showSteps: raw.settings?.showSteps === true,
       },
       weights: Array.isArray(raw.weights)
         ? raw.weights.filter(isWeightEntry)

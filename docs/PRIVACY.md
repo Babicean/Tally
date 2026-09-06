@@ -30,6 +30,14 @@ Export/Import backups are files you control.
   menu items, goals, and app settings. It is uploaded when you back up
   and downloaded when you restore.
 
+**Steps (opt-in, Settings > Show steps):** Tally reads your daily step
+count from Health Connect (Android) or Apple Health (iOS) while the app
+is open, and shows it. It is read fresh each time, never written to
+Tally's storage, never included in a backup, and never uploaded. Tally
+asks for read access to steps only, nothing else in your health data.
+Turn the switch off and Tally stops reading; revoke the permission in
+Health Connect or the Health app and it stops too.
+
 That is the complete list. No device identifiers, no location, no
 contacts, no analytics events.
 

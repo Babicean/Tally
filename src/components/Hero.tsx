@@ -11,6 +11,7 @@ import {
 } from "../lib/units";
 import { haptic } from "../lib/fly";
 import { withinGoal } from "../lib/goal";
+import { formatSteps } from "../lib/steps";
 import {
   MICROS,
   naKRatio,
@@ -32,6 +33,8 @@ interface Props {
   proteinTarget: number | null;
   fatTarget: number | null;
   streak: Streak;
+  /** Today's step count from the phone, or null when off / unknown. */
+  steps: number | null;
   goal: number | null;
   /** First run: the default goal appeared unasked, so the pill says so. */
   onEditGoal: () => void;
@@ -100,6 +103,7 @@ export default function Hero({
   proteinTarget,
   fatTarget,
   streak,
+  steps,
   goal,
   onEditGoal,
   unit,
@@ -374,18 +378,39 @@ export default function Hero({
       </div>
     ) : null;
 
-  if (goal === null) {
-    return (
-      <header className="hero">
-        <p className="hero-date">{formatHeroDate(today)}</p>
-        {streak.length >= 2 && (
-          <p className="streak-line">
+  // One quiet line under the date: the streak in accent, the phone's
+  // step count in grey beside it. Either can stand alone.
+  const hasStreak = streak.length >= 2;
+  const dayLine =
+    hasStreak || steps !== null ? (
+      <p className="streak-line">
+        {hasStreak && (
+          <>
             <svg width="11" height="11" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true">
               <path d="M7.5 0.8l1.7 4.9 4.9 1.8-4.9 1.8-1.7 4.9-1.7-4.9L.9 7.5l4.9-1.8L7.5.8z" />
             </svg>
             {streak.length} day streak
-          </p>
+          </>
         )}
+        {steps !== null && (
+          <span className="steps-note">
+            {hasStreak && (
+              <>
+                {" "}
+                <span className="steps-dot" aria-hidden="true">·</span>{" "}
+              </>
+            )}
+            {formatSteps(steps)}
+          </span>
+        )}
+      </p>
+    ) : null;
+
+  if (goal === null) {
+    return (
+      <header className="hero">
+        <p className="hero-date">{formatHeroDate(today)}</p>
+        {dayLine}
         {paged(
           <>
             <button
@@ -422,14 +447,7 @@ export default function Hero({
   return (
     <header className="hero hero-ring">
       <p className="hero-date">{formatHeroDate(today)}</p>
-      {streak.length >= 2 && (
-        <p className="streak-line">
-          <svg width="11" height="11" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true">
-            <path d="M7.5 0.8l1.7 4.9 4.9 1.8-4.9 1.8-1.7 4.9-1.7-4.9L.9 7.5l4.9-1.8L7.5.8z" />
-          </svg>
-          {streak.length} day streak
-        </p>
-      )}
+      {dayLine}
       {paged(
         <>
       <div className="ring">

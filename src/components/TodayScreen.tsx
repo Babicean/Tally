@@ -28,6 +28,7 @@ interface Props {
   proteinTarget: number | null;
   fatTarget: number | null;
   streak: Streak;
+  steps: number | null;
   entries: Entry[];
   quickAdds: FrequentItem[];
   menu: MenuItem[];
@@ -81,6 +82,7 @@ export default function TodayScreen({
   proteinTarget,
   fatTarget,
   streak,
+  steps,
   entries,
   quickAdds,
   menu,
@@ -203,6 +205,7 @@ export default function TodayScreen({
         proteinTarget={proteinTarget}
         fatTarget={fatTarget}
         streak={streak}
+        steps={steps}
         goal={dailyGoal}
         unit={unit}
         unitHint={unitHint}

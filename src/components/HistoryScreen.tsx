@@ -57,6 +57,7 @@ function buildDayItems(history: DaySummary[], today: DayKey): DayItem[] {
 }
 
 interface Props {
+  stepsAvg?: number | null;
   today: DayKey;
   history: DaySummary[];
   entries: Entry[];
@@ -92,6 +93,7 @@ export default function HistoryScreen({
   onLogWeight,
   onRemoveWeight,
   onAddBackdated,
+  stepsAvg = null,
 }: Props) {
   const [openDay, setOpenDay] = useState<DayKey | null>(null);
   const [weightOpen, setWeightOpen] = useState(false);
@@ -126,6 +128,7 @@ export default function HistoryScreen({
           unit={unit}
           points={points}
           deltaPct={deltaPct}
+          stepsAvg={stepsAvg}
         />
       )}
 

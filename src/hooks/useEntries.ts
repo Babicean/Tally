@@ -174,6 +174,10 @@ export function useEntries() {
     (trackMicros: boolean) => updateSettings({ trackMicros }),
     [updateSettings],
   );
+  const setShowSteps = useCallback(
+    (showSteps: boolean) => updateSettings({ showSteps }),
+    [updateSettings],
+  );
   const setMicroTarget = useCallback(
     (id: MicroId, target: number | null) =>
       setSettings((prev) => {
@@ -554,6 +558,8 @@ export function useEntries() {
     setTrackMicros,
     microTargets: settings.microTargets,
     setMicroTarget,
+    showSteps: settings.showSteps,
+    setShowSteps,
     logWeight,
     removeTodayWeight,
   };

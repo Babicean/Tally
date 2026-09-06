@@ -38,6 +38,8 @@ import {
   type BackupPayload,
   type MergeResult,
 } from "../lib/backup";
+import { Capacitor } from "@capacitor/core";
+import { stepsSourceName, type StepsStatus } from "../lib/steps";
 
 interface Props {
   open: boolean;
@@ -61,6 +63,11 @@ interface Props {
   onSetTrackMicros: (on: boolean) => void;
   microTargets: MicroTargets;
   onSetMicroTarget: (id: MicroId, target: number | null) => void;
+  showSteps: boolean;
+  onSetShowSteps: (on: boolean) => void;
+  /** Where the phone's step read stands, for the note under the switch. */
+  stepsStatus: StepsStatus;
+  onOpenStepsSettings: () => void;
   /** Snapshot of everything worth backing up, in export format. */
   getBackup: () => BackupPayload;
   /** Merge a pulled backup into local data; reports what was added. */
@@ -109,6 +116,10 @@ export default function SettingsSheet({
   onSetTrackMicros,
   microTargets,
   onSetMicroTarget,
+  showSteps,
+  onSetShowSteps,
+  stepsStatus,
+  onOpenStepsSettings,
   getBackup,
   onRestore,
   onImportFile,
@@ -964,6 +975,48 @@ export default function SettingsSheet({
           <span className="switch-knob" />
         </button>
       </div>
+
+      <p className="settings-label">Steps</p>
+      <div className="settings-row">
+        <div className="settings-row-text">
+          <span className="settings-row-title">Show steps</span>
+          <span className="settings-row-sub">
+            Today's step count from {stepsSourceName()}, under the date.
+            Read when the app opens, never stored.
+          </span>
+        </div>
+        <button
+          className={`switch${showSteps ? " on" : ""}`}
+          role="switch"
+          aria-checked={showSteps}
+          aria-label="Show steps"
+          onClick={() => onSetShowSteps(!showSteps)}
+        >
+          <span className="switch-knob" />
+        </button>
+      </div>
+      {showSteps && stepsStatus === "unavailable" && (
+        <p className="settings-note">
+          {Capacitor.getPlatform() === "android"
+            ? "Health Connect isn't set up on this phone."
+            : Capacitor.getPlatform() === "ios"
+              ? "Apple Health isn't available on this device."
+              : "Steps need the Android or iPhone app."}
+        </p>
+      )}
+      {showSteps && stepsStatus === "denied" && (
+        <p className="settings-note">
+          Tally wasn't allowed to read steps.
+          {Capacitor.getPlatform() === "android" && (
+            <>
+              {" "}
+              <button className="settings-inline-btn" onClick={onOpenStepsSettings}>
+                Open Health Connect
+              </button>
+            </>
+          )}
+        </p>
+      )}
 
       <p className="settings-label">Your data</p>
       <p className="data-sub">

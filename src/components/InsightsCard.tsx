@@ -14,6 +14,8 @@ const TOP_LIMIT = 5;
 const EXPANDED_LIMIT = 25;
 
 interface Props {
+  /** Average daily steps over the last seven completed days; null hides it. */
+  stepsAvg?: number | null;
   entries: Entry[];
   today: DayKey;
   dailyGoal: number | null;
@@ -39,6 +41,7 @@ export default function InsightsCard({
   unit,
   points,
   deltaPct,
+  stepsAvg = null,
 }: Props) {
   const [range, setRange] = useState<InsightsRange>("week");
   const [expanded, setExpanded] = useState(false);
@@ -131,6 +134,12 @@ export default function InsightsCard({
               <div className="tstat">
                 <span className="tstat-v">{insights.goalDays}</span>
                 <span className="tstat-l">days under goal</span>
+              </div>
+            )}
+            {range === "week" && stepsAvg != null && (
+              <div className="tstat tstat-steps">
+                <span className="tstat-v">{stepsAvg.toLocaleString()}</span>
+                <span className="tstat-l">steps a day</span>
               </div>
             )}
             {trackProtein && (

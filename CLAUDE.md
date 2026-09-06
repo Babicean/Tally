@@ -37,8 +37,9 @@ only.
    more than once. Copy is brief, accurate, lowercase-calm.
 5. **Privacy promise** (docs/PRIVACY.md is the policy): without an
    account nothing leaves the device; with one, only email + the backup
-   payload, gone instantly on account deletion. Don't add telemetry,
-   analytics, or third-party services.
+   payload, gone instantly on account deletion. Steps (opt-in) are read
+   from the phone's health store and never stored or synced. Don't add
+   telemetry, analytics, or third-party services.
 
 ## Product, in one pass
 
@@ -61,7 +62,9 @@ menu items, inherited by entries; the hero gains a swipeable second
 page with the Na:K ratio and each against its target), **daily protein target** with its own bar and a fire-emoji
 celebration on hitting it, **weight tracking** (one weigh-in a day,
 logged from the History weight card, ~60-point SVG trend, 30-day
-change), theme System/Light/Dark, accent Azure/Emerald/Blush (Blush
+change), **steps** ("Show steps": today's count from Health Connect /
+Apple Health in grey on the streak line, weekly average in Insights;
+read live, never stored), theme System/Light/Dark, accent Azure/Emerald/Blush (Blush
 tints the light background; dark stays Graphite). Yellow was tried
 and retired: no shade is both yellow and legible.
 
@@ -163,7 +166,8 @@ library, no backend SDK — the biggest JS dependency is React itself.
   weigh-ins; `lib/settings.ts` — preferences; `lib/streak.ts`,
   `lib/stats.ts` — derived numbers; `lib/format.ts` — display helpers;
   `lib/account.ts` — email/password validation + typo suggestions;
-  `lib/welcome.ts` — landing-page gate; `lib/fly.ts` — fly-to-total
+  `lib/welcome.ts` — landing-page gate; `lib/steps.ts` — phone step
+  counts (Health Connect / HealthKit) + `hooks/useSteps.ts`; `lib/fly.ts` — fly-to-total
   animation + haptic; `lib/burst.ts` — particle celebrations;
   `lib/exportFile.ts` — native share/export; `lib/theme.ts`,
   `lib/mirror.ts`, `lib/sync.ts`, `lib/syncConfig.ts`, `lib/backup.ts`
@@ -174,7 +178,7 @@ library, no backend SDK — the biggest JS dependency is React itself.
   create / verify-wait / logged-in states). `Welcome.tsx` is the
   landing page + tally-strokes delighter.
 - Tests live next to the code: `src/lib/*.test.ts`, pure-function only
-  (vitest, node env, no DOM). 110 tests at last count. UI logic that
+  (vitest, node env, no DOM). 117 tests at last count. UI logic that
   needs testing gets extracted into a pure lib function first (see
   `welcomeDecision`).
 
@@ -227,16 +231,35 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.19.0, code 62 (steps): `lib/steps.ts` wraps
+  `@capgo/capacitor-health` behind a `StepsSource` (availability /
+  request / check / dailyTotals / openSettings); tests may install
+  `globalThis.__tallyStepsSource` before boot (the E2E does). Pure
+  helpers: calendar-day keys (midnight, NOT the 2 AM tracking day, so
+  the number matches the phone's own app), `stepsWindow` (7 completed
+  days + today, one query), `todaySteps`, `weeklyAverageSteps`
+  (excludes today, skips days with no data). `hooks/useSteps.ts` reads
+  on open / foreground / every 60 s while visible; `prompting` ref stops
+  a refresh flashing "denied" while the OS sheet is up. Setting
+  `showSteps` (default false; in backup). UI: Hero `dayLine` = streak
+  in accent + `.steps-note` in ink-3 (either alone); Insights Week
+  `.tstat-steps` "steps a day"; Settings "Steps" row with
+  `.settings-note` for unavailable / denied (+ "Open Health Connect"
+  on Android). Nothing stored, no calories burned (owner's call).
+  Android: minSdk 26 (plugin floor); app manifest strips the plugin's
+  44 other health permissions with `tools:node="remove"` (re-check on
+  plugin upgrade); `health_connect_privacy_policy_url` string → hosted
+  PRIVACY.html. iOS: `App.entitlements` + `CODE_SIGN_ENTITLEMENTS` +
+  `NSHealthShareUsageDescription`; owner must tick HealthKit on the App
+  ID once (docs/IOS.md). UNTESTED ON DEVICE at ship time — sandbox has
+  no health store; first real proof is the owner's Samsung. E2E:
+  `verify-219.mjs`.
 - v2.18.2, code 61: goal pill culled (owner's call; the ring caption
   and amber say it all). `Hero` keeps only the no-goal ghost prompt
   (`.goal-pill.ghost`); goal editing lives in Settings. `goalSeen`
   stays in settings/backup for compat but nothing reads it now. E2E:
-  `verify-2182.mjs` (also emits the steps-placement mocks). NEXT UP,
-  owner-approved: steps (v2.19) — Health Connect / HealthKit via
-  `@capgo/capacitor-health`, opt-in "Show steps", display only, no
-  storage, no calories burned; Today shows one small number, Insights
-  gets a weekly average. Placement pending his pick (A: on the streak
-  line in ink-3; B: inside the ring under the caption).
+  `verify-2182.mjs` (also emitted the steps-placement mocks; owner
+  picked A, shipped in 2.19).
 - v2.18.1, code 60: Today tab icon is live — `components/TabRing.tsx`
   draws the day's tally against the goal (`lib/goal.ts` ringProgress,
   amber via withinGoal, resting 0.64 arc when no goal, arc hidden at 0
