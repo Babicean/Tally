@@ -35,11 +35,16 @@ export function weekdayInitial(day: DayKey): string {
     .toLocaleDateString(undefined, { weekday: "narrow" });
 }
 
-/** e.g. "Friday, July 4" — the hero date on the Today screen. */
+/** e.g. "July 4" — the hero date on the Today screen. The weekday lives
+    in the top bar since 2.18, so the hero doesn't repeat it. */
 export function formatHeroDate(day: DayKey): string {
   return fromDayKey(day).toLocaleDateString(undefined, {
-    weekday: "long",
     month: "long",
     day: "numeric",
   });
+}
+
+/** e.g. "Sunday" — the top bar's resting label, for the tracking day. */
+export function formatWeekday(day: DayKey): string {
+  return fromDayKey(day).toLocaleDateString(undefined, { weekday: "long" });
 }

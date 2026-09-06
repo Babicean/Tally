@@ -109,8 +109,8 @@ snack belongs to the evening before. Single source of truth
   cubic-bezier motion, `prefers-reduced-motion` respected everywhere,
   haptics via `haptic()` in `src/lib/fly.ts` (navigator.vibrate on
   Android, @capacitor/haptics impacts on iOS),
-  delighters small and rare (wordmark spin easter egg, streak burst,
-  protein fire, tally strokes). Calm > flashy; nothing shouts.
+  delighters small and rare (top-bar greeting icon, wordmark spin
+  easter egg, streak burst, protein fire, tally strokes). Calm > flashy; nothing shouts.
 
 ## Architecture
 
@@ -227,6 +227,14 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.18.0, code 59: `components/TopBar.tsx` replaces the "Tally"
+  wordmark — time-of-day greeting (`lib/greeting.ts`, deterministic
+  per period, accent period icon) for ~3.8 s, then the tracking day's
+  weekday (`formatWeekday`); replays after ≥5 min hidden; the spin
+  easter egg lives on it. Hero date dropped the weekday
+  (`formatHeroDate` → "6 September"). Active tab = `--accent-text`.
+  Today tab icon = mini ring (track + dasharray arc). E2E:
+  `verify-218.mjs`.
 - v2.17.1, code 58: Settings target fields are compact two-up grids
   (`.target-grid`); the calorie goal has a 2% grace band
   (`lib/goal.ts` withinGoal) used by the hero ring/pill colour and by

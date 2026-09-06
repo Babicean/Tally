@@ -10,6 +10,23 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.18.0 — code 59 — 2026-09-06
+
+The top of the app stops saying "Tally" to itself.
+
+- Open the app and the top line greets you for the time of day ("Good
+  morning", "Good afternoon", "Good evening", "Late night") with a small
+  accent icon rising in beside it: a sunrise, a sun, a crescent, a moon
+  and star. A few seconds later it settles into the weekday and stays
+  there. Coming back after a while away earns a fresh greeting; hopping
+  between tabs doesn't. Tap it and it still takes a spin.
+- The hero date now reads "6 September" rather than repeating the
+  weekday the top line already shows.
+- The tab bar's active tab wears your accent instead of black.
+- The Today tab's icon is a miniature of the hero ring: a faint track
+  with a partial arc, so the tab and the screen share a shape. The name
+  stays "Today"; every alternative was vaguer.
+
 ## 2.17.1 — code 58 — 2026-09-06
 
 Two things from the first day with electrolytes.

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { haptic } from "./lib/fly";
 import { buildBackup } from "./lib/backup";
 import { loadSettings } from "./lib/settings";
 import SettingsSheet from "./components/SettingsSheet";
+import TopBar from "./components/TopBar";
 import Welcome from "./components/Welcome";
 import { markWelcomed, shouldShowWelcome } from "./lib/welcome";
 import { useEntries } from "./hooks/useEntries";
@@ -18,15 +18,26 @@ const TABS: { id: Tab; label: string; icon: JSX.Element }[] = [
     id: "today",
     label: "Today",
     icon: (
+      // A miniature of the hero ring: faint track, partial arc.
       <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
         <circle
           cx="8.5"
           cy="8.5"
-          r="6.75"
+          r="6.5"
           stroke="currentColor"
-          strokeWidth="1.6"
+          strokeWidth="1.8"
+          opacity="0.28"
         />
-        <circle cx="8.5" cy="8.5" r="2.25" fill="currentColor" />
+        <circle
+          cx="8.5"
+          cy="8.5"
+          r="6.5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeDasharray="26 100"
+          transform="rotate(-90 8.5 8.5)"
+        />
       </svg>
     ),
   },
@@ -125,7 +136,6 @@ export default function App() {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [gearSpin, setGearSpin] = useState(false);
-  const [wordmarkSpin, setWordmarkSpin] = useState(false);
   // Decided during the first render, before any effect writes storage —
   // that's what keeps the landing page a fresh-install-only event.
   const [welcome, setWelcome] = useState(() => shouldShowWelcome());
@@ -134,19 +144,7 @@ export default function App() {
   return (
     <div className="app">
       <div className="top-bar">
-        <span className="wordmark">
-          {/* Purely for fun: tap the name and it takes a spin. */}
-          <button
-            className={`wordmark-btn${wordmarkSpin ? " spinning" : ""}`}
-            onClick={() => {
-              setWordmarkSpin(true);
-              haptic(8);
-            }}
-            onAnimationEnd={() => setWordmarkSpin(false)}
-          >
-            Tally
-          </button>
-        </span>
+        <TopBar today={today} />
         <button
           className={`settings-btn${gearSpin ? " spinning" : ""}`}
           onClick={() => {
