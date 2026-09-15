@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_MICRO_TARGETS,
+  ELECTROLYTES,
+  MICROS,
+  microsRevealLabel,
+  visibleMicros,
   hasMicros,
   isMicros,
   naKRatio,
@@ -67,5 +71,28 @@ describe("sumMicros and the sodium : potassium ratio", () => {
   it("ships Australian adult defaults", () => {
     expect(DEFAULT_MICRO_TARGETS.sodium).toBe(2000);
     expect(DEFAULT_MICRO_TARGETS.potassium).toBe(3800);
+  });
+});
+
+describe("caffeine alongside the electrolytes", () => {
+  it("is a fifth micro, a limit of 400 mg, in its own group", () => {
+    expect(MICROS.map((m) => m.id)).toEqual(["sodium", "potassium", "magnesium", "calcium", "caffeine"]);
+    expect(ELECTROLYTES.map((m) => m.id)).toEqual(["sodium", "potassium", "magnesium", "calcium"]);
+    expect(DEFAULT_MICRO_TARGETS.caffeine).toBe(400);
+    expect(MICROS[4].kind).toBe("limit");
+  });
+
+  it("shows only the rows whose switch is on", () => {
+    expect(visibleMicros(true, false).map((m) => m.id)).toEqual(["sodium", "potassium", "magnesium", "calcium"]);
+    expect(visibleMicros(false, true).map((m) => m.id)).toEqual(["caffeine"]);
+    expect(visibleMicros(true, true)).toHaveLength(5);
+    expect(visibleMicros(false, false)).toHaveLength(0);
+  });
+
+  it("names the reveal for whatever is on", () => {
+    expect(microsRevealLabel(true, false)).toBe("+ electrolytes");
+    expect(microsRevealLabel(false, true)).toBe("+ caffeine");
+    expect(microsRevealLabel(true, true)).toBe("+ electrolytes, caffeine");
+    expect(microsRevealLabel(false, false)).toBeNull();
   });
 });

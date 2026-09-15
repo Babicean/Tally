@@ -94,6 +94,8 @@ export default function App() {
     setTrackWeight,
     trackMicros,
     setTrackMicros,
+    trackCaffeine,
+    setTrackCaffeine,
     microTargets,
     setMicroTarget,
     showSteps,
@@ -105,7 +107,7 @@ export default function App() {
   // Invisible sync: signed-in users' changes back themselves up.
   useAutoBackup(
     () => buildBackup(entries, menu, loadSettings(), weights),
-    [entries, menu, weights, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget, trackWeight, unit, trackMicros, microTargets, showSteps],
+    [entries, menu, weights, theme, accent, dailyGoal, trackProtein, proteinTarget, fatTarget, trackWeight, unit, trackMicros, trackCaffeine, microTargets, showSteps],
   );
 
   // Steps are read from the phone, never stored: nothing here reaches
@@ -177,6 +179,7 @@ export default function App() {
           onToggleUnit={() => setUnit(unit === "kcal" ? "kj" : "kcal")}
           onUnitHintDone={markUnitHintSeen}
           trackMicros={trackMicros}
+          trackCaffeine={trackCaffeine}
           micros={todayMicros}
           microTargets={microTargets}
         />
@@ -186,6 +189,7 @@ export default function App() {
           menu={menu}
           trackProtein={trackProtein}
           trackMicros={trackMicros}
+          trackCaffeine={trackCaffeine}
           unit={unit}
           onLog={(item) =>
             addEntry(item.calories, item.name, item.protein, item.fat, undefined, item.micros)
@@ -239,6 +243,8 @@ export default function App() {
         onSetTrackWeight={setTrackWeight}
         trackMicros={trackMicros}
         onSetTrackMicros={setTrackMicros}
+        trackCaffeine={trackCaffeine}
+        onSetTrackCaffeine={setTrackCaffeine}
         microTargets={microTargets}
         onSetMicroTarget={setMicroTarget}
         showSteps={showSteps}

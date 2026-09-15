@@ -49,6 +49,8 @@ export interface Settings {
   unitHintSeen: boolean;
   /** Electrolytes (sodium, potassium, magnesium, calcium) are opt-in. */
   trackMicros: boolean;
+  /** Caffeine in mg, against a daily limit; opt-in like electrolytes. */
+  trackCaffeine: boolean;
   /** Daily targets in mg; null = no target for that one. */
   microTargets: MicroTargets;
   /**
@@ -70,6 +72,7 @@ const DEFAULTS: Settings = {
   unit: "kcal",
   unitHintSeen: false,
   trackMicros: false,
+  trackCaffeine: false,
   microTargets: { ...DEFAULT_MICRO_TARGETS },
   showSteps: false,
 };
@@ -117,6 +120,7 @@ export function loadSettings(): Settings {
       // discovering kilojoules is the whole point of it.
       unitHintSeen: s.unitHintSeen === true,
       trackMicros: s.trackMicros === true,
+      trackCaffeine: s.trackCaffeine === true,
       microTargets: loadMicroTargets(s.microTargets),
       showSteps: s.showSteps === true,
     };

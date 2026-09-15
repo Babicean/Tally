@@ -68,6 +68,7 @@ interface Props {
   onUnitHintDone: () => void;
   /** Electrolytes: today's totals and targets for the hero's second page. */
   trackMicros: boolean;
+  trackCaffeine: boolean;
   micros: Micros;
   microTargets: MicroTargets;
 }
@@ -103,6 +104,7 @@ export default function TodayScreen({
   onToggleUnit,
   onUnitHintDone,
   trackMicros,
+  trackCaffeine,
   micros,
   microTargets,
 }: Props) {
@@ -212,6 +214,7 @@ export default function TodayScreen({
         onToggleUnit={onToggleUnit}
         onUnitHintDone={onUnitHintDone}
         trackMicros={trackMicros}
+        trackCaffeine={trackCaffeine}
         micros={micros}
         microTargets={microTargets}
         onEditGoal={() => {
@@ -307,6 +310,7 @@ export default function TodayScreen({
         entry={editing}
         trackProtein={trackProtein}
         trackMicros={trackMicros}
+        trackCaffeine={trackCaffeine}
         unit={unit}
         onSave={onUpdate}
         onClose={() => setEditing(null)}

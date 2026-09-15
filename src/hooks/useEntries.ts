@@ -174,6 +174,10 @@ export function useEntries() {
     (trackMicros: boolean) => updateSettings({ trackMicros }),
     [updateSettings],
   );
+  const setTrackCaffeine = useCallback(
+    (trackCaffeine: boolean) => updateSettings({ trackCaffeine }),
+    [updateSettings],
+  );
   const setShowSteps = useCallback(
     (showSteps: boolean) => updateSettings({ showSteps }),
     [updateSettings],
@@ -556,6 +560,8 @@ export function useEntries() {
     setTrackWeight,
     trackMicros: settings.trackMicros,
     setTrackMicros,
+    trackCaffeine: settings.trackCaffeine,
+    setTrackCaffeine,
     microTargets: settings.microTargets,
     setMicroTarget,
     showSteps: settings.showSteps,

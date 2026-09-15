@@ -10,7 +10,8 @@ import {
 } from "../lib/units";
 import { trackingDayFor } from "../lib/day";
 import {
-  MICROS,
+  microsRevealLabel,
+  visibleMicros,
   hasMicros,
   parseMg,
   type MicroId,
@@ -22,6 +23,7 @@ interface Props {
   entry: Entry | null;
   trackProtein: boolean;
   trackMicros: boolean;
+  trackCaffeine: boolean;
   unit: EnergyUnit;
   onSave: (
     id: string,
@@ -50,6 +52,7 @@ export default function EditEntrySheet({
   entry,
   trackProtein,
   trackMicros,
+  trackCaffeine,
   unit,
   onSave,
   onClose,
@@ -73,7 +76,10 @@ export default function EditEntrySheet({
     potassium: "",
     magnesium: "",
     calcium: "",
+    caffeine: "",
   });
+  const activeMicros = visibleMicros(trackMicros, trackCaffeine);
+  const anyMicros = activeMicros.length > 0;
   const [micro, setMicro] = useState<Record<MicroId, string>>(emptyMicro);
   const [microsOpen, setMicrosOpen] = useState(false);
 
@@ -85,12 +91,12 @@ export default function EditEntrySheet({
       setFat(entry.fat != null ? String(entry.fat) : "");
       setWhen(toLocalInputValue(entry.timestamp));
       const m = emptyMicro();
-      for (const meta of MICROS) {
+      for (const meta of activeMicros) {
         const v = entry.micros?.[meta.id];
         if (typeof v === "number") m[meta.id] = String(v);
       }
       setMicro(m);
-      setMicrosOpen(hasMicros(entry.micros));
+      setMicrosOpen(activeMicros.some((meta) => typeof entry.micros?.[meta.id] === "number"));
       setError(null);
       setBad({});
     }
@@ -139,9 +145,11 @@ export default function EditEntrySheet({
       return;
     }
     let micros: Micros | null | undefined;
-    if (trackMicros && microsOpen) {
-      const next: Micros = {};
-      for (const meta of MICROS) {
+    if (anyMicros && microsOpen) {
+      // Rows whose switch is off stay as the entry had them; visible
+      // rows are rewritten from the fields.
+      const next: Micros = { ...(entry.micros ?? {}) };
+      for (const meta of activeMicros) {
         const mg = parseMg(micro[meta.id]);
         if (mg === undefined) {
           setBad({ micro: meta.id });
@@ -150,7 +158,8 @@ export default function EditEntrySheet({
           );
           return;
         }
-        if (mg !== null) next[meta.id] = mg;
+        if (mg === null) delete next[meta.id];
+        else next[meta.id] = mg;
       }
       micros = hasMicros(next) ? next : null;
     }
@@ -239,18 +248,18 @@ export default function EditEntrySheet({
             </div>
           )}
         </div>
-        {trackMicros && !microsOpen && (
+        {anyMicros && !microsOpen && (
           <button
             type="button"
             className="add-macros-toggle"
             onClick={() => setMicrosOpen(true)}
           >
-            + electrolytes
+            {microsRevealLabel(trackMicros, trackCaffeine)}
           </button>
         )}
-        {trackMicros && microsOpen && (
+        {anyMicros && microsOpen && (
           <div className="add-micros">
-            {MICROS.map((m) => (
+            {activeMicros.map((m) => (
               <div
                 key={m.id}
                 className={`field field-cal field-protein${bad.micro === m.id ? " invalid" : ""}`}

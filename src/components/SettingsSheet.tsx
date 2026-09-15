@@ -10,7 +10,8 @@ import {
 } from "../lib/units";
 import { shareBackupFile } from "../lib/exportFile";
 import {
-  MICROS,
+  CAFFEINE,
+  ELECTROLYTES,
   parseMg,
   type MicroId,
   type MicroTargets,
@@ -61,6 +62,8 @@ interface Props {
   onSetTrackWeight: (on: boolean) => void;
   trackMicros: boolean;
   onSetTrackMicros: (on: boolean) => void;
+  trackCaffeine: boolean;
+  onSetTrackCaffeine: (on: boolean) => void;
   microTargets: MicroTargets;
   onSetMicroTarget: (id: MicroId, target: number | null) => void;
   showSteps: boolean;
@@ -114,6 +117,8 @@ export default function SettingsSheet({
   onSetTrackWeight,
   trackMicros,
   onSetTrackMicros,
+  trackCaffeine,
+  onSetTrackCaffeine,
   microTargets,
   onSetMicroTarget,
   showSteps,
@@ -134,6 +139,7 @@ export default function SettingsSheet({
     potassium: "",
     magnesium: "",
     calcium: "",
+    caffeine: "",
   });
   const [dataNote, setDataNote] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -170,6 +176,7 @@ export default function SettingsSheet({
         potassium: microTargets.potassium !== null ? String(microTargets.potassium) : "",
         magnesium: microTargets.magnesium !== null ? String(microTargets.magnesium) : "",
         calcium: microTargets.calcium !== null ? String(microTargets.calcium) : "",
+        caffeine: microTargets.caffeine !== null ? String(microTargets.caffeine) : "",
       });
       setDataNote(null);
       setView(startAtLogin ? "account" : "settings");
@@ -931,7 +938,7 @@ export default function SettingsSheet({
       </div>
       {trackMicros && (
         <div className="target-grid" aria-label="Electrolyte targets">
-          {MICROS.map((m) => (
+          {ELECTROLYTES.map((m) => (
             <label className="target-cell" key={m.id}>
               <span className="target-label">
                 {m.label} {m.kind === "limit" ? "limit" : "target"}
@@ -953,6 +960,51 @@ export default function SettingsSheet({
               </div>
             </label>
           ))}
+          <p className="target-note">Blank for none.</p>
+        </div>
+      )}
+
+      <p className="settings-label">Caffeine</p>
+      <div className="settings-row">
+        <div className="settings-row-text">
+          <span className="settings-row-title">Track caffeine</span>
+          <span className="settings-row-sub">
+            Caffeine in mg on menu items and entries, against a daily
+            limit. Swipe the ring to see today's.
+          </span>
+        </div>
+        <button
+          className={`switch${trackCaffeine ? " on" : ""}`}
+          role="switch"
+          aria-checked={trackCaffeine}
+          aria-label="Track caffeine"
+          onClick={() => onSetTrackCaffeine(!trackCaffeine)}
+        >
+          <span className="switch-knob" />
+        </button>
+      </div>
+      {trackCaffeine && (
+        <div className="target-grid" aria-label="Caffeine limit">
+            <label className="target-cell" >
+              <span className="target-label">
+                {CAFFEINE.label} {CAFFEINE.kind === "limit" ? "limit" : "target"}
+              </span>
+              <div className="field field-cal">
+                <input
+                  value={microT[CAFFEINE.id]}
+                  onChange={(e) =>
+                    setMicroT((prev) => ({ ...prev, [CAFFEINE.id]: e.target.value }))
+                  }
+                  onBlur={() => commitMicroTarget(CAFFEINE.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                  }}
+                  inputMode="numeric"
+                  aria-label={`Daily ${CAFFEINE.label} ${CAFFEINE.kind === "limit" ? "limit" : "target"} in milligrams`}
+                />
+                <span className="unit">mg</span>
+              </div>
+            </label>
           <p className="target-note">Blank for none.</p>
         </div>
       )}

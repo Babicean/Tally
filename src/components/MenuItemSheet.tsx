@@ -10,7 +10,8 @@ import {
 } from "../lib/units";
 import CategoryIcon, { CATEGORIES } from "./CategoryIcon";
 import {
-  MICROS,
+  microsRevealLabel,
+  visibleMicros,
   hasMicros,
   parseMg,
   type MicroId,
@@ -22,6 +23,7 @@ interface Props {
   trackProtein: boolean;
   /** Shows the electrolyte fields behind a quiet reveal. */
   trackMicros: boolean;
+  trackCaffeine: boolean;
   unit: EnergyUnit;
   /** Item being edited, or null when adding a new one. */
   item: MenuItem | null;
@@ -42,6 +44,7 @@ export default function MenuItemSheet({
   open,
   trackProtein,
   trackMicros,
+  trackCaffeine,
   unit,
   item,
   onSave,
@@ -59,7 +62,10 @@ export default function MenuItemSheet({
     potassium: "",
     magnesium: "",
     calcium: "",
+    caffeine: "",
   });
+  const activeMicros = visibleMicros(trackMicros, trackCaffeine);
+  const anyMicros = activeMicros.length > 0;
   const [micro, setMicro] = useState<Record<MicroId, string>>(emptyMicro);
   // Opens itself when the item already carries electrolytes.
   const [microsOpen, setMicrosOpen] = useState(false);
@@ -73,12 +79,12 @@ export default function MenuItemSheet({
       setFat(item?.fat != null ? String(item.fat) : "");
       setCategory(item?.category ?? null);
       const m = emptyMicro();
-      for (const meta of MICROS) {
+      for (const meta of activeMicros) {
         const v = item?.micros?.[meta.id];
         if (typeof v === "number") m[meta.id] = String(v);
       }
       setMicro(m);
-      setMicrosOpen(hasMicros(item?.micros));
+      setMicrosOpen(activeMicros.some((meta) => typeof item?.micros?.[meta.id] === "number"));
       setBad(null);
       setError(null);
     }
@@ -106,9 +112,11 @@ export default function MenuItemSheet({
       setError("Grams must be between 0 and 1,000 (or left blank).");
       return;
     }
-    const micros: Micros = {};
-    if (trackMicros && microsOpen) {
-      for (const meta of MICROS) {
+    // Start from what the item had: rows whose switch is off are kept
+    // untouched, only the visible ones are rewritten from the fields.
+    const micros: Micros = { ...(item?.micros ?? {}) };
+    if (anyMicros && microsOpen) {
+      for (const meta of activeMicros) {
         const parsed = parseMg(micro[meta.id]);
         if (parsed === undefined) {
           setBad(meta.id);
@@ -117,11 +125,9 @@ export default function MenuItemSheet({
           );
           return;
         }
-        if (parsed !== null) micros[meta.id] = parsed;
+        if (parsed === null) delete micros[meta.id];
+        else micros[meta.id] = parsed;
       }
-    } else if (item?.micros) {
-      // Tracking off or the reveal closed: keep what the item already had.
-      Object.assign(micros, item.micros);
     }
     onSave(trimmed, cal, prot, fatG, category, hasMicros(micros) ? micros : null);
     onClose();
@@ -194,18 +200,18 @@ export default function MenuItemSheet({
           </div>
           )}
         </div>
-        {trackMicros && !microsOpen && (
+        {anyMicros && !microsOpen && (
           <button
             type="button"
             className="add-macros-toggle"
             onClick={() => setMicrosOpen(true)}
           >
-            + electrolytes
+            {microsRevealLabel(trackMicros, trackCaffeine)}
           </button>
         )}
-        {trackMicros && microsOpen && (
+        {anyMicros && microsOpen && (
           <div className="add-micros">
-            {MICROS.map((m) => (
+            {activeMicros.map((m) => (
               <div
                 key={m.id}
                 className={`field field-cal field-protein${bad === m.id ? " invalid" : ""}`}

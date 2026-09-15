@@ -13,7 +13,7 @@ import { haptic } from "../lib/fly";
 import { withinGoal } from "../lib/goal";
 import { formatSteps } from "../lib/steps";
 import {
-  MICROS,
+  visibleMicros,
   naKRatio,
   type MicroTargets,
   type Micros,
@@ -44,8 +44,9 @@ interface Props {
   unitHint: boolean;
   onToggleUnit: () => void;
   onUnitHintDone: () => void;
-  /** Electrolytes on: the hero gains a second, swipeable page. */
+  /** Electrolytes and/or caffeine on: the hero gains a second, swipeable page. */
   trackMicros: boolean;
+  trackCaffeine: boolean;
   micros: Micros;
   microTargets: MicroTargets;
 }
@@ -111,6 +112,7 @@ export default function Hero({
   onToggleUnit,
   onUnitHintDone,
   trackMicros,
+  trackCaffeine,
   micros,
   microTargets,
 }: Props) {
@@ -223,16 +225,24 @@ export default function Hero({
     el.scrollTo({ left: i * el.clientWidth, behavior: reduce ? "auto" : "smooth" });
   };
 
+  const activeMicros = visibleMicros(trackMicros, trackCaffeine);
+  const pageTwoName = trackMicros
+    ? trackCaffeine
+      ? "Electrolytes and caffeine"
+      : "Electrolytes"
+    : "Caffeine";
   const ratio = naKRatio(micros);
   const microPanel = (
-    <div className="micro-panel" aria-label="Today's electrolytes">
-      <div className="micro-ratio">
-        <span className="micro-ratio-v">
-          {ratio === null ? "–" : ratio.toFixed(2)}
-        </span>
-        <span className="micro-ratio-l">sodium : potassium</span>
-      </div>
-      {MICROS.map((m) => {
+    <div className="micro-panel" aria-label={`Today's ${pageTwoName.toLowerCase()}`}>
+      {trackMicros && (
+        <div className="micro-ratio">
+          <span className="micro-ratio-v">
+            {ratio === null ? "–" : ratio.toFixed(2)}
+          </span>
+          <span className="micro-ratio-l">sodium : potassium</span>
+        </div>
+      )}
+      {activeMicros.map((m) => {
         const amount = micros[m.id] ?? 0;
         const target = microTargets[m.id];
         const over = m.kind === "limit" && target !== null && amount > target;
@@ -269,9 +279,9 @@ export default function Hero({
     </div>
   );
 
-  /** Wrap the ring block in the carousel when electrolytes are on. */
+  /** Wrap the ring block in the carousel when any micro is on. */
   const paged = (first: JSX.Element) =>
-    trackMicros ? (
+    activeMicros.length > 0 ? (
       <>
         <div className="hero-track" ref={trackRef} onScroll={onTrackScroll}>
           <div className="hero-page">{first}</div>
@@ -290,7 +300,7 @@ export default function Hero({
             type="button"
             role="tab"
             aria-selected={page === 1}
-            aria-label="Electrolytes"
+            aria-label={pageTwoName}
             className={`hero-dot${page === 1 ? " active" : ""}`}
             onClick={() => goToPage(1)}
           />

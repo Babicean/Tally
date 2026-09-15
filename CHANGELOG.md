@@ -10,7 +10,26 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
-## 2.19.4 — code 66 — 2026-09-15
+## 2.20.0 — code 67 — 2026-09-15
+
+Caffeine.
+
+- Settings gains "Track caffeine" (off by default) with a daily limit,
+  400 mg to start, editable like the electrolyte targets.
+- Menu items and entries take caffeine in mg through the same reveal
+  as electrolytes: it reads "+ caffeine" when only caffeine is on,
+  "+ electrolytes, caffeine" when both are. Meals sum it, quick-add
+  chips carry it, and logging from the Menu inherits it.
+- Today's hero gains the swipeable second page whenever caffeine is
+  on, with a "caffeine 290 / 400 mg" row and the same bar the sodium
+  limit uses: calm under, amber past. With electrolytes off, the page
+  is just that row and no sodium : potassium ratio.
+- Switching a group off hides its rows but never touches the numbers
+  saved on your items; editing an item with one group off leaves the
+  other group's values as they were. Backups carry the new switch and
+  limit, and old backups import unchanged.
+
+
 
 - Today's add form: the keyboard's action key in the protein field now
   moves to fat, and in fat it moves to calories when those are still

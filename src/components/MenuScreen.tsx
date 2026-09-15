@@ -19,6 +19,7 @@ interface Props {
   menu: MenuItem[];
   trackProtein: boolean;
   trackMicros: boolean;
+  trackCaffeine: boolean;
   unit: EnergyUnit;
   onLog: (item: MenuItem) => void;
   onAdd: (
@@ -52,6 +53,7 @@ export default function MenuScreen({
   menu,
   trackProtein,
   trackMicros,
+  trackCaffeine,
   unit,
   onLog,
   onAdd,
@@ -205,6 +207,7 @@ export default function MenuScreen({
         open={sheetOpen}
         trackProtein={trackProtein}
         trackMicros={trackMicros}
+        trackCaffeine={trackCaffeine}
         unit={unit}
         item={editing}
         onSave={(name, cal, prot, fatG, category, micros) => {

@@ -59,7 +59,9 @@ storage stays kcal), **protein/fat tracking** ("Track
 macros", with carbs derived and shown with a ≈), **electrolytes**
 ("Track electrolytes": sodium/potassium/magnesium/calcium in mg on
 menu items, inherited by entries; the hero gains a swipeable second
-page with the Na:K ratio and each against its target), **daily protein target** with its own bar and a fire-emoji
+page with the Na:K ratio and each against its target), **caffeine**
+("Track caffeine": mg on items/entries against a daily limit, shares
+the micros map, reveal and hero page 2), **daily protein target** with its own bar and a fire-emoji
 celebration on hitting it, **weight tracking** (one weigh-in a day,
 logged from the History weight card, ~60-point SVG trend, 30-day
 change), **steps** ("Show steps": today's count from Health Connect /
@@ -178,7 +180,7 @@ library, no backend SDK — the biggest JS dependency is React itself.
   create / verify-wait / logged-in states). `Welcome.tsx` is the
   landing page + tally-strokes delighter.
 - Tests live next to the code: `src/lib/*.test.ts`, pure-function only
-  (vitest, node env, no DOM). 117 tests at last count. UI logic that
+  (vitest, node env, no DOM). 120 tests at last count. UI logic that
   needs testing gets extracted into a pure lib function first (see
   `welcomeDecision`).
 
@@ -231,6 +233,21 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.20.0, code 67 (caffeine): fifth `MicroId` `caffeine` in
+  `lib/micros.ts` (kind limit, default 400, `group: "caffeine"`; the
+  four electrolytes are `group: "electrolyte"`). `visibleMicros(
+  trackMicros, trackCaffeine)` drives every row/field list;
+  `microsRevealLabel` names the sheet reveal ("+ caffeine" / "+
+  electrolytes" / "+ electrolytes, caffeine"); `ELECTROLYTES` /
+  `CAFFEINE` for Settings grids. Setting `trackCaffeine` (default
+  false, in backup); `microTargets.caffeine` via loadMicroTargets
+  (missing → 400). Hero: carousel when any micro visible, Na:K ratio
+  only with electrolytes, page-2 aria/dot label adapts. Sheets: state
+  covers all five keys, but only visible rows are parsed/rewritten and
+  hidden ones are preserved from the item/entry (owner may toggle
+  groups without losing data). Props `trackCaffeine` threaded App →
+  TodayScreen/MenuScreen → Hero/MenuItemSheet/EditEntrySheet/Settings.
+  E2E: `verify-220.mjs` (17 checks).
 - v2.19.4, code 66: AddEntryForm macro fields no longer implicit-submit
   on Enter/Done (protein → focus fat; fat → focus calories when blank,
   else submit; `enterKeyHint` next/done accordingly). Shipped as the
@@ -240,7 +257,7 @@ library, no backend SDK — the biggest JS dependency is React itself.
   screen recording. E2E: `verify-2194.mjs`. Owner also asked for
   CAFFEINE tracking — proposal sent (fifth `micros` key `caffeine`,
   kind limit, 400 mg default, own "Track caffeine" switch, same
-  reveal + hero page 2 row); awaiting his go.
+  reveal + hero page 2 row); SHIPPED as 2.20.0.
 - v2.19.3, code 65: UtensilsIcon spoon bowl filled (owner asked for
   the "C" draft). `CategoryIcon` meat = rotated-ellipse lobe + one-path
   bone with arc knuckles (outline circles + stick always read as a

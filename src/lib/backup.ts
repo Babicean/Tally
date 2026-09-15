@@ -104,6 +104,7 @@ export function parseBackup(json: string): BackupPayload | null {
             ? raw.settings.unitHintSeen
             : true,
         trackMicros: raw.settings?.trackMicros === true,
+        trackCaffeine: raw.settings?.trackCaffeine === true,
         microTargets: loadMicroTargets(raw.settings?.microTargets),
         showSteps: raw.settings?.showSteps === true,
       },

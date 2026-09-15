@@ -1,13 +1,17 @@
 /**
- * Electrolytes ("micros"): sodium, potassium, magnesium, calcium, all in
- * milligrams. A fixed, small set on purpose. Entries and menu items carry
- * an optional `micros` map; anything logged from the Menu inherits it,
- * meals sum their components, and Today shows the day's totals against
- * targets on the hero's second page. Sodium is a stay-under limit; the
- * other three are goals to reach.
+ * Milligram nutrients ("micros"): the four electrolytes (sodium,
+ * potassium, magnesium, calcium) and caffeine. A fixed, small set on
+ * purpose. Entries and menu items carry an optional `micros` map;
+ * anything logged from the Menu inherits it, meals sum their components,
+ * and Today shows the day's totals against targets on the hero's second
+ * page. Sodium and caffeine are stay-under limits; the other three are
+ * goals to reach. Electrolytes and caffeine are switched on separately
+ * in Settings; `visibleMicros` says which rows the UI should show.
  */
 
-export type MicroId = "sodium" | "potassium" | "magnesium" | "calcium";
+export type MicroId = "sodium" | "potassium" | "magnesium" | "calcium" | "caffeine";
+
+export type MicroGroup = "electrolyte" | "caffeine";
 
 export type Micros = Partial<Record<MicroId, number>>;
 
@@ -20,16 +24,38 @@ export interface MicroMeta {
   kind: "limit" | "goal";
   /** Australian adult reference values; editable in Settings. */
   defaultTarget: number;
+  /** Which Settings switch reveals it. */
+  group: MicroGroup;
 }
 
 export const MICROS: readonly MicroMeta[] = [
-  { id: "sodium", label: "sodium", symbol: "Na", kind: "limit", defaultTarget: 2000 },
-  { id: "potassium", label: "potassium", symbol: "K", kind: "goal", defaultTarget: 3800 },
-  { id: "magnesium", label: "magnesium", symbol: "Mg", kind: "goal", defaultTarget: 400 },
-  { id: "calcium", label: "calcium", symbol: "Ca", kind: "goal", defaultTarget: 1000 },
+  { id: "sodium", label: "sodium", symbol: "Na", kind: "limit", defaultTarget: 2000, group: "electrolyte" },
+  { id: "potassium", label: "potassium", symbol: "K", kind: "goal", defaultTarget: 3800, group: "electrolyte" },
+  { id: "magnesium", label: "magnesium", symbol: "Mg", kind: "goal", defaultTarget: 400, group: "electrolyte" },
+  { id: "calcium", label: "calcium", symbol: "Ca", kind: "goal", defaultTarget: 1000, group: "electrolyte" },
+  // 400 mg a day is the common adult guidance (FSANZ, EFSA).
+  { id: "caffeine", label: "caffeine", symbol: "Caf", kind: "limit", defaultTarget: 400, group: "caffeine" },
 ];
 
 export const MICRO_IDS: readonly MicroId[] = MICROS.map((m) => m.id);
+
+export const ELECTROLYTES: readonly MicroMeta[] = MICROS.filter((m) => m.group === "electrolyte");
+export const CAFFEINE: MicroMeta = MICROS.find((m) => m.id === "caffeine")!;
+
+/** The rows the UI shows for the current switches, in display order. */
+export function visibleMicros(trackMicros: boolean, trackCaffeine: boolean): readonly MicroMeta[] {
+  return MICROS.filter(
+    (m) => (m.group === "electrolyte" && trackMicros) || (m.group === "caffeine" && trackCaffeine),
+  );
+}
+
+/** Label for the "+ …" reveal on item and entry sheets; null when nothing is on. */
+export function microsRevealLabel(trackMicros: boolean, trackCaffeine: boolean): string | null {
+  if (trackMicros && trackCaffeine) return "+ electrolytes, caffeine";
+  if (trackMicros) return "+ electrolytes";
+  if (trackCaffeine) return "+ caffeine";
+  return null;
+}
 
 export type MicroTargets = Record<MicroId, number | null>;
 
