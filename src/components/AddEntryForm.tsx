@@ -40,6 +40,7 @@ export default function AddEntryForm({ trackProtein, unit, onAdd }: Props) {
     fat?: boolean;
   }>({});
   const calRef = useRef<HTMLInputElement>(null);
+  const fatRef = useRef<HTMLInputElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
 
   const showMacros = trackProtein && macrosOpen;
@@ -145,20 +146,39 @@ export default function AddEntryForm({ trackProtein, unit, onAdd }: Props) {
                 if (error) clearError();
               }}
               inputMode="numeric"
-              enterKeyHint="done"
+              enterKeyHint="next"
+              onKeyDown={(e) => {
+                // The keyboard's action key in an optional field must never
+                // submit a half-filled form (that bounced focus to calories
+                // with an error). Move along instead.
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  fatRef.current?.focus();
+                }
+              }}
               aria-label="Protein in grams (optional)"
             />
             <span className="unit">g protein</span>
           </div>
           <div className={`field field-cal field-protein${bad.fat ? " invalid" : ""}`}>
             <input
+              ref={fatRef}
               value={fat}
               onChange={(e) => {
                 setFat(e.target.value);
                 if (error) clearError();
               }}
               inputMode="numeric"
-              enterKeyHint="done"
+              enterKeyHint={calories.trim() === "" ? "next" : "done"}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                if (calories.trim() === "") {
+                  // Nothing to add yet: go fill in the calories.
+                  e.preventDefault();
+                  calRef.current?.focus();
+                }
+                // Otherwise the default: Enter submits the entry.
+              }}
               aria-label="Fat in grams (optional)"
             />
             <span className="unit">g fat</span>

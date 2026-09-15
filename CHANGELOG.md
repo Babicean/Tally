@@ -10,7 +10,16 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
-## 2.19.3 — code 65 — 2026-09-06
+## 2.19.4 — code 66 — 2026-09-15
+
+- Today's add form: the keyboard's action key in the protein field now
+  moves to fat, and in fat it moves to calories when those are still
+  blank. Before, "Done" in either field submitted the half-filled form,
+  which threw "Enter how many calories to add" and yanked focus to the
+  calorie field, so logging protein first felt refused. With calories
+  in, Done in fat still logs the entry.
+
+
 
 Icon polish, round two.
 

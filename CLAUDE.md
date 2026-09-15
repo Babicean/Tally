@@ -231,6 +231,16 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.19.4, code 66: AddEntryForm macro fields no longer implicit-submit
+  on Enter/Done (protein → focus fat; fat → focus calories when blank,
+  else submit; `enterKeyHint` next/done accordingly). Shipped as the
+  best explanation of the owner's "can't enter protein first" report —
+  not reproducible in Chromium (protein focuses fine on an empty form;
+  probe: `scratchpad/probe-protein.mjs`). If it persists, ask for a
+  screen recording. E2E: `verify-2194.mjs`. Owner also asked for
+  CAFFEINE tracking — proposal sent (fifth `micros` key `caffeine`,
+  kind limit, 400 mg default, own "Track caffeine" switch, same
+  reveal + hero page 2 row); awaiting his go.
 - v2.19.3, code 65: UtensilsIcon spoon bowl filled (owner asked for
   the "C" draft). `CategoryIcon` meat = rotated-ellipse lobe + one-path
   bone with arc knuckles (outline circles + stick always read as a
