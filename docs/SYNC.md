@@ -25,9 +25,22 @@ Why it fits:
 - Region: **Sydney (ap-southeast-2)** — the owner and first users are
   in Australia.
 
-Known free-tier caveat: projects pause after ~7 days with zero API
-traffic. Any real usage prevents this; if the beta goes quiet, the
-dashboard un-pauses it in one click. Acceptable for a beta.
+Known free-tier caveat: projects pause after ~7 days with no database
+traffic, and a project left paused for 90 days is permanently frozen
+(restorable only as a data download). This nearly happened in October
+2026: the project sat paused from July while nobody was signed in.
+
+The fix is `.github/workflows/supabase-keepalive.yml`, which runs
+`scripts/supabase-keepalive.sh` every Monday and Thursday. It makes one
+anonymous select on `backups` with the publishable key; RLS returns no
+rows, so it reads no user data and needs no secret, but it is real
+database traffic. A run that fails turns red and GitHub emails the
+owner, which almost always means the project is paused: restore it from
+the dashboard.
+
+GitHub only runs scheduled workflows from the repository's default
+branch. The default branch must be the release branch
+(`claude/tally-delighters`), not the stale `main`.
 
 ## Data model: the backup IS the sync payload
 

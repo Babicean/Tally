@@ -233,6 +233,17 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- Supabase keep-alive (Oct 20, CI/docs only, no bump): the project
+  was paused 85 days and 5 days from a permanent freeze (Supabase
+  email). `.github/workflows/supabase-keepalive.yml` (cron Mon/Thu 03:17
+  UTC + manual) runs `scripts/supabase-keepalive.sh`: anonymous REST
+  select on `backups` with the public key from `syncConfig.ts`, RLS
+  returns `[]`, success on 2xx or a Postgres-coded 401/403, red run
+  otherwise (paused). Tested against a fake server. OWNER STEPS:
+  restore the project in the Supabase dashboard; set the GitHub
+  default branch to `claude/tally-delighters` (schedules only run on
+  the default branch; `main` is stale and must not be pushed). Docs:
+  docs/SYNC.md.
 - v2.20.0, code 67 (caffeine): fifth `MicroId` `caffeine` in
   `lib/micros.ts` (kind limit, default 400, `group: "caffeine"`; the
   four electrolytes are `group: "electrolyte"`). `visibleMicros(

@@ -1,0 +1,33 @@
+name: Supabase keep-alive
+
+# Free-tier Supabase projects pause after about 7 days without database
+# traffic. This pings the database twice a week (never more than 4 days
+# apart) so the account backend stays awake even when nobody signed in
+# has logged anything. See scripts/supabase-keepalive.sh.
+#
+# GitHub only runs scheduled workflows from the repository's DEFAULT
+# branch, so this file must live on whichever branch is the default.
+
+on:
+  schedule:
+    # 03:17 UTC Mondays and Thursdays (early afternoon in Sydney).
+    - cron: "17 3 * * 1,4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Ping Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            src/lib/syncConfig.ts
+          sparse-checkout-cone-mode: false
+      - name: Ping the database
+        run: scripts/supabase-keepalive.sh
