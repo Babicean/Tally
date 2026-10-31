@@ -1,5 +1,19 @@
 apply plugin: 'com.android.application'
 
+// Release signing comes from environment variables (CI) or from
+// android/keystore.properties (local builds). Neither is committed.
+// Without them, release builds are simply left unsigned.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+def signingValue = { String envName, String propertyName ->
+    System.getenv(envName) ?: keystoreProperties.getProperty(propertyName)
+}
+def releaseStoreFile = signingValue("TALLY_KEYSTORE_FILE", "storeFile")
+def hasReleaseSigning = releaseStoreFile != null
+
 android {
     namespace = "com.babicean.tally"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -17,21 +31,22 @@ android {
         }
     }
     signingConfigs {
-        release {
-            // Personal sideload key, committed on purpose (this app never
-            // touches an app store). Env vars let CI or a future maintainer
-            // swap in a private keystore without editing the build.
-            storeFile file(System.getenv("TALLY_KEYSTORE_FILE") ?: "../keystore/tally-release.keystore")
-            storePassword System.getenv("TALLY_KEYSTORE_PASSWORD") ?: "tally-release"
-            keyAlias System.getenv("TALLY_KEY_ALIAS") ?: "tally"
-            keyPassword System.getenv("TALLY_KEY_PASSWORD") ?: "tally-release"
+        if (hasReleaseSigning) {
+            release {
+                storeFile rootProject.file(releaseStoreFile)
+                storePassword signingValue("TALLY_KEYSTORE_PASSWORD", "storePassword")
+                keyAlias signingValue("TALLY_KEY_ALIAS", "keyAlias")
+                keyPassword signingValue("TALLY_KEY_PASSWORD", "keyPassword")
+            }
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
