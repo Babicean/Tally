@@ -233,6 +233,16 @@ library, no backend SDK — the biggest JS dependency is React itself.
 
 ## Current state & open threads (July 2026)
 
+- v2.20.1, code 68: Welcome copy replaced with the owner's verbatim
+  words (title unchanged; two `.welcome-line` paragraphs: "Log meals
+  easily." / "Save your favourite foods, track your daily intake, and
+  see your progress over time."). The landing-copy leftover is CLOSED.
+  `.welcome` now `overflow-y: auto` (sections `flex-shrink: 0`) so
+  2x text on 320x568 scrolls instead of clipping; title `text-wrap:
+  balance`. E2E: `verify-welcome.mjs` (6 sizes 320-430 wide, 1.5x/2x
+  text, dark, Start flow, log-in link). Noted, not fixed: at 2x root
+  font the Today screen behind it is wider than 320px (web zoom only;
+  native Android locks textZoom).
 - Supabase keep-alive (Oct 20, CI/docs only, no bump): the project
   was paused 85 days and 5 days from a permanent freeze (Supabase
   email). `.github/workflows/supabase-keepalive.yml` (cron Mon/Thu 03:17
@@ -389,9 +399,7 @@ library, no backend SDK — the biggest JS dependency is React itself.
   design it. Do not build until he picks a shape.
 - Agreed next: meal polish (reactive to tester feedback),
   calories-vs-weight overlay on the insights card (wait for a few weeks
-  of weigh-in data). Last audit leftover: landing copy loop-closing —
-  owner is mulling the wording (his verbatim words required, do not
-  draft-and-ship). Shelved by owner: browser
+  of weigh-in data). Shelved by owner: browser
   hosting on his own site, copy-yesterday (rejected), Reps Notion
   import, Reps sync (needs per-app schema change first — one row per
   user per app, or Tally/Reps would overwrite each other).

@@ -14,8 +14,8 @@ const SLASH_TICK = 810;
 
 /**
  * One-time landing page, rendered on a fresh install only (lib/welcome.ts
- * decides). One screen, no carousel: the name, the pitch, three facts,
- * one button. "Log in" is for people setting up a new phone.
+ * decides). One screen, no carousel: the name, the owner's pitch in his
+ * exact words, one button. "Log in" is for people setting up a new phone.
  *
  * Tapping Start plays the delighter: the page clears and the app icon's
  * tally is drawn stroke by stroke, a haptic tick per stroke, then the
@@ -67,14 +67,10 @@ export default function Welcome({ onStart, onLogIn }: Props) {
       </div>
       <div className="welcome-body">
         <h1 className="welcome-title">A simple way to track calories</h1>
-        <p className="welcome-line">Log calories in just a couple taps.</p>
+        <p className="welcome-line">Log meals easily.</p>
         <p className="welcome-line">
-          Add meals and foods you frequently eat to the menu. Additionally
-          view your eating history in the history tab.
-        </p>
-        <p className="welcome-line">
-          Optionally track your weight and additional macros for more
-          comprehensive tracking.
+          Save your favourite foods, track your daily intake, and see your
+          progress over time.
         </p>
       </div>
       <div className="sheet-actions welcome-actions">

@@ -10,6 +10,17 @@ When cutting a new version: bump `package.json` and
 here, and keep the "What's new" text for Play releases short enough to
 paste straight from the summary line.
 
+## 2.20.1 — code 68 — 2026-11-11
+
+- The first-launch page is simpler, in the owner's words: "A simple way
+  to track calories", then "Log meals easily." and "Save your favourite
+  foods, track your daily intake, and see your progress over time."
+  The old paragraphs about the menu, history, weight and macros are
+  gone. Logo, Start tallying and the log-in link stay where they were.
+- On a very short screen or with zoomed text the page now scrolls
+  instead of cutting anything off, and the headline wraps evenly when
+  it has to wrap.
+
 ## 2.20.0 — code 67 — 2026-09-15
 
 Caffeine.
